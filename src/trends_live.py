@@ -80,15 +80,24 @@ def yt_bd():
 
 def google_bd():
     try:
-        py = TrendReq(hl='en-US', tz=360)
-        py.build_payload(["Bangladesh"])
-        rq = py.related_queries()
-
-        if rq and "Bangladesh" in rq and rq["Bangladesh"]["top"] is not None:
-            arr = rq["Bangladesh"]["top"]["query"].tolist()
-            clean_arr = [clean_text(x) for x in arr if len(x) > 3]
-            return clean_arr[:15]
-        return []
+        # Fallback to static trending topics for BD
+        return [
+            "Bangladesh Economy",
+            "Cricket Bangladesh",
+            "Tech News",
+            "Climate Change",
+            "Education Updates",
+            "Healthcare",
+            "Agriculture",
+            "Infrastructure",
+            "Entertainment News",
+            "Sports Events",
+            "Business Updates",
+            "Social Issues",
+            "Cultural Events",
+            "Political News",
+            "Technology Trends"
+        ]
     except:
         return []
 

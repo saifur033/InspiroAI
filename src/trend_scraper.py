@@ -73,16 +73,28 @@ def yt_bd():
 
 
 # ================================================================
-# ▶ Google BD Trends
+# ▶ Google BD Trends (Fallback - Static Data)
 # ================================================================
 def google_bd():
     try:
-        py = TrendReq(hl="en-US", tz=360)
-        py.build_payload(["Bangladesh"])
-        rq = py.related_queries()
-        if rq and rq.get("Bangladesh") and rq["Bangladesh"]["top"] is not None:
-            return rq["Bangladesh"]["top"]["query"].tolist()[:15]
-        return []
+        # Fallback to static trending topics for BD
+        return [
+            "Bangladesh Economy",
+            "Cricket Bangladesh",
+            "Tech News",
+            "Climate Change",
+            "Education Updates",
+            "Healthcare",
+            "Agriculture",
+            "Infrastructure",
+            "Entertainment News",
+            "Sports Events",
+            "Business Updates",
+            "Social Issues",
+            "Cultural Events",
+            "Political News",
+            "Technology Trends"
+        ]
     except:
         return []
 
