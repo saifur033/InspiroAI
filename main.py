@@ -27,7 +27,10 @@ from gtts import gTTS
 # ---------------------------------------------------------
 # NLP INIT
 # ---------------------------------------------------------
-nltk.download("punkt")
+try:
+    nltk.download("punkt", quiet=True)
+except:
+    pass  # Fail gracefully if download fails
 DetectorFactory.seed = 0
 
 # ---------------------------------------------------------
