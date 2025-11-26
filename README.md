@@ -11,13 +11,13 @@ Associate Professor, CSE Department
 
 ---
 
-## **Abstract—**
+## **Abstract**
 
 This paper presents *InspiroAI*, a context-aware caption optimization and social media automation system designed to assist creators, marketers, and businesses in generating impactful social media content. The system integrates natural language processing, AI-based sentiment analysis, authenticity detection, SEO scoring, image caption generation, comment generation, and automated Facebook posting. The model is capable of rewriting captions in multiple tones, generating hashtags, predicting reach, scheduling posts, and assisting with automatic sharing when engagement goals are met. InspiroAI offers both a Free Mode for general users and a Pro Mode with extended automation, making it applicable for real-world marketing and media management.
 
 ---
 
-## **Index Terms—**
+## **Index Terms**
 
 AI Captioning, NLP, Social Media Optimization, Facebook Graph API, Sentiment Analysis, Image Captioning, Auto Scheduling, Automation, Flask Application.
 
