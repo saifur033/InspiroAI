@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inspiro AI – Pro Mode</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_super.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_pro.css') }}">
+    <script src="{{ url_for('static', filename='js/loader.js') }}" defer></script>
+
+    <style>
+        body.inspiro-bg {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            background: linear-gradient(180deg, #0D0F23, #070716) !important;
+        }
+
+        * { visibility: visible !important; }
+        main.page-container { display: block !important; visibility: visible !important; opacity: 1 !important; }
+        header.nav-wrapper { display: flex !important; visibility: visible !important; }
+        .section-block { display: block !important; visibility: visible !important; }
+
+        .glass-card {
+            background: rgba(20,18,45,.55) !important;
+            border: 1px solid rgba(150,130,255,.35) !important;
+            padding: 20px;
+            border-radius: 18px;
+            box-shadow: 0 0 28px rgba(150,130,255,.18);
+            backdrop-filter: blur(14px);
+            transition: all 0.3s ease;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .caption-textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 12px;
+            background: rgba(12,10,30,.78);
+            border: 1px solid rgba(150,130,255,.35);
+            color: #fff;
+            resize: vertical;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.25s ease;
+        }
+
+        .caption-textarea:focus {
+            background: rgba(12,10,30,.95);
+            border-color: rgba(150,130,255,.55);
+            box-shadow: 0 0 16px rgba(150,130,255,.2);
+            outline: none;
+        }
+
+        .analysis-card, .opt-card {
+            background: rgba(15,13,35,.6);
+            border: 1px solid rgba(150,130,255,.35);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 0 30px rgba(150,130,255,.25);
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+        }
+
+        .analysis-card:hover, .opt-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(150,130,255,.35);
+            border-color: rgba(150,130,255,.6);
+        }
+
+        .analysis-card h3, .opt-card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 12px;
+            color: #d5c8ff;
+            font-weight: 600;
+        }
+
+        .analysis-card p, .analysis-card span, .analysis-card li,
+        .analysis-card ul, .analysis-card div,
+        .opt-card p, .opt-card span, .opt-card li,
+        .opt-card ul, .opt-card div,
+        .glass-card p, .glass-card span, .glass-card label,
+        .glass-card h2, .glass-card button {
+            color: #ffffff !important;
+            font-weight: 500;
+        }
+
+        .analyze-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 18px;
+        }
+
+        .optimize-grid {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .mono-box {
+            white-space: pre-wrap;
+            background: rgba(10,8,30,.7);
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid rgba(140,120,255,.28);
+            font-size: 16px;
+            word-break: break-word;
+            font-family: 'Poppins', sans-serif;
+            color: #fff !important;
+            display: block !important;
+            min-height: 120px;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+
+        h2, h3, p, span, label, li, ul {
+            color: #ffffff !important;
+            visibility: visible !important;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .section-title {
+            font-size: 1.65rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #d5c8ff, #a695ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-block {
+            margin-bottom: 28px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8A7AFF, #6F5BFF);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(138, 122, 255, 0.5);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-ghost {
+            background: rgba(138, 122, 255, 0.1);
+            color: #8A7AFF;
+            border: 1px solid #8A7AFF;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .btn-ghost:hover:not(:disabled) {
+            background: rgba(138, 122, 255, 0.2);
+        }
+
+        .btn-ghost.small {
+            padding: 6px 12px;
+            font-size: 11px;
+        }
+
+        .select-input {
+            padding: 10px 12px;
+            background: rgba(12,10,30,.78);
+            border: 1px solid rgba(150,130,255,.35);
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .select-input:focus {
+            border-color: rgba(150,130,255,.55);
+            box-shadow: 0 0 12px rgba(150,130,255,.2);
+            outline: none;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(12,10,30,.78);
+            border: 1px solid rgba(150,130,255,.35);
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.25s ease;
+        }
+
+        .text-input:focus {
+            border-color: rgba(150,130,255,.55);
+            box-shadow: 0 0 12px rgba(150,130,255,.2);
+            outline: none;
+        }
+
+        .hashtag-display {
+            color: #fff;
+            padding: 12px;
+            background: rgba(150,130,255,.15);
+            border-radius: 8px;
+            word-break: break-word;
+            line-height: 2;
+            letter-spacing: 0.5px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .hashtag-display span {
+            display: inline-block;
+            background: rgba(138,122,255,0.25);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        /* Pro Feature Cards - Collapsible */
+        .pro-feature-card {
+            background: rgba(20,18,45,.55);
+            border: 1px solid rgba(150,130,255,.35);
+            border-radius: 18px;
+            box-shadow: 0 0 28px rgba(150,130,255,.18);
+            backdrop-filter: blur(14px);
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .pro-feature-card:hover {
+            border-color: rgba(150,130,255,.5);
+            box-shadow: 0 8px 40px rgba(150,130,255,.25);
+        }
+
+        .pro-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, rgba(138, 122, 255, 0.1), rgba(138, 122, 255, 0.05));
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 1px solid rgba(150,130,255,.2);
+        }
+
+        .pro-card-header h3 {
+            font-size: 1.1rem;
+            color: #d5c8ff;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pro-card-header .toggle-icon {
+            color: #8A7AFF;
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+
+        .pro-card-body {
+            padding: 20px;
+            display: block;
+        }
+
+        .pro-feature-card.collapsed .pro-card-body {
+            display: none;
+        }
+
+        .pro-feature-card.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #d5c8ff !important;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .result-box {
+            background: rgba(10,8,30,.7);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid rgba(140,120,255,.28);
+            min-height: 80px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #fff;
+        }
+
+        .status-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .status-success {
+            background: rgba(74, 222, 128, 0.15);
+            border: 1px solid rgba(74, 222, 128, 0.4);
+            color: #4ade80;
+        }
+
+        .status-error {
+            background: rgba(248, 113, 113, 0.15);
+            border: 1px solid rgba(248, 113, 113, 0.4);
+            color: #f87171;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin: 12px 0;
+            display: none;
+        }
+
+        .image-preview.visible {
+            display: block;
+        }
+
+        @media (max-width: 1024px) {
+            .analyze-grid, .optimize-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 14px;
+            }
+            .glass-card, .pro-feature-card { padding: 16px; }
+            .section-title { font-size: 1.4rem; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .analyze-grid, .optimize-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .glass-card, .pro-feature-card { padding: 14px; }
+            .caption-textarea { height: 100px; font-size: 15px; }
+            .analysis-card, .opt-card { padding: 12px; }
+            .analysis-card h3, .opt-card h3 { font-size: 1.05rem; }
+            .section-title { font-size: 1.3rem; margin-bottom: 16px; }
+        }
+
+        @media (max-width: 600px) {
+            .analyze-grid, .optimize-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .glass-card, .pro-feature-card { padding: 12px; }
+            .caption-textarea { height: 90px; font-size: 15px; padding: 10px; }
+            .analysis-card, .opt-card { padding: 10px; }
+            .analysis-card h3, .opt-card h3 { font-size: 1rem; margin-bottom: 8px; }
+            .section-title { font-size: 1.2rem; margin-bottom: 12px; }
+            .btn-primary { padding: 10px 16px; font-size: 14px; }
+        }
+
+        #globalLoader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .loader-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loader-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .loader-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #8A7AFF;
+            animation: pulse-dot 1.4s infinite;
+        }
+
+        .loader-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loader-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        .loader-hidden { opacity: 0; transition: opacity 0.3s ease-out; }
+        .loader-visible { opacity: 1; transition: opacity 0.2s ease-in; }
+    </style>
+</head>
+
+<body class="inspiro-bg">
+
+<header class="nav-wrapper glass-nav">
+    <div class="nav-logo">Inspiro <span>AI</span></div>
+    <nav class="nav-links">
+        <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+        <a href="{{ url_for('free_dashboard') }}" class="nav-link">Free</a>
+        <a href="{{ url_for('pro_dashboard') }}" class="nav-link active">Pro</a>
+        <a href="{{ url_for('comment_helper') }}" class="nav-link">Comment</a>
+    </nav>
+</header>
+
+<main class="page-container fade-in">
+
+    <!-- ============ CAPTION ANALYZER & OPTIMIZER ============ -->
+    <section class="section-block">
+        <h1 class="section-title">Pro Mode – Caption Analyzer & Optimizer</h1>
+        <div class="glass-card">
+            <h2>Your Caption</h2>
+            <textarea id="userCaption" class="caption-textarea" placeholder="Type or paste your caption here..."></textarea>
+            <div style="display:flex; justify-content:space-between; gap:10px; margin-top:18px; flex-wrap:wrap;">
+                <button class="btn-primary" id="clearBtn">Clear</button>
+                <button class="btn-primary" id="analyzeBtn">Analyze</button>
+                <button class="btn-primary" id="optimizeBtn">Optimize</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ANALYZE RESULTS -->
+    <section class="section-block">
+        <div id="analyzeResults" class="analyze-grid hidden">
+            <article class="analysis-card">
+                <h3>📊 SEO Analysis</h3>
+                <p><strong>Score:</strong> <span id="seoScore">–</span>/100</p>
+                <p><strong>Grade:</strong> <span id="seoGrade">–</span></p>
+                <ul id="seoSuggestions" style="margin-top:8px; padding-left:20px;"></ul>
+            </article>
+
+            <article class="analysis-card">
+                <h3>😊 Emotion</h3>
+                <p><strong>Type:</strong> <span id="emotionType">–</span></p>
+                <p><strong>Confidence:</strong> <span id="emotionConfidence">–</span></p>
+                <p style="font-size:12px; margin-top:8px; color:#a0a0ff; line-height:1.4;">
+                    <span id="emotionDetails">–</span>
+                </p>
+            </article>
+
+            <article class="analysis-card">
+                <h3>🔍 Authenticity</h3>
+                <p><strong>Human:</strong> <span id="realPercent">–</span>%</p>
+                <p><strong>AI-Generated:</strong> <span id="fakePercent">–</span>%</p>
+                <p style="font-size:12px; margin-top:8px; color:#a0a0ff; line-height:1.4;">
+                    <span id="fakeRealDetails">–</span>
+                </p>
+            </article>
+        </div>
+
+        <!-- SHARE BUTTON -->
+        <div id="shareSection" class="glass-card hidden" style="margin-top:16px; padding:16px; text-align:center;">
+            <button class="btn-primary" id="sharePostBtn" onclick="sharePostToFacebook()" style="width:100%; padding:14px;">🚀 Share to Facebook</button>
+            <div id="shareStatus" style="margin-top:12px; font-size:14px;"></div>
+        </div>
+    </section>
+
+    <!-- OPTIMIZE SECTION -->
+    <section class="section-block">
+        <div id="optimizeSection" class="glass-card hidden">
+            <h2>Optimization Settings</h2>
+            <label style="display:block; margin-bottom:8px; font-weight:600;">Select Tone:</label>
+            <select id="toneSelect" class="select-input" style="margin-bottom:16px; width:100%;">
+                <option value="professional">Professional</option>
+                <option value="friendly">Friendly</option>
+                <option value="emotional">Emotional</option>
+                <option value="trendy">Trendy</option>
+                <option value="funny">Funny</option>
+            </select>
+        </div>
+
+        <div id="optimizeResults" class="optimize-grid hidden" style="margin-top:20px;">
+            <article class="opt-card">
+                <h3>✨ Rewritten Caption</h3>
+                <p id="rewrittenCaption" class="mono-box">–</p>
+                <button class="btn-ghost small" id="copyBtn" style="margin-top:8px; width:100%;">📋 Copy</button>
+            </article>
+
+            <!-- NEW: Caption Styles Selector (Pro Mode) -->
+            <article class="opt-card">
+                <h3>🎨 Caption Styles</h3>
+                <p style="font-size:12px; margin-bottom:10px; color:#a8a0d5;">Select a style to format for different platforms:</p>
+                <select id="captionStyleSelector" style="width:100%; padding:8px; border-radius:6px; background:rgba(12,10,30,.8); color:#fff; border:1px solid rgba(150,130,255,.35); cursor:pointer; margin-bottom:8px;">
+                    <option value="minimal">Minimal (Clean)</option>
+                    <option value="emoji">Emoji Enhanced</option>
+                    <option value="cta">Call-to-Action</option>
+                    <option value="story">Storytelling</option>
+                    <option value="hashtag">Hashtag Heavy</option>
+                    <option value="professional">Professional</option>
+                    <option value="casual">Casual/Friendly</option>
+                    <option value="bold">Bold/Attention</option>
+                </select>
+                <p id="selectedStyle" class="mono-box" style="min-height:80px; max-height:120px; overflow-y:auto; font-size:12px;">–</p>
+                <button class="btn-ghost small" id="copystyledBtn" style="margin-top:8px; width:100%;">📋 Copy Style</button>
+            </article>
+
+            <article class="opt-card">
+                <h3>📈 SEO Improvement</h3>
+                <p><strong>Before:</strong> <span id="oldSeoScore">–</span>/100</p>
+                <p><strong>After:</strong> <span id="newSeoScore">–</span>/100</p>
+                <p style="color:#4ade80; margin-top:8px;"><strong>Gain:</strong> <span id="seoImprovement">–</span></p>
+            </article>
+
+            <article class="opt-card">
+                <h3>😊 Updated Emotion</h3>
+                <p><strong>Type:</strong> <span id="updatedEmotion">–</span></p>
+                <p style="font-size:12px; margin-top:8px; color:#d5c8ff; line-height:1.4;">
+                    <span id="emotionChangeDisplay">–</span>
+                </p>
+            </article>
+
+            <article class="opt-card">
+                <h3>🔍 Updated Authenticity</h3>
+                <p><strong>Human:</strong> <span id="updatedReal">–</span>%</p>
+                <p><strong>AI:</strong> <span id="updatedFake">–</span>%</p>
+                <p style="font-size:12px; margin-top:8px; color:#d5c8ff; line-height:1.4;">
+                    <span id="fakeRealChangeDisplay">–</span>
+                </p>
+            </article>
+        </div>
+
+        <div id="hashtagSection" class="hidden" style="margin-top:20px;">
+            <h3 style="margin-bottom:12px; color:#d5c8ff;">🏷️ Hashtags</h3>
+            <div id="hashtagDisplay" class="hashtag-display">–</div>
+        </div>
+    </section>
+
+    <!-- ============ PRO FEATURES ============ -->
+
+    <!-- TOKEN & PAGE CONNECTION -->
+    <section class="section-block">
+        <div class="pro-feature-card">
+            <div class="pro-card-header" onclick="toggleProCard(this)">
+                <h3>🔐 Token & Page Connection</h3>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="pro-card-body">
+                <div class="form-group">
+                    <label>Facebook Page Token:</label>
+                    <input type="password" id="pageToken" class="text-input" placeholder="Enter your page access token...">
+                </div>
+                <div class="form-group">
+                    <label>Page ID:</label>
+                    <input type="text" id="pageId" class="text-input" placeholder="Enter your Facebook page ID...">
+                </div>
+                <button class="btn-primary" id="saveTokenBtn">💾 Save Settings</button>
+                <div id="tokenStatus"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- IMAGE → CAPTION -->
+    <section class="section-block">
+        <div class="pro-feature-card">
+            <div class="pro-card-header" onclick="toggleProCard(this)">
+                <h3>🖼️ Image → Caption</h3>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="pro-card-body">
+                <div class="form-group">
+                    <label>Upload Image:</label>
+                    <input type="file" id="imageUpload" class="text-input" accept="image/*">
+                </div>
+                <img id="imagePreview" class="image-preview" alt="Preview">
+                <button class="btn-primary" id="generateImageCaptionBtn">🤖 Generate Caption</button>
+                <div id="imageCaptionResult" class="result-box" style="margin-top:12px; display:none;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VOICE → CAPTION -->
+    <section class="section-block">
+        <div class="pro-feature-card">
+            <div class="pro-card-header" onclick="toggleProCard(this)">
+                <h3>🎤 Voice → Caption</h3>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="pro-card-body">
+                <button class="btn-primary" id="recordBtn">🎙️ Start Recording</button>
+                <div class="form-group" style="margin-top:16px;">
+                    <label>Transcript:</label>
+                    <textarea id="voiceTranscript" class="caption-textarea" placeholder="Your voice will be converted to text here..." readonly></textarea>
+                </div>
+                <button class="btn-ghost" id="addVoiceBtn">➕ Add to Caption Box</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- POST SCHEDULER -->
+    <section class="section-block">
+        <div class="pro-feature-card">
+            <div class="pro-card-header" onclick="toggleProCard(this)">
+                <h3>📅 Post Scheduler</h3>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="pro-card-body">
+                <div class="form-group">
+                    <label>Caption to Schedule:</label>
+                    <textarea id="scheduleCaption" class="caption-textarea" placeholder="Enter caption to schedule..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>📅 Date:</label>
+                        <input type="date" id="scheduleDate" class="text-input" required style="padding:10px 12px; font-size:14px; background:#1a1a2e url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236366f1%22 stroke-width=%222%22><rect x=%223%22 y=%224%22 width=%2218%22 height=%2216%22 rx=%222%22/><path d=%22M16 2v4M8 2v4M3 10h18%22/></svg>') no-repeat 95% center; padding-right:40px;">
+                    </div>
+                    <div class="form-group">
+                        <label>🕐 Time:</label>
+                        <input type="time" id="scheduleTime" class="text-input" required style="padding:10px 12px; font-size:14px; background:#1a1a2e url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236366f1%22 stroke-width=%222%22><circle cx=%2212%22 cy=%2712%22 r=%229%22/><polyline points=%2212 6 12 12 16 14%22/></svg>') no-repeat 95% center; padding-right:40px;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Media URL (optional):</label>
+                    <input type="text" id="scheduleMediaUrl" class="text-input" placeholder="https://example.com/image.jpg">
+                </div>
+                <button class="btn-primary" id="schedulePostBtn">📅 Schedule Post</button>
+                <div id="scheduleStatus"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REACH PREDICTOR -->
+    <section class="section-block">
+        <div class="pro-feature-card">
+            <div class="pro-card-header" onclick="toggleProCard(this)">
+                <h3>📈 Reach Predictor</h3>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="pro-card-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Day of Week:</label>
+                        <select id="reachDay" class="select-input" style="width:100%;">
+                            <option value="monday">Monday</option>
+                            <option value="tuesday">Tuesday</option>
+                            <option value="wednesday">Wednesday</option>
+                            <option value="thursday">Thursday</option>
+                            <option value="friday">Friday</option>
+                            <option value="saturday">Saturday</option>
+                            <option value="sunday">Sunday</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Post Type:</label>
+                        <select id="reachType" class="select-input" style="width:100%;">
+                            <option value="non-paid">Non-Paid (Organic)</option>
+                            <option value="paid">Paid (Boosted)</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-primary" id="predictReachBtn">📊 Predict Reach</button>
+                <div id="reachResult" class="result-box" style="margin-top:12px; display:none;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AUTO-SHARE AFTER GOAL -->
+    <section class="section-block">
+        <div class="pro-feature-card">
+            <div class="pro-card-header" onclick="toggleProCard(this)">
+                <h3>🎯 Auto-Share After Goal</h3>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="pro-card-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Metric:</label>
+                        <select id="autoShareMetric" class="select-input" style="width:100%;">
+                            <option value="likes">Likes</option>
+                            <option value="comments">Comments</option>
+                            <option value="shares">Shares</option>
+                            <option value="reach">Reach</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Target Value:</label>
+                        <input type="number" id="autoShareTarget" class="text-input" placeholder="e.g., 100">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Share Caption (when goal reached):</label>
+                    <textarea id="autoShareCaption" class="caption-textarea" placeholder="Caption to post when goal is reached..." style="min-height:100px;">Don't miss this amazing content! 🚀</textarea>
+                </div>
+                <button class="btn-primary" id="saveAutoShareBtn">💾 Save Auto-Share Rule</button>
+                <div id="autoShareStatus"></div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <div class="footer-glass">
+        Made by <b>Saifur Rahman</b> · InspiroAI © 2025
+    </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+
+<script>
+const $id = id => document.getElementById(id);
+const safe = fn => (...args) => { try { return fn(...args); } catch(err) { console.error('[PRO-ERROR]:', err); } };
+
+const showLoader = safe(() => { 
+    if (typeof window.showLoader === 'function') window.showLoader(); 
+});
+
+const hideLoader = safe(() => { 
+    if (typeof window.hideLoader === 'function') window.hideLoader(); 
+});
+
+// ============= COLLAPSIBLE CARDS =============
+function toggleProCard(header) {
+    const card = header.closest('.pro-feature-card');
+    card.classList.toggle('collapsed');
+    console.log('[PRO-UI] Card toggled:', header.querySelector('h3').textContent);
+}
+
+// ============= CAPTION API CALL (SAME AS FREE) =============
+async function processCaption(caption, tone = null) {
+    console.log(`[PRO-API] caption: ${caption.length} chars, tone: ${tone || 'ANALYZE'}`);
+    
+    if (!caption || caption.trim().length < 5) {
+        alert('Caption must be at least 5 characters long.');
+        return null;
+    }
+
+    showLoader();
+
+    try {
+        const payload = tone ? { caption, tone } : { caption };
+        console.log('[PRO-API] Payload:', Object.keys(payload));
+
+        const response = await fetch('/api/process_caption', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        console.log(`[PRO-API] Response keys (${Object.keys(data).length}):`, Object.keys(data));
+        return data;
+
+    } catch (err) {
+        console.error('[PRO-API-ERROR]', err);
+        alert(`Error: ${err.message}`);
+        return null;
+
+    } finally {
+        hideLoader();
+    }
+}
+
+// ============= ANALYZE HANDLER =============
+async function handleAnalyze() {
+    const caption = $id('userCaption').value.trim();
+    if (!caption) {
+        alert('Please enter a caption.');
+        return;
+    }
+
+    const btn = $id('analyzeBtn');
+    btn.disabled = true;
+    btn.textContent = 'Analyzing...';
+
+    try {
+        const result = await processCaption(caption);
+        if (!result) return;
+
+        console.log('[PRO-ANALYZE] Backend response:', result);
+
+        // ========== SEO MAPPING ==========
+        $id('seoScore').textContent = result.seo_score !== undefined ? result.seo_score : '–';
+        $id('seoGrade').textContent = result.seo_grade || '–';
+
+        const suggList = $id('seoSuggestions');
+        suggList.innerHTML = '';
+        if (result.seo_suggestions && Array.isArray(result.seo_suggestions)) {
+            result.seo_suggestions.forEach(tip => {
+                const li = document.createElement('li');
+                li.textContent = tip;
+                li.style.marginBottom = '4px';
+                suggList.appendChild(li);
+            });
+        } else {
+            const li = document.createElement('li');
+            li.textContent = 'Optimize your caption for better reach.';
+            suggList.appendChild(li);
+        }
+
+        // ========== EMOTION MAPPING (EXACT BACKEND VALUES) ==========
+        // ONLY use: result.emotion and result.emotion_confidence
+        // If emotion is empty/null/undefined → show "NEUTRAL"
+        // If confidence is missing → show "0%"
+        const emotionValue = result.emotion;
+        const emotionText = (emotionValue && String(emotionValue).trim() !== '' && emotionValue !== 'undefined') ? String(emotionValue).toUpperCase() : 'NEUTRAL';
+        console.log('[PRO-ANALYZE] Raw emotion value:', emotionValue, 'Type:', typeof emotionValue, 'Converted:', emotionText);
+        
+        // Force update with multiple methods to ensure it works
+        const emotionTypeEl = $id('emotionType');
+        emotionTypeEl.innerHTML = emotionText; // Use innerHTML to force complete replacement
+        emotionTypeEl.textContent = emotionText; // Also set textContent
+        emotionTypeEl.setAttribute('data-emotion', emotionText); // Store in data attribute for verification
+        
+        const confidenceValue = result.emotion_confidence;
+        const confidenceNum = (confidenceValue !== undefined && confidenceValue !== null) ? parseInt(confidenceValue) : 0;
+        const confEl = $id('emotionConfidence');
+        confEl.innerHTML = `${confidenceNum}%`; 
+        confEl.textContent = `${confidenceNum}%`;
+        confEl.setAttribute('data-confidence', confidenceNum);
+        
+        const emotionReason = result.emotion_details || '–';
+        const reasonEl = $id('emotionDetails');
+        reasonEl.innerHTML = emotionReason;
+        reasonEl.textContent = emotionReason;
+        
+        console.log('[PRO-ANALYZE] ✓ Emotion element textContent:', emotionTypeEl.textContent);
+        console.log('[PRO-ANALYZE] ✓ Emotion element innerHTML:', emotionTypeEl.innerHTML);
+        console.log('[PRO-ANALYZE] Emotion:', emotionText, '| Confidence:', confidenceNum + '%', '| Reason:', emotionReason);
+
+        // ========== AUTHENTICITY MAPPING (EXACT BACKEND VALUES) ==========
+        // ONLY use: result.real_percent and result.fake_percent
+        // Human = real_percent, AI = fake_percent
+        // Clamp values between 0-100
+        const realValue = result.real_percent;
+        const fakeValue = result.fake_percent;
+        
+        const realNum = (realValue !== undefined && realValue !== null) ? Math.min(100, Math.max(0, realValue)) : 0;
+        const fakeNum = (fakeValue !== undefined && fakeValue !== null) ? Math.min(100, Math.max(0, fakeValue)) : 0;
+        
+        $id('realPercent').textContent = realNum;
+        $id('fakePercent').textContent = fakeNum;
+        $id('fakeRealDetails').textContent = result.fake_real_details || '–';
+        
+        console.log('[PRO-ANALYZE] Authenticity - Human:', realNum + '%', '| AI:', fakeNum + '%');
+
+        // Store caption for sharing and caption styles
+        window.currentCaption = caption;
+        window.captionStyles = result.caption_styles || {};
+        $id('selectedStyle').textContent = '–';
+        
+        $id('analyzeResults').classList.remove('hidden');
+        $id('shareSection').classList.remove('hidden');
+        $id('optimizeSection').classList.remove('hidden');
+        $id('optimizeResults').classList.add('hidden');
+        $id('hashtagSection').classList.add('hidden');
+
+        console.log('[PRO-ANALYZE] Complete - Share button ready | Caption Styles loaded:', Object.keys(window.captionStyles || {}).length, 'styles');
+
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Analyze';
+    }
+}
+
+// ============= SHARE TO FACEBOOK =============
+async function sharePostToFacebook() {
+    const caption = window.currentCaption;
+    const pageToken = $id('pageToken').value.trim();
+    const pageId = $id('pageId').value.trim();
+    const btn = $id('sharePostBtn');
+    const statusDiv = $id('shareStatus');
+
+    if (!caption) {
+        statusDiv.innerHTML = '<div class="status-message status-error">❌ No caption to share</div>';
+        return;
+    }
+
+    if (!pageToken || !pageId) {
+        statusDiv.innerHTML = '<div class="status-message status-error">❌ Please save token & page ID first (Settings tab)</div>';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Sharing...';
+    statusDiv.innerHTML = '<div class="status-message">Posting to Facebook...</div>';
+
+    try {
+        console.log(`[PRO-SHARE] Posting caption: ${caption.substring(0, 50)}...`);
+        
+        const response = await fetch('/api/facebook_post', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                access_token: pageToken,
+                page_id: pageId,
+                message: caption
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            statusDiv.innerHTML = '<div class="status-message status-success">✅ Posted successfully! Post ID: ' + (data.post_id || 'shared') + '</div>';
+            console.log('[PRO-SHARE] ✓ Post shared');
+        } else {
+            statusDiv.innerHTML = `<div class="status-message status-error">❌ ${data.error || 'Failed to share'}</div>`;
+            console.error('[PRO-SHARE] Error:', data.error);
+        }
+    } catch (err) {
+        console.error('[PRO-SHARE] Exception:', err);
+        statusDiv.innerHTML = `<div class="status-message status-error">❌ Error: ${err.message}</div>`;
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '🚀 Share to Facebook';
+    }
+}
+
+// ============= OPTIMIZE HANDLER =============
+async function handleOptimize() {
+    const caption = $id('userCaption').value.trim();
+    const tone = $id('toneSelect').value.trim();
+    
+    if (!caption) {
+        alert('Please enter a caption first.');
+        return;
+    }
+    if (!tone) {
+        alert('Please select a tone.');
+        return;
+    }
+
+    const btn = $id('optimizeBtn');
+    btn.disabled = true;
+    btn.textContent = 'Optimizing...';
+
+    try {
+        const result = await processCaption(caption, tone);
+        if (!result) return;
+
+        console.log('[PRO-OPTIMIZE] Backend response:', result);
+
+        // Map exactly 10 OPTIMIZE fields
+        $id('rewrittenCaption').textContent = result.optimized_caption || '–';
+
+        // Hashtags (10-25 items)
+        const hashtagContainer = $id('hashtagDisplay');
+        hashtagContainer.innerHTML = '';
+        if (result.hashtags && Array.isArray(result.hashtags)) {
+            console.log(`[PRO-OPTIMIZE] Rendering ${result.hashtags.length} hashtags`);
+            result.hashtags.forEach(tag => {
+                const span = document.createElement('span');
+                span.className = 'hashtag-badge';
+                span.textContent = tag;
+                hashtagContainer.appendChild(span);
+            });
+        } else {
+            hashtagContainer.textContent = '–';
+        }
+
+        // SEO Analysis: Before/After/Gain
+        $id('oldSeoScore').textContent = result.old_seo_score !== undefined ? result.old_seo_score : '–';
+        $id('newSeoScore').textContent = result.new_seo_score !== undefined ? result.new_seo_score : '–';
+        $id('seoImprovement').textContent = result.seo_improvement !== undefined ? `+${result.seo_improvement}` : '–';
+
+        // Emotion: Type + Change explanation
+        $id('updatedEmotion').textContent = (result.updated_emotion || '–').toUpperCase();
+        $id('emotionChangeDisplay').textContent = result.emotion_change || '–';
+
+        // Authenticity: Percentages + Change explanation
+        $id('updatedReal').textContent = result.updated_real_percent !== undefined ? result.updated_real_percent : '–';
+        $id('updatedFake').textContent = result.updated_fake_percent !== undefined ? result.updated_fake_percent : '–';
+        $id('fakeRealChangeDisplay').textContent = result.fake_real_change || '–';
+
+        // Store caption styles for style selector
+        window.captionStyles = result.caption_styles || {};
+        $id('selectedStyle').textContent = '–';
+
+        // Show results sections
+        $id('analyzeResults').classList.add('hidden');
+        $id('optimizeResults').classList.remove('hidden');
+        $id('hashtagSection').classList.remove('hidden');
+
+        console.log('[PRO-OPTIMIZE] Complete - all fields rendered + Caption Styles loaded:', Object.keys(window.captionStyles || {}).length, 'styles');
+
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Optimize';
+    }
+}
+
+// ============= COPY HANDLER =============
+async function handleCopy() {
+    const text = $id('rewrittenCaption').textContent;
+    if (!text || text === '–') {
+        console.log('[PRO-COPY] No caption to copy');
+        return;
+    }
+
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+        } else {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+        }
+        
+        const btn = $id('copyBtn');
+        const oldText = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => btn.textContent = oldText, 1500);
+    } catch (err) {
+        console.error('[PRO-COPY-ERROR]', err);
+        alert(`Copy failed: ${err.message}`);
+    }
+}
+
+// ============= TOKEN SETTINGS =============
+async function saveTokenSettings() {
+    const token = $id('pageToken').value.trim();
+    const pageId = $id('pageId').value.trim();
+    const statusDiv = $id('tokenStatus');
+    const btn = $id('saveTokenBtn');
+
+    if (!token || !pageId) {
+        statusDiv.innerHTML = '<div class="status-message status-error">Please fill in all fields</div>';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    showLoader();
+
+    try {
+        const response = await fetch('/api/save_settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, page_id: pageId })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            statusDiv.innerHTML = '<div class="status-message status-success">✓ Token saved successfully!</div>';
+        } else {
+            statusDiv.innerHTML = `<div class="status-message status-error">✗ ${data.error || 'Failed to save'}</div>`;
+        }
+    } catch (err) {
+        statusDiv.innerHTML = `<div class="status-message status-error">✗ ${err.message}</div>`;
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Save Settings';
+        hideLoader();
+    }
+}
+
+// ============= IMAGE CAPTION =============
+function handleImageUpload() {
+    const fileInput = $id('imageUpload');
+    const preview = $id('imagePreview');
+    
+    if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.classList.add('visible');
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+        
+        // Auto-generate caption after 1.5 seconds (give user time to see preview)
+        console.log('[PRO-IMAGE] Auto-generating caption in 1.5 seconds...');
+        setTimeout(() => {
+            generateImageCaption();
+        }, 1500);
+    }
+}
+
+async function generateImageCaption() {
+    const fileInput = $id('imageUpload');
+    const resultDiv = $id('imageCaptionResult');
+    const btn = $id('generateImageCaptionBtn');
+    
+    if (!fileInput.files || !fileInput.files[0]) {
+        alert('Please upload an image first.');
+        return;
+    }
+
+    const file = fileInput.files[0];
+    console.log(`[PRO-IMAGE] File: ${file.name}, Size: ${file.size} bytes, Type: ${file.type}`);
+
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+    showLoader();
+    resultDiv.style.display = 'block';
+    resultDiv.textContent = 'Generating caption...';
+
+    try {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        console.log('[PRO-IMAGE] Sending to /api/image_caption');
+        const response = await fetch('/api/image_caption', {
+            method: 'POST',
+            body: formData
+        });
+
+        console.log(`[PRO-IMAGE] Response status: ${response.status}`);
+        const data = await response.json();
+        
+        console.log('[PRO-IMAGE] Response data:', data);
+        
+        if (response.ok && data.success && data.caption) {
+            console.log('[PRO-IMAGE] ✓ Caption generated successfully');
+            
+            // Store caption for styling if needed
+            if (data.caption) {
+                window.lastImageCaption = data.caption;
+                window.lastImageHashtags = data.hashtags || [];
+            }
+            
+            const captionHTML = `
+                <div class="caption-result">
+                    <p><strong>✨ Generated Caption:</strong></p>
+                    <p class="mono-box" id="generatedImageCaption" style="word-wrap: break-word; white-space: pre-wrap;">${data.caption}</p>
+                    
+                    ${data.hashtags && data.hashtags.length > 0 ? `
+                        <p><strong>🏷️ Hashtags:</strong></p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+                            ${data.hashtags.map(tag => `<span class="hashtag-badge">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+                        <button class="btn-ghost small" id="copyImageCaption" style="flex: 1; min-width: 140px;">📋 Copy Caption</button>
+                        <button class="btn-ghost small" id="copyImageHashtags" style="flex: 1; min-width: 140px;">🏷️ Copy Hashtags</button>
+                    </div>
+                    
+                    <p style="font-size: 11px; color: #888; margin-top: 8px;">📸 Type: <strong>${data.image_type || 'general'}</strong> | 🎨 Tone: <strong>${data.tone || 'balanced'}</strong></p>
+                </div>
+            `;
+            resultDiv.innerHTML = captionHTML;
+            resultDiv.style.display = 'block';
+            resultDiv.style.visibility = 'visible';
+            resultDiv.classList.remove('hidden');
+            resultDiv.style.opacity = '1';
+            
+            // Add copy button event listeners
+            setTimeout(() => {
+                const copyBtn = $id('copyImageCaption');
+                const copyHashtagsBtn = $id('copyImageHashtags');
+                
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', () => {
+                        const caption = $id('generatedImageCaption')?.textContent || '';
+                        navigator.clipboard.writeText(caption).then(() => {
+                            copyBtn.textContent = '✓ Copied!';
+                            setTimeout(() => { copyBtn.textContent = '📋 Copy Caption'; }, 2000);
+                        }).catch(() => {
+                            const textarea = document.createElement('textarea');
+                            textarea.textContent = caption;
+                            document.body.appendChild(textarea);
+                            textarea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textarea);
+                            copyBtn.textContent = '✓ Copied!';
+                            setTimeout(() => { copyBtn.textContent = '📋 Copy Caption'; }, 2000);
+                        });
+                    });
+                }
+                
+                if (copyHashtagsBtn) {
+                    copyHashtagsBtn.addEventListener('click', () => {
+                        const hashtags = (window.lastImageHashtags || []).map(tag => `#${tag}`).join(' ');
+                        navigator.clipboard.writeText(hashtags).then(() => {
+                            copyHashtagsBtn.textContent = '✓ Copied!';
+                            setTimeout(() => { copyHashtagsBtn.textContent = '🏷️ Copy Hashtags'; }, 2000);
+                        }).catch(() => {
+                            const textarea = document.createElement('textarea');
+                            textarea.textContent = hashtags;
+                            document.body.appendChild(textarea);
+                            textarea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textarea);
+                            copyHashtagsBtn.textContent = '✓ Copied!';
+                            setTimeout(() => { copyHashtagsBtn.textContent = '🏷️ Copy Hashtags'; }, 2000);
+                        });
+                    });
+                }
+            }, 100);
+            
+            console.log('[PRO-IMAGE] Result div updated with copy buttons');
+        } else {
+            const errorMsg = data.error || data.reason || 'Failed to generate caption';
+            console.error('[PRO-IMAGE] Error:', errorMsg);
+            resultDiv.textContent = `❌ ${errorMsg}`;
+            resultDiv.style.display = 'block';
+            resultDiv.style.visibility = 'visible';
+            resultDiv.classList.remove('hidden');
+        }
+    } catch (err) {
+        console.error('[PRO-IMAGE] Exception:', err);
+        resultDiv.textContent = `❌ Error: ${err.message}`;
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '🤖 Generate Caption';
+        hideLoader();
+    }
+}
+
+// ============= VOICE RECORDING =============
+let mediaRecorder = null;
+let audioChunks = [];
+
+async function toggleRecording() {
+    const btn = $id('recordBtn');
+    
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        btn.textContent = '🎙️ Start Recording';
+        return;
+    }
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'recording.webm');
+
+            try {
+                const response = await fetch('/api/voice_caption', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.text) {
+                    $id('voiceTranscript').value = data.text;
+                }
+            } catch (err) {
+                console.error('Voice transcription error:', err);
+            }
+            
+            stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+        btn.textContent = '⏹️ Stop Recording';
+    } catch (err) {
+        alert('Microphone access denied or not available.');
+        console.error('Recording error:', err);
+    }
+}
+
+function addVoiceToCaption() {
+    const transcript = $id('voiceTranscript').value.trim();
+    if (transcript) {
+        const current = $id('userCaption').value;
+        $id('userCaption').value = current ? current + ' ' + transcript : transcript;
+    }
+}
+
+// ============= POST SCHEDULER =============
+async function schedulePost() {
+    const caption = $id('scheduleCaption').value.trim();
+    const date = $id('scheduleDate').value;
+    const time = $id('scheduleTime').value;
+    const mediaUrl = $id('scheduleMediaUrl').value.trim();
+    const statusDiv = $id('scheduleStatus');
+    const btn = $id('schedulePostBtn');
+
+    if (!caption || !date || !time) {
+        statusDiv.innerHTML = '<div class="status-message status-error">❌ Please fill in all required fields (Caption, Date, Time)</div>';
+        return;
+    }
+
+    // Validate date is not in past
+    const selectedDateTime = new Date(`${date}T${time}`);
+    if (selectedDateTime < new Date()) {
+        statusDiv.innerHTML = '<div class="status-message status-error">❌ Schedule time must be in the future</div>';
+        return;
+    }
+
+    const runTime = `${date}T${time}:00`;
+    
+    btn.disabled = true;
+    btn.textContent = '⏳ Scheduling...';
+    showLoader();
+    statusDiv.innerHTML = '<div class="status-message">Processing your request...</div>';
+
+    try {
+        const token = $id('pageToken').value.trim();
+        const pageId = $id('pageId').value.trim();
+        
+        if (!token || !pageId) {
+            statusDiv.innerHTML = '<div class="status-message status-error">❌ Please save token settings first (Settings tab)</div>';
+            return;
+        }
+
+        console.log(`[SCHEDULER] Scheduling for ${date} at ${time}`);
+        const response = await fetch('/api/scheduler/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                token: token,
+                page_id: pageId,
+                caption: caption,
+                media_url: mediaUrl || null,
+                run_time: runTime
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            statusDiv.innerHTML = `<div class="status-message status-success">✅ Post scheduled successfully!<br><small>Date: ${date} | Time: ${time}</small></div>`;
+            $id('scheduleCaption').value = '';
+            $id('scheduleDate').value = '';
+            $id('scheduleTime').value = '';
+            $id('scheduleMediaUrl').value = '';
+            console.log('[SCHEDULER] ✓ Post scheduled');
+        } else {
+            statusDiv.innerHTML = `<div class="status-message status-error">❌ ${data.error || 'Failed to schedule post'}</div>`;
+            console.error('[SCHEDULER] Error:', data.error);
+        }
+    } catch (err) {
+        console.error('[SCHEDULER] Exception:', err);
+        statusDiv.innerHTML = `<div class="status-message status-error">❌ Error: ${err.message}</div>`;
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '📅 Schedule Post';
+        hideLoader();
+    }
+}
+
+// ============= REACH PREDICTOR =============
+async function predictReach() {
+    const day = $id('reachDay').value;
+    const type = $id('reachType').value;
+    const resultDiv = $id('reachResult');
+    const btn = $id('predictReachBtn');
+
+    if (!day || !type) {
+        resultDiv.textContent = 'Please select day and post type';
+        resultDiv.style.display = 'block';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Predicting...';
+    showLoader();
+    resultDiv.style.display = 'block';
+    resultDiv.textContent = 'Calculating...';
+
+    try {
+        console.log(`[REACH] Predicting for: day=${day}, type=${type}`);
+        const response = await fetch('/api/post_reach', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ day, type })
+        });
+
+        const data = await response.json();
+        console.log('[REACH] Response:', data);
+        
+        if (data.success && data.best_time) {
+            resultDiv.innerHTML = `
+                <div style="padding: 12px; background: rgba(100, 200, 255, 0.1); border-radius: 8px;">
+                    <p><strong>📅 Best Time:</strong> ${data.best_time}</p>
+                    <p><strong>⏰ Next Best:</strong> ${data.next_best_time || 'N/A'}</p>
+                    <p><strong>👥 Expected Reach:</strong> ${data.expected_reach?.toLocaleString?.() || data.expected_reach || '0'}</p>
+                    <p><strong>💬 Engagement Score:</strong> ${data.engagement_score || '0'}%</p>
+                </div>
+            `;
+            console.log('[REACH] ✓ Results displayed');
+        } else {
+            resultDiv.textContent = `❌ ${data.error || 'Could not predict reach'}`;
+            console.error('[REACH] Error:', data.error);
+        }
+    } catch (err) {
+        console.error('[REACH] Exception:', err);
+        resultDiv.textContent = `❌ Error: ${err.message}`;
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '📊 Predict Reach';
+        hideLoader();
+    }
+}
+
+// ============= AUTO-SHARE =============
+async function saveAutoShare() {
+    const metric = $id('autoShareMetric').value;
+    const target = $id('autoShareTarget').value;
+    const caption = $id('autoShareCaption').value.trim();
+    const statusDiv = $id('autoShareStatus');
+    const btn = $id('saveAutoShareBtn');
+
+    if (!target) {
+        statusDiv.innerHTML = '<div class="status-message status-error">❌ Target value required</div>';
+        return;
+    }
+    
+    if (!caption || caption.length < 5) {
+        statusDiv.innerHTML = '<div class="status-message status-error">❌ Caption required (min 5 characters)</div>';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    showLoader();
+
+    try {
+        const response = await fetch('/api/save_autoshare', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                metric,
+                target: parseInt(target),
+                caption
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            statusDiv.innerHTML = `<div class="status-message status-success">✓ Auto-share rule saved! Will post when ${metric} reaches ${target}</div>`;
+        } else {
+            statusDiv.innerHTML = `<div class="status-message status-error">✗ ${data.error || 'Failed to save'}</div>`;
+        }
+    } catch (err) {
+        statusDiv.innerHTML = `<div class="status-message status-error">✗ ${err.message}</div>`;
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Save Auto-Share Rule';
+        hideLoader();
+    }
+}
+
+// ============= CAPTION STYLES HANDLER (Pro Mode) =============
+function setupCaptionStyleListener() {
+    const selector = $id('captionStyleSelector');
+    if (!selector) return;
+    
+    selector.addEventListener('change', (e) => {
+        const selectedStyle = e.target.value;
+        if (window.captionStyles && window.captionStyles[selectedStyle]) {
+            $id('selectedStyle').textContent = window.captionStyles[selectedStyle];
+        }
+    });
+}
+
+async function handleCopyStyled() {
+    const selectedStyle = $id('captionStyleSelector')?.value || '';
+    const styledCaption = window.captionStyles?.[selectedStyle];
+    
+    if (!styledCaption) {
+        alert('❌ No styled caption selected');
+        return;
+    }
+    
+    try {
+        await navigator.clipboard.writeText(styledCaption);
+        const btn = $id('copystyledBtn');
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+    } catch (err) {
+        console.error('Failed to copy:', err);
+        const textarea = document.createElement('textarea');
+        textarea.textContent = styledCaption;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+    }
+}
+
+// ============= INITIALIZATION =============
+window.addEventListener('DOMContentLoaded', safe(() => {
+    console.log('[PRO-DASHBOARD] Initializing...');
+
+    setTimeout(() => hideLoader(), 300);
+
+    // Caption buttons
+    $id('clearBtn').addEventListener('click', e => {
+        e.preventDefault();
+        $id('userCaption').value = '';
+        $id('analyzeResults').classList.add('hidden');
+        $id('optimizeResults').classList.add('hidden');
+        $id('optimizeSection').classList.add('hidden');
+        $id('hashtagSection').classList.add('hidden');
+        $id('selectedStyle').textContent = '–';
+        window.captionStyles = {};
+    });
+
+    $id('analyzeBtn').addEventListener('click', e => {
+        e.preventDefault();
+        handleAnalyze();
+    });
+
+    // Auto-analyze with 2-second delay (Pro Mode)
+    let autoAnalyzeTimer;
+    $id('userCaption').addEventListener('input', () => {
+        clearTimeout(autoAnalyzeTimer);
+        const caption = $id('userCaption').value.trim();
+        
+        if (caption.length >= 10) {
+            autoAnalyzeTimer = setTimeout(() => {
+                console.log('[PRO-AUTO-ANALYZE] Triggered by auto-delay (2s)');
+                handleAnalyze();
+            }, 2000);
+        }
+    });
+
+    $id('optimizeBtn').addEventListener('click', e => {
+        e.preventDefault();
+        handleOptimize();
+    });
+
+    $id('copyBtn').addEventListener('click', e => {
+        e.preventDefault();
+        handleCopy();
+    });
+
+    // Caption style selector and copy
+    $id('copystyledBtn').addEventListener('click', e => {
+        e.preventDefault();
+        handleCopyStyled();
+    });
+    setupCaptionStyleListener();
+
+    // Token settings
+    $id('saveTokenBtn').addEventListener('click', e => {
+        e.preventDefault();
+        saveTokenSettings();
+    });
+
+    // Image caption
+    $id('imageUpload').addEventListener('change', handleImageUpload);
+    $id('generateImageCaptionBtn').addEventListener('click', e => {
+        e.preventDefault();
+        generateImageCaption();
+    });
+
+    // Voice recording
+    $id('recordBtn').addEventListener('click', e => {
+        e.preventDefault();
+        toggleRecording();
+    });
+    $id('addVoiceBtn').addEventListener('click', e => {
+        e.preventDefault();
+        addVoiceToCaption();
+    });
+
+    // Scheduler
+    $id('schedulePostBtn').addEventListener('click', e => {
+        e.preventDefault();
+        schedulePost();
+    });
+
+    // Reach predictor
+    $id('predictReachBtn').addEventListener('click', e => {
+        e.preventDefault();
+        predictReach();
+    });
+
+    // Auto-share
+    $id('saveAutoShareBtn').addEventListener('click', e => {
+        e.preventDefault();
+        saveAutoShare();
+    });
+
+    console.log('[PRO-DASHBOARD] Ready');
+}));
+</script>
+
+</body>
+</html>

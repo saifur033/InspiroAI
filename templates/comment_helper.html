@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inspiro AI – Comment Helper</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_super.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_pro.css') }}">
+    <script src="{{ url_for('static', filename='js/loader.js') }}" defer></script>
+
+    <style>
+/*---------------------------------------------------------
+  VISIBILITY & DISPLAY FIXES
+---------------------------------------------------------*/
+body.inspiro-bg {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+* {
+    visibility: visible !important;
+}
+
+main.page-container {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/*---------------------------------------------------------
+  GLOBAL RESPONSIVE FIXES
+---------------------------------------------------------*/
+* {
+    box-sizing: border-box;
+}
+
+/* keyword extraction was moved to the server; keep CSS only here */
+
+.comment-result-grid {
+    width: 100%;
+}
+
+textarea {
+    width: 100%;
+    min-height: 140px;
+    resize: vertical;
+}
+
+/*---------------------------------------------------------
+  ACCORDION STYLES (RESPONSIVE)
+---------------------------------------------------------*/
+.accordion {
+    background: rgba(30, 30, 60, 0.7);
+    border: 1px solid rgba(140, 140, 255, 0.35);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.accordion:hover {
+    background: rgba(150, 130, 255, 0.15);
+}
+
+.panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .4s ease, padding .3s ease;
+    padding: 0 10px;
+}
+.panel.open {
+    padding: 10px 10px 15px;
+    max-height: 900px;
+}
+
+/* -------------------- RESULT GRID + CHIPS -------------------- */
+.results-grid{display:none; grid-template-columns: repeat(3,1fr); gap:18px; margin-top:18px}
+.result-card{background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:16px; padding:14px; border:1px solid rgba(138,122,255,0.06); box-shadow: 0 12px 30px rgba(6,6,20,0.6); transition: transform .28s ease, box-shadow .28s ease}
+.result-card:hover{transform: translateY(-8px) rotateX(3deg); box-shadow: 0 40px 80px rgba(6,6,20,0.7)}
+.chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+.chip{background: rgba(138,122,255,0.08); color:#efeaff; padding:6px 10px; border-radius:999px; font-size:15px; border:1px solid rgba(138,122,255,0.12)}
+
+/* Polished headers and glow */
+.result-card h4{margin:0 0 8px 0; font-size:1rem; color:#f5f3ff}
+.result-card .items{display:flex; flex-direction:column; gap:8px; margin-top:6px}
+.result-card:hover{border-color: rgba(138,122,255,0.18); box-shadow: 0 40px 90px rgba(110,86,255,0.12), 0 6px 20px rgba(6,6,20,0.6)}
+.chip:hover{transform:translateY(-2px); box-shadow:0 8px 18px rgba(138,122,255,0.06)}
+
+@media (max-width:980px){
+    .results-grid{display:block; grid-template-columns: 1fr;}
+}
+
+/*---------------------------------------------------------
+  COMMENT ITEM (Responsive)
+---------------------------------------------------------*/
+.comment-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed rgba(255,255,255,0.12);
+    font-size: 1rem;
+}
+.comment-item span {
+    flex: 1;
+    word-wrap: break-word;
+}
+
+/*---------------------------------------------------------
+  COPY BUTTONS
+---------------------------------------------------------*/
+.copyBtn {
+    padding: 5px 10px;
+    background: #6f5bff;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 13px;
+    white-space: nowrap;
+}
+.copyBtn:hover {
+    background: #8573ff;
+}
+
+.copyAllBtn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background: #8573ff;
+    color: white;
+    font-size: 0.95rem;
+}
+
+/*---------------------------------------------------------
+  MOBILE RESPONSIVE FIX
+---------------------------------------------------------*/
+@media (max-width: 768px) {
+
+    .accordion {
+        font-size: 1rem;
+        padding: 12px 14px;
+    }
+
+    .comment-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .copyBtn {
+        margin-top: 6px;
+        align-self: flex-end;
+    }
+
+    textarea {
+        min-height: 120px;
+    }
+}
+
+/* EXTRA SMALL SCREEN FIX */
+@media (max-width: 480px) {
+    .accordion {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+    }
+
+    .copyBtn {
+        width: 100%;
+        text-align: center;
+    }
+}
+    </style>
+</head>
+
+<body class="inspiro-bg">
+
+<header class="nav-wrapper glass-nav">
+    <div class="nav-logo">Inspiro <span>AI</span></div>
+
+    <nav class="nav-links">
+        <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+        <a href="{{ url_for('free_dashboard') }}" class="nav-link">Free</a>
+        <a href="{{ url_for('token_dashboard') }}" class="nav-link">Pro</a>
+        <a href="{{ url_for('comment_helper') }}" class="nav-link active">Comment</a>
+    </nav>
+</header>
+
+<main class="page-container fade-in">
+
+    <!-- INPUT SECTION -->
+    <section class="section-block">
+        <h1 class="section-title">AI Smart Comment Generator</h1>
+
+        <div class="glass-box hover-3d">
+
+            <label class="field-label">Post Caption</label>
+            <textarea id="commentCaption" class="caption-textarea" placeholder="Paste your post caption here..."></textarea>
+
+            <div class="comment-controls">
+                <div>
+                    <label class="field-label">Select Tone:</label>
+                    <select id="commentTone" class="select-input">
+                        <option value="">Auto Detect</option>
+                        <option value="friendly">Friendly</option>
+                        <option value="professional">Professional</option>
+                        <option value="emotional">Emotional</option>
+                        <option value="funny">Funny</option>
+                        <option value="supportive">Supportive</option>
+                        <option value="promotional">Promotional</option>
+                        <option value="informative">Informative</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="field-label">Add Emoji:</label>
+                    <label class="toggle-label"><input type="radio" name="emojiExtra" value="" checked /> Auto Detect</label>
+                    <label class="toggle-label"><input type="radio" name="emojiExtra" value="yes" /> Yes</label>
+                    <label class="toggle-label"><input type="radio" name="emojiExtra" value="no" /> No</label>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="generateCommentBtn">Generate Comments</button>
+            <button class="btn-ghost" id="clearCommentBtn">Clear</button>
+            <div id="commentStatus" style="margin-top:10px;color:#ffd;opacity:0.95;font-size:0.95rem"></div>
+
+        </div>
+    </section>
+
+    <!-- TOPIC -->
+    <section class="section-block">
+        <div class="glass-box hover-3d">
+            <h2>AI Topic Detection</h2>
+            <ul id="topicComments"><li>Waiting for caption...</li></ul>
+        </div>
+    </section>
+
+    <!-- GENERATED RESULT CARDS (hidden until generate) -->
+    <section id="resultsGrid" class="results-grid">
+        <div class="result-card" id="friendlyCard">
+            <h4>Friendly Comments</h4>
+            <div class="chips" id="keywordChips"></div>
+            <div class="items" id="friendlyCommentsCard"></div>
+        </div>
+
+        <div class="result-card" id="professionalCard">
+            <h4>Professional Comments</h4>
+            <div class="items" id="professionalCommentsCard"></div>
+        </div>
+
+        <div class="result-card" id="emotionalCard">
+            <h4>Emotional / Supportive Comments</h4>
+            <div class="items" id="emotionalCommentsCard"></div>
+        </div>
+    </section>
+
+    <!-- ACCORDIONS -->
+    <section id="accordionSection" class="section-block" style="display:none">
+
+        <div class="accordion">Friendly Comments ▼</div>
+        <div class="panel"><div id="friendlyComments"></div></div>
+
+        <div class="accordion">Professional Comments ▼</div>
+        <div class="panel"><div id="professionalComments"></div></div>
+
+        <div class="accordion">Emotional & Supportive ▼</div>
+        <div class="panel"><div id="emotionalComments"></div></div>
+
+        <div class="accordion">TikTok SEO Comments ▼</div>
+        <div class="panel"><div id="tiktokComments"></div></div>
+
+        <div class="accordion">Reels Boost Comments ▼</div>
+        <div class="panel"><div id="reelsComments"></div></div>
+
+    </section>
+
+</main>
+
+
+<script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+
+<script>
+/* Safe wrapper */
+const safe = (fn) => (...args) => {
+  try { return fn(...args); } 
+  catch(err) { console.error('Error:', err); }
+};
+
+/* Hide loader on page load */
+window.addEventListener('DOMContentLoaded', safe(() => {
+  console.log('[DOMContentLoaded] Comment Helper initialized');
+  if(typeof hideLoader === 'function') hideLoader();
+  
+  const genBtn = document.getElementById("generateCommentBtn");
+  if(genBtn) {
+    genBtn.addEventListener("click", generateComments);
+  }
+  
+  // AUTO-GENERATE on caption input (after 1.5 seconds of inactivity)
+  const captionInput = document.getElementById("commentCaption");
+  let autoGenerateTimeout;
+  
+  if(captionInput) {
+    captionInput.addEventListener("input", safe(() => {
+      clearTimeout(autoGenerateTimeout);
+      const caption = captionInput.value.trim();
+      
+      // Auto-generate if caption is 10+ characters
+      if(caption && caption.length >= 10) {
+        const statusBox = document.getElementById('commentStatus');
+        if(statusBox) statusBox.textContent = 'Auto-generating comments from caption...';
+        
+        autoGenerateTimeout = setTimeout(() => {
+          generateComments();
+        }, 1500);
+      }
+    }));
+  }
+  
+  enableAccordion();
+}));
+
+/* ----------------------------------------------------
+   GENERATE COMMENTS (Backend-driven)
+   - Sends caption, tone, and emoji flag to backend
+   - Backend returns structured comment pack with topic detection
+   - Displays comments in glass boxes with copy buttons
+---------------------------------------------------- */
+
+async function generateComments(){
+    const caption = document.getElementById('commentCaption').value.trim();
+    const tone = document.getElementById('commentTone').value;  // Empty = auto-detect
+    const emoji = document.querySelector("input[name='emojiExtra']:checked").value;  // Empty = auto-detect
+    
+    if(!caption) {
+        if(window.toastError) toastError('Enter caption!');
+        else alert('Enter caption!');
+        return;
+    }
+
+    const genBtn = document.getElementById('generateCommentBtn');
+    const statusBox = document.getElementById('commentStatus');
+    if(statusBox) statusBox.textContent = 'Generating comments based on caption sentiment...';
+    if(genBtn) genBtn.disabled = true;
+    if(window.showLoader) showLoader();
+    try{
+        const res = await fetch('/api/comment_helper', { 
+            method: 'POST', 
+            headers: {'Content-Type':'application/json'}, 
+            body: JSON.stringify({ caption, tone, emoji }) 
+        });
+        
+        let j;
+        try {
+            j = await res.json();
+        } catch(e) {
+            throw new Error('Invalid JSON response from server');
+        }
+
+        if(!res.ok) {
+            const errMsg = j && j.error ? j.error : ('Server error: ' + res.status);
+            throw new Error(errMsg);
+        }
+        
+        // Use server-provided keywords and detected tone/emoji if available
+        const keywords = (j && Array.isArray(j.keywords)) ? j.keywords : [];
+        const detectedTone = j.tone || tone || 'auto';
+        const detectedEmoji = j.emoji || emoji || 'auto';
+        const relevanceScore = j.relevance_score || 0;
+        const language = j.language || 'en';
+        const feedback = j.feedback || 'Caption matching verified';
+
+        // Server already returns personalized comments in most cases; display them directly
+        fill('friendlyComments', j.friendly || []);
+        fill('professionalComments', j.professional || []);
+        fill('emotionalComments', j.emotional || []);
+        fill('tiktokComments', j.tiktok || []);
+        fill('reelsComments', j.reels || []);
+
+        // Populate the new 3-column result cards for quick glance
+        fill('friendlyCommentsCard', j.friendly || []);
+        fill('professionalCommentsCard', j.professional || []);
+        fill('emotionalCommentsCard', j.emotional || []);
+
+        // Show the results grid and topic + chips
+        const resultsGrid = document.getElementById('resultsGrid');
+        if(resultsGrid) resultsGrid.style.display = (window.innerWidth <= 980) ? 'block' : 'grid';
+
+        fillTopicWithKeywords(j.topic || ['Post'], keywords);
+
+        // Keep the accordion available below for expanded view
+        document.getElementById('accordionSection').style.display = 'block';
+        enableAccordion();
+        
+        // Show relevance status with language support
+        let statusText;
+        if(language === 'bn') {
+            statusText = `মন্তব্য তৈরি হয়েছে ✓ - Tone: ${detectedTone}, Emoji: ${detectedEmoji}, প্রাসঙ্গিকতা: ${relevanceScore.toFixed(0)}%`;
+        } else {
+            statusText = `Comments generated ✓ - Tone: ${detectedTone}, Emoji: ${detectedEmoji}, Relevance: ${relevanceScore.toFixed(0)}%`;
+        }
+        
+        if(statusBox) statusBox.textContent = statusText;
+        if(window.toastSuccess) toastSuccess('Comments auto-generated!');
+        else console.log('Generated successfully');
+    }catch(err){ 
+        console.error('Comment generation error:', err); 
+        if(statusBox) statusBox.textContent = 'Failed: ' + (err.message || 'unknown error');
+        if(window.toastError) toastError('Failed to generate comments: ' + (err.message||''));
+        else alert('Failed: '+err.message);
+    }
+    finally{ 
+        if(genBtn) genBtn.disabled = false;
+        if(window.hideLoader) hideLoader(); 
+    }
+}
+
+/* -------------------- FILL COMMENT LIST ------------------- */
+function fill(id, list) {
+    let box = document.getElementById(id);
+    if(!box) return;
+    
+    box.innerHTML = "";
+
+    if(!Array.isArray(list) || list.length === 0) {
+        box.innerHTML = '<p style="opacity:0.6;">No comments generated</p>';
+        return;
+    }
+
+    list.forEach(txt => {
+        if(!txt) return;
+        // Escape backticks in text for onclick handler
+        const escapedTxt = (txt || '').replace(/`/g, '\\`').replace(/"/g, '&quot;');
+        box.innerHTML += `
+        <div class="comment-item">
+            <span>${txt}</span>
+            <button class="copyBtn" onclick="copyText('${escapedTxt}')">Copy</button>
+        </div>`;
+    });
+
+    if (list.length > 0) {
+        box.innerHTML += `<button class="copyAllBtn" onclick="copyGroup('${id}')">Copy All</button>`;
+    }
+}
+
+/* TOPIC DETECTION */
+function fillTopic(list) {
+    const topicComments = document.getElementById('topicComments');
+    if(!topicComments) return;
+    
+    topicComments.innerHTML = "";
+    
+    if(!Array.isArray(list)) list = [list];
+    
+    list.forEach(t => {
+        if(t) topicComments.innerHTML += `<li>${t}</li>`;
+    });
+}
+
+/* COPY TO CLIPBOARD */
+function copyText(t) {
+    if(!t) return;
+    if(navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(t).then(() => {
+            if(window.toastSuccess) toastSuccess("Copied!");
+            else alert('Copied!');
+        }).catch(err => {
+            console.error('Copy failed:', err);
+            fallbackCopy(t);
+        });
+    } else {
+        fallbackCopy(t);
+    }
+}
+
+function fallbackCopy(t) {
+    const textarea = document.createElement('textarea');
+    textarea.value = t;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    if(window.toastSuccess) toastSuccess("Copied!");
+    else alert('Copied!');
+}
+
+function copyGroup(id) {
+    let box = document.getElementById(id);
+    if(!box) return;
+    
+    let all = [...box.querySelectorAll('.comment-item span')]
+        .map(e => e.innerText)
+        .filter(t => t)
+        .join("\n");
+    
+    if(!all) return;
+    
+    if(navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(all).then(() => {
+            if(window.toastSuccess) toastSuccess("Copied all comments!");
+            else alert('Copied all!');
+        }).catch(err => {
+            console.error('Copy failed:', err);
+            fallbackCopy(all);
+        });
+    } else {
+        fallbackCopy(all);
+    }
+}
+
+/* ACCORDION TOGGLE */
+function enableAccordion() {
+    document.querySelectorAll(".accordion").forEach(acc => {
+        acc.onclick = () => {
+            const panel = acc.nextElementSibling;
+            if(panel && panel.classList.contains('panel')) {
+                panel.classList.toggle("open");
+            }
+        };
+    });
+}
+
+/* populate topic list using server keywords fallback */
+function fillTopicWithKeywords(list, keywords){
+    const topicComments = document.getElementById('topicComments');
+    if(!topicComments) return;
+    topicComments.innerHTML = '';
+
+    const topics = Array.isArray(list) ? list : [list];
+
+    // render topic sentences
+    for(let i=0;i<5;i++){
+        const t = topics[i] || topics[0] || 'Post';
+        let text = '';
+        if(Array.isArray(keywords) && keywords.length){
+            // use the first keyword for a short example sentence
+            const kw = keywords[i] || keywords[0];
+            text = `${i+1}. A thoughtful ${t.toLowerCase()} about ${kw}.`;
+        } else {
+            text = `${i+1}. A relevant ${t.toLowerCase()} comment.`;
+        }
+        topicComments.innerHTML += `<li>${text}</li>`;
+    }
+
+    // render keyword chips
+    const chipsBox = document.getElementById('keywordChips');
+    if(chipsBox){
+        chipsBox.innerHTML = '';
+        if(Array.isArray(keywords) && keywords.length){
+            keywords.forEach(k=>{
+                const span = document.createElement('span');
+                span.className = 'chip';
+                span.innerText = k;
+                chipsBox.appendChild(span);
+            });
+        }
+    }
+}
+
+/* CLEAR */
+const clearCommentBtn = document.getElementById('clearCommentBtn');
+if(clearCommentBtn) {
+    clearCommentBtn.onclick = () => {
+        const commentCaption = document.getElementById('commentCaption');
+        if(commentCaption) commentCaption.value = "";
+        const accordionSection = document.getElementById('accordionSection');
+        if(accordionSection) accordionSection.style.display = "none";
+        const resultsGrid = document.getElementById('resultsGrid');
+        if(resultsGrid) resultsGrid.style.display = 'none';
+        const chipsBox = document.getElementById('keywordChips');
+        if(chipsBox) chipsBox.innerHTML = '';
+        const statusBox = document.getElementById('commentStatus');
+        if(statusBox) statusBox.textContent = '';
+        const topicBox = document.getElementById('topicComments');
+        if(topicBox) topicBox.innerHTML = '<li>Waiting for caption...</li>';
+    };
+}
+</script>
+
+</body>
+</html>

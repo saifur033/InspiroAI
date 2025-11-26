@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>InspiroAI Scheduler</title>
+
+    <style>
+        body {
+            background: #0b0d17;
+            font-family: Arial;
+            color: white;
+            padding: 20px;
+        }
+        .box {
+            background: #171b2d;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 12px #0008;
+        }
+        input, textarea {
+            width: 100%;
+            margin-top: 8px;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            background: #10121f;
+            color: white;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #6f5bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #8a7aff;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+        }
+        td, th {
+            padding: 10px;
+            background: #111423;
+            border-bottom: 1px solid #222;
+        }
+    </style>
+
+</head>
+<body>
+
+<h1>📅 InspiroAI Auto Scheduler</h1>
+
+<div class="box">
+    <h2>Add New Schedule</h2>
+
+    <label>Page Access Token</label>
+    <input id="token" />
+
+    <label>Page ID</label>
+    <input id="page_id" />
+
+    <label>Caption</label>
+    <textarea id="caption"></textarea>
+
+    <label>Media URL (optional)</label>
+    <input id="media_url" />
+
+    <label>Publish Time (YYYY-MM-DD HH:MM:SS)</label>
+    <input id="run_time" placeholder="2025-01-20 15:45:00" />
+
+    <button onclick="addJob()">Add Scheduler</button>
+</div>
+
+<div class="box">
+    <h2>All Scheduled Jobs</h2>
+    <table id="job_table"></table>
+</div>
+
+
+<script>
+async function addJob() {
+    let payload = {
+        token: document.getElementById("token").value,
+        page_id: document.getElementById("page_id").value,
+        caption: document.getElementById("caption").value,
+        media_url: document.getElementById("media_url").value,
+        run_time: document.getElementById("run_time").value
+    };
+
+    const res = await fetch("/api/scheduler/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    alert(data.message);
+    loadJobs();
+}
+
+
+async function loadJobs() {
+    const res = await fetch("/api/scheduler/list");
+    const data = await res.json();
+
+    let html = `
+        <tr>
+            <th>Job ID</th>
+            <th>Run Time</th>
+            <th>Action</th>
+        </tr>
+    `;
+
+    data.jobs.forEach(j => {
+        html += `
+            <tr>
+                <td>${j.id}</td>
+                <td>${j.run_time}</td>
+                <td>
+                    <button onclick="deleteJob('${j.id}')">Delete</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("job_table").innerHTML = html;
+}
+
+async function deleteJob(id) {
+    const res = await fetch("/api/scheduler/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+    });
+
+    const data = await res.json();
+    alert(data.message);
+    loadJobs();
+}
+
+loadJobs();
+</script>
+
+</body>
+</html>

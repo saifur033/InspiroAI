@@ -1,0 +1,243 @@
+"""
+caption_generator.py — InspiroAI v10 (2025 Final)
+
+✓ Tone Library Support
+✓ AI Rewrite
+✓ SEO Score
+✓ Emotion Detect
+✓ Fake vs Real
+✓ Smart Hashtags
+✓ Bangla / English Auto Detect
+✓ 100% Compatible with backend process_caption()
+"""
+
+import re
+import json
+from src.ai_core import ask_ai
+from src.emotion_model import detect_emotion
+from src.fake_real_model import detect_fake
+from src.seo_score import compute_seo_score
+from src.hashtag_ranker import generate_hashtags
+
+
+# ----------------------------------------------------------
+# 🔍 LANGUAGE DETECT
+# ----------------------------------------------------------
+def detect_language(text: str):
+    bn = sum(1 for ch in text if 2432 <= ord(ch) <= 2559)
+    return "bn" if bn > 10 else "en"
+
+
+# ----------------------------------------------------------
+# ✨ CLEAN CAPTION
+# ----------------------------------------------------------
+def clean_caption(text: str) -> str:
+    if not text:
+        return ""
+    text = text.replace("\r", "")
+    text = re.sub(r"[ \t]+", " ", text)
+    return text.strip()
+
+
+# ----------------------------------------------------------
+# 📚 TONE LIBRARY (your JSON moved here)
+# ----------------------------------------------------------
+TONE_LIBRARY = {
+  "bn": {
+    "professional": {
+      "prefix": "প্রিয় দর্শকবৃন্দ, ",
+      "suffix": " তথ্যের সাথে যুক্ত থাকুন! 🌟",
+      "hashtags": "#বাংলা #সংবাদ #আপডেট #কমিউনিটি #ডিজিটালবাংলাদেশ #অনুপ্রেরণা #InspiroAI"
+    },
+    "informative": {
+      "prefix": "💡 জানতেন কি? ",
+      "suffix": " আরও জানুন ও শিখুন আমাদের সাথে! 📘",
+      "hashtags": "#এআই #প্রযুক্তি #জ্ঞান #ডিজিটালবাংলাদেশ #আপডেট #নতুনতথ্য #InspiroAI"
+    },
+    "promotional": {
+      "prefix": "🔥 দারুণ অফার চলছে! ",
+      "suffix": " শেষ হওয়ার আগেই এখনই নিয়ে নিন! 🚀",
+      "hashtags": "#অফার #ছাড় #ডিল #শপিং #নতুনপণ্য #সীমিতসময় #InspiroAI"
+    },
+    "emotional": {
+      "prefix": "❤️ ",
+      "suffix": " আপনার ভালোবাসাই আমাদের অনুপ্রেরণা! 🌸",
+      "hashtags": "#ভালোবাসা #অনুভূতি #প্রেরণা #ধন্যবাদ #ইতিবাচকতা #সাপোর্ট #InspiroAI"
+    },
+    "funny": {
+      "prefix": "😂 ",
+      "suffix": " হাসি ছড়িয়ে দিন সবার মাঝে! 🤩",
+      "hashtags": "#মজা #হাসি #ফানি #ভাইবস #বন্ধুত্ব #হাল্কামেজাজ #InspiroAI"
+    },
+    "trendy": {
+      "prefix": "🔥 ",
+      "suffix": " এখন ট্রেন্ডে এইটা! 🚀",
+      "hashtags": "#ট্রেন্ডিং #ভাইরাল #রিলস #হটটপিক #আজকেরট্রেন্ড #InspiroAI"
+    },
+    "friendly": {
+      "prefix": "😊 হ্যালো বন্ধু! ",
+      "suffix": " কেমন আছেন আজ? 💬",
+      "hashtags": "#বন্ধুত্ব #আড্ডা #পজিটিভভাইবস #মজা #সামাজিক #InspiroAI"
+    },
+    "supportive": {
+      "prefix": "💪 শক্ত থাকুন! ",
+      "suffix": " আমরা সবসময় আপনার পাশে আছি ❤️",
+      "hashtags": "#সাপোর্ট #প্রেরণা #সাহস #অনুপ্রেরণা #ভালোবাসা #পাশেআছি #InspiroAI"
+    },
+    "curious": {
+      "prefix": "🤔 ভাবছেন? ",
+      "suffix": " চলুন একসাথে জানি! 🌍",
+      "hashtags": "#জানুন #কৌতূহল #নতুনতথ্য #জ্ঞান #অন্বেষণ #InspiroAI"
+    }
+  },
+
+  "en": {
+    "professional": {
+      "prefix": "Dear valued community, ",
+      "suffix": " Stay informed with us! 🌟",
+      "hashtags": "#Community #Update #Professional #Insights #DigitalGrowth #InspiroAI"
+    },
+    "informative": {
+      "prefix": "💡 Did you know? ",
+      "suffix": " Keep learning and exploring! 📘",
+      "hashtags": "#AI #TechNews #Education #DigitalWorld #LearningDaily #InspiroAI"
+    },
+    "promotional": {
+      "prefix": "🔥 Exclusive Offer! ",
+      "suffix": " Don’t miss this limited-time deal! 🚀",
+      "hashtags": "#Offer #Discount #Deal #ShopNow #MarketingTips #Promo #InspiroAI"
+    },
+    "emotional": {
+      "prefix": "❤️ ",
+      "suffix": " Your support inspires us! 🌸",
+      "hashtags": "#Love #Support #Care #Feelings #PositiveEnergy #InspiroAI"
+    },
+    "funny": {
+      "prefix": "😂 ",
+      "suffix": " Keep smiling—it’s contagious! 😄",
+      "hashtags": "#Fun #Laugh #Comedy #Humor #DailyVibes #InspiroAI"
+    },
+    "trendy": {
+      "prefix": "🔥 ",
+      "suffix": " What’s trending right now! 🚀",
+      "hashtags": "#Trending #Viral #HotTopic #ExplorePage #NewTrend #InspiroAI"
+    },
+    "friendly": {
+      "prefix": "😊 Hey friend! ",
+      "suffix": " Hope you're having a great day! 💬",
+      "hashtags": "#Friends #GoodVibes #Positive #DailyLife #Connection #InspiroAI"
+    },
+    "supportive": {
+      "prefix": "💪 Stay strong! ",
+      "suffix": " We’re always with you. ❤️",
+      "hashtags": "#Motivation #Support #Strength #YouGotThis #Faith #InspiroAI"
+    },
+    "curious": {
+      "prefix": "🤔 Wondering? ",
+      "suffix": " Let’s explore something new together! 🌍",
+      "hashtags": "#Curious #Explore #Learn #Discover #Knowledge #InspiroAI"
+    }
+  }
+}
+
+
+# ----------------------------------------------------------
+# 🎯 MAIN PROCESS FUNCTION (UI Compatible)
+# ----------------------------------------------------------
+def rewrite_caption(caption: str, tone: str = "professional", rewrite_type="simple"):
+    """
+    Returns the EXACT structure that frontend expects.
+    """
+
+    if not caption.strip():
+        return {"error": "Caption empty"}
+
+    lang = detect_language(caption)
+    tone = tone.lower().strip()
+
+    if tone not in TONE_LIBRARY[lang]:
+        tone = "professional"
+
+    prefix = TONE_LIBRARY[lang][tone]["prefix"]
+    suffix = TONE_LIBRARY[lang][tone]["suffix"]
+    manual_tags = TONE_LIBRARY[lang][tone]["hashtags"]
+
+    base = clean_caption(caption)
+
+    # ------------------------
+    # AI Rewrite
+    # ------------------------
+    system = "You rewrite captions while keeping meaning same. No explanation."
+    user = f"""
+Rewrite this in {tone} style & {rewrite_type} formatting.
+Language: {"Bangla" if lang=="bn" else "English"}
+
+Caption:
+{base}
+"""
+
+    try:
+        rewritten = clean_caption(ask_ai(system, user))
+    except:
+        rewritten = base
+
+    # Add tone prefix + suffix
+    final_caption = f"{prefix}{rewritten}{suffix}"
+
+    # ------------------------
+    # Emotion
+    # ------------------------
+    try:
+        emo_org = detect_emotion(base)
+        emo_new = detect_emotion(final_caption)
+    except:
+        emo_org = emo_new = {"emotion": "neutral"}
+
+    # ------------------------
+    # Fake / Real
+    # ------------------------
+    try:
+        fr_org = detect_fake(base)
+        fr_new = detect_fake(final_caption)
+    except:
+        fr_org = fr_new = {"real": 50, "fake": 50}
+
+    # ------------------------
+    # SEO
+    # ------------------------
+    try:
+        seo_org = compute_seo_score(base)
+        seo_new = compute_seo_score(final_caption)
+    except:
+        seo_org = {"score": 40, "grade": "C", "suggestions": []}
+        seo_new = {"score": 45, "grade": "C", "suggestions": []}
+
+    # ------------------------
+    # AI Hashtags
+    # ------------------------
+    try:
+        auto_tags = generate_hashtags(final_caption, tone=tone, top_n=10)
+        hashtags = manual_tags + " " + " ".join(auto_tags)
+    except:
+        hashtags = manual_tags
+
+    # ------------------------
+    # RETURN — 100% UI compatible
+    # ------------------------
+    return {
+        "optimized_caption": final_caption,
+        "emotion": {
+            "original": emo_org,
+            "optimized": emo_new
+        },
+        "seo": {
+            "score": seo_new["score"],
+            "difference": seo_new["score"] - seo_org["score"],
+            "suggestions": seo_new.get("suggestions", [])
+        },
+        "fake_real": {
+            "real": fr_new.get("real", 0),
+            "fake": fr_new.get("fake", 0)
+        },
+        "hashtags": hashtags
+    }

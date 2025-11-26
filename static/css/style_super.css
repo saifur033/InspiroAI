@@ -1,0 +1,927 @@
+/* =========================================================
+   InspiroAI — SUPER UI STYLES (ULTRA PRO PLUS v10.0 — Unified)
+   Home + Free + Pro + Comment All Match 3D + Glass + Neon
+========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+/* RESET */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: "Poppins", system-ui, sans-serif;
+    color: #f5f5ff;
+    background: radial-gradient(circle at top left, #2b2d5f 0, #0d0f23 40%, #050714 100%);
+    min-height: 100vh;
+}
+
+/* GLOBAL HIDDEN */
+.hidden { display: none !important; }
+
+/* =========================================================
+   GLOBAL 3D + GLASS (Unified for all dashboards)
+========================================================= */
+.hover-3d {
+    transform-style: preserve-3d;
+    transition: transform .25s ease;
+}
+
+.glass-box,
+.analysis-card,
+.opt-card,
+.comment-card,
+.trend-card,
+.feature-card {
+    background: rgba(20,22,45,0.55);
+    border-radius: 20px;
+    border: 1px solid rgba(138,122,255,0.35);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+    transition: 0.3s ease-in-out;
+}
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+.nav-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 6vw;
+    backdrop-filter: blur(18px);
+}
+
+.glass-nav {
+    background: rgba(12,10,30,0.85);
+    border-bottom: 1px solid rgba(138,122,255,0.35);
+    box-shadow: 0 10px 30px rgba(5,4,20,0.8);
+}
+
+.nav-logo {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+.nav-logo span { color: #8a7aff; }
+
+.nav-links {
+    display: flex;
+    gap: 1.6rem;
+    flex-wrap: wrap;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #dcd8ff;
+    font-size: 0.98rem;
+    padding: 8px 14px;
+    border-radius: 999px;
+    transition: 0.25s ease;
+}
+.nav-link:hover { color: #fff; }
+.nav-link.active {
+    background: linear-gradient(135deg, #8a7aff, #6f5bff);
+    color: #050519;
+    font-weight: 600;
+}
+
+/* =========================================================
+   RESPONSIVE NAVBAR
+========================================================= */
+@media (max-width: 1024px) {
+    .nav-wrapper {
+        padding: 12px 4vw;
+        gap: 16px;
+    }
+
+    .nav-logo {
+        font-size: 1.4rem;
+    }
+
+    .nav-links {
+        gap: 1.2rem;
+    }
+
+    .nav-link {
+        font-size: 0.92rem;
+        padding: 6px 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-wrapper {
+        flex-wrap: wrap;
+        padding: 10px 16px;
+        gap: 12px;
+    }
+
+    .nav-logo {
+        font-size: 1.2rem;
+    }
+
+    .nav-links {
+        gap: 10px;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .nav-link {
+        font-size: 0.85rem;
+        padding: 6px 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .nav-wrapper {
+        padding: 8px 12px;
+        gap: 8px;
+    }
+
+    .nav-logo {
+        font-size: 1.1rem;
+    }
+
+    .nav-links {
+        gap: 8px;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .nav-link {
+        font-size: 0.8rem;
+        padding: 5px 8px;
+        border-radius: 6px;
+        flex: 1;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-logo {
+        font-size: 1rem;
+    }
+
+    .nav-link {
+        font-size: 0.75rem;
+        padding: 4px 6px;
+    }
+}
+
+/* =========================================================
+   PAGE CONTAINER
+========================================================= */
+.page-container {
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: 32px 16px 64px;
+}
+
+@media (max-width: 1024px) {
+    .page-container {
+        padding: 24px 12px 48px;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-container {
+        padding: 20px 12px 40px;
+    }
+}
+
+@media (max-width: 600px) {
+    .page-container {
+        padding: 16px 10px 32px;
+    }
+}
+
+/* =========================================================
+   HOME PAGE: Feature Grid + Trending
+========================================================= */
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 18px;
+}
+
+.feature-card {
+    padding: 18px;
+}
+.feature-card:hover {
+    transform: translateY(-6px);
+}
+
+@media (max-width: 1024px) {
+    .feature-grid {
+        grid-template-columns: repeat(2,1fr);
+        gap: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .feature-card {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .feature-card {
+        padding: 14px 12px;
+    }
+
+    .feature-card h3 {
+        font-size: 0.95rem;
+        margin-bottom: 10px;
+    }
+
+    .feature-card li {
+        font-size: 12px;
+    }
+}
+
+/* -----------------------------------------
+   Trending Section
+----------------------------------------- */
+.trending-section { margin-top: 40px; }
+
+.trending-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.trend-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.trend-card {
+    padding: 18px;
+}
+
+@media (max-width: 1024px) {
+    .trend-layout {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .trend-layout {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .trend-card {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    .trending-section {
+        margin-top: 24px;
+    }
+
+    .trend-layout {
+        gap: 12px;
+    }
+
+    .trend-card {
+        padding: 14px 12px;
+    }
+
+    .trend-card h3 {
+        font-size: 0.95rem;
+        margin-bottom: 12px;
+    }
+}
+
+/* Trend List */
+#trendList {
+    list-style: none;
+    max-height: 240px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+}
+
+.trend-list-ultra li {
+    background: rgba(40, 30, 90, 0.6);
+    border: 1px solid rgba(140, 120, 255, 0.22);
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    border-radius: 14px;
+    color: #fff;
+    transition: .25s ease;
+}
+.trend-list-ultra li:hover {
+    transform: translateX(6px);
+    box-shadow: 0 0 20px rgba(150,130,255,0.4);
+}
+
+@media (max-width: 768px) {
+    .trend-list-ultra li {
+        padding: 12px 14px;
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+}
+
+@media (max-width: 600px) {
+    #trendList {
+        max-height: 200px;
+        font-size: 0.85rem;
+    }
+
+    .trend-list-ultra li {
+        padding: 10px 12px;
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+}
+
+/* =========================================================
+   GRAPH
+========================================================= */
+#trendGraph {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+    height: 280px;
+    padding: 15px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+@media (max-width: 1024px) {
+    #trendGraph {
+        height: 240px;
+        gap: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    #trendGraph {
+        height: 200px;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 600px) {
+    #trendGraph {
+        height: 160px;
+        gap: 8px;
+        padding: 10px;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media(max-width:1024px){
+    .feature-grid { grid-template-columns: repeat(2,1fr); }
+    .trend-layout { grid-template-columns: 1fr; }
+}
+
+@media(max-width:768px){
+    .feature-grid { grid-template-columns: 1fr; }
+    .trend-layout { grid-template-columns: 1fr; }
+}
+
+@media(max-width:600px){
+    .trend-item { width:30px; }
+    .trend-bar { width:20px; }
+    .trend-label { font-size:9px; }
+}
+
+@media(max-width:480px){
+    .feature-grid { 
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+/* =========================================================
+   INPUT + BUTTONS
+========================================================= */
+.btn-primary,
+.btn-danger,
+.btn-ghost {
+    cursor: pointer;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    transition: .25s ease-in-out;
+}
+
+.btn-primary:hover,
+.btn-danger:hover,
+.btn-ghost:hover {
+    opacity: .85;
+}
+
+@media (max-width: 768px) {
+    .btn-primary,
+    .btn-danger,
+    .btn-ghost {
+        font-size: 13px;
+        padding: 8px 14px;
+    }
+}
+
+@media (max-width: 600px) {
+    .btn-primary,
+    .btn-danger,
+    .btn-ghost {
+        font-size: 12px;
+        padding: 7px 12px;
+    }
+}
+
+/* =========================================================
+   COMPREHENSIVE RESPONSIVE DESIGN - FREE MODE
+========================================================= */
+
+/* TABLETS (768px - 1024px) */
+@media (max-width: 1024px) {
+    .page-container {
+        max-width: 100%;
+        padding: 16px;
+    }
+
+    .section-block {
+        padding: 12px;
+        margin-bottom: 16px;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+    }
+
+    .glass-card {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .analyze-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .optimize-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .analysis-card, .opt-card {
+        padding: 14px;
+    }
+
+    .analysis-card h3, .opt-card h3 {
+        font-size: 1rem;
+    }
+
+    .caption-textarea {
+        font-size: 14px;
+        height: 100px;
+    }
+}
+
+/* MOBILE (480px - 768px) */
+@media (max-width: 768px) {
+    * {
+        box-sizing: border-box;
+    }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    .page-container {
+        max-width: 100%;
+        padding: 12px;
+        margin: 0;
+    }
+
+    /* Navigation */
+    header.nav-wrapper {
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+        border-bottom: 1px solid rgba(150,130,255,.2);
+    }
+
+    .nav-brand {
+        font-size: 1.4rem;
+        text-align: center;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .nav-links a, .nav-links button {
+        font-size: 13px;
+        padding: 8px 12px;
+    }
+
+    /* Sections */
+    .section-block {
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        text-align: center;
+        margin-bottom: 12px;
+    }
+
+    .glass-card {
+        padding: 14px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+    }
+
+    .glass-card h2 {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+
+    /* Grids to single column */
+    .analyze-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .optimize-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    /* Cards */
+    .analysis-card, .opt-card {
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .analysis-card h3, .opt-card h3 {
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+    }
+
+    .analysis-card p, .opt-card p,
+    .analysis-card span, .opt-card span {
+        font-size: 13px;
+    }
+
+    .analysis-card ul {
+        margin: 8px 0;
+        padding-left: 16px;
+        font-size: 12px;
+    }
+
+    /* Textarea and inputs */
+    .caption-textarea {
+        width: 100%;
+        font-size: 14px;
+        height: 120px;
+        padding: 10px;
+    }
+
+    /* Buttons */
+    .btn-primary, .btn-ghost, .btn-secondary {
+        padding: 10px 14px;
+        font-size: 13px;
+        width: auto;
+    }
+
+    .btn-primary {
+        min-width: 70px;
+    }
+
+    /* Flex containers */
+    div[style*="display:flex"][style*="justify-content:space-between"],
+    div[style*="display:flex"][style*="gap:"] {
+        flex-wrap: wrap;
+        gap: 8px !important;
+    }
+
+    /* Select inputs */
+    .select-input {
+        width: 100%;
+        font-size: 13px;
+        padding: 8px 10px;
+    }
+
+    #captionStyleSelector {
+        width: 100% !important;
+        font-size: 13px;
+        padding: 8px 10px;
+    }
+
+    /* Preview boxes */
+    .mono-box {
+        font-size: 11px;
+        padding: 10px;
+        max-height: 100px;
+        overflow-y: auto;
+    }
+
+    /* Hashtags */
+    .hashtag-display {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .hashtag-badge {
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+
+    /* Status messages */
+    .status-message {
+        font-size: 12px;
+        padding: 10px;
+        margin-top: 8px;
+    }
+}
+
+/* SMALL PHONES (320px - 480px) */
+@media (max-width: 480px) {
+    html, body {
+        margin: 0;
+        padding: 0;
+        font-size: 14px;
+    }
+
+    .page-container {
+        max-width: 100%;
+        padding: 8px;
+    }
+
+    header.nav-wrapper {
+        padding: 8px;
+        gap: 8px;
+        flex-direction: column;
+    }
+
+    .nav-brand {
+        font-size: 1.2rem;
+    }
+
+    .nav-links a, .nav-links button {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .section-block {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+    }
+
+    .glass-card {
+        padding: 12px;
+    }
+
+    .glass-card h2 {
+        font-size: 1rem;
+    }
+
+    .analyze-grid, .optimize-grid {
+        gap: 10px;
+    }
+
+    .analysis-card, .opt-card {
+        padding: 10px;
+    }
+
+    .analysis-card h3, .opt-card h3 {
+        font-size: 0.9rem;
+    }
+
+    .analysis-card p, .opt-card p {
+        font-size: 12px;
+    }
+
+    .analysis-card ul {
+        padding-left: 14px;
+    }
+
+    .analysis-card li {
+        font-size: 11px;
+    }
+
+    .caption-textarea {
+        font-size: 13px;
+        height: 100px;
+        padding: 8px;
+    }
+
+    .btn-primary, .btn-ghost {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .select-input {
+        font-size: 12px;
+        padding: 6px 8px;
+    }
+
+    .mono-box {
+        font-size: 10px;
+        padding: 8px;
+        max-height: 80px;
+    }
+
+    .hashtag-badge {
+        font-size: 10px;
+        padding: 4px 6px;
+    }
+
+    .status-message {
+        font-size: 11px;
+    }
+}
+
+/* =========================================================
+   COMPREHENSIVE TYPOGRAPHY RESPONSIVE - ALL PAGES
+   Ensures text is readable on ALL devices
+========================================================= */
+
+/* DESKTOP - Normal sizes */
+@media (min-width: 1025px) {
+    body {
+        font-size: 16px;
+    }
+    
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.75rem; }
+    h3 { font-size: 1.5rem; }
+    h4 { font-size: 1.25rem; }
+    h5, h6 { font-size: 1.1rem; }
+    
+    p, span, label { font-size: 15px; }
+    small { font-size: 13px; }
+    
+    .section-title { font-size: 1.8rem; }
+    .glass-box h2 { font-size: 1.4rem; }
+    .analysis-card h3, .opt-card h3 { font-size: 1.2rem; }
+}
+
+/* LAPTOP/TABLET - Medium sizes */
+@media (min-width: 768px) and (max-width: 1024px) {
+    body {
+        font-size: 15px;
+    }
+    
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+    h4 { font-size: 1.1rem; }
+    
+    p, span, label { font-size: 14px; }
+    small { font-size: 12px; }
+    
+    .section-title { font-size: 1.5rem; }
+    .glass-box h2 { font-size: 1.2rem; }
+    .analysis-card h3, .opt-card h3 { font-size: 1rem; }
+}
+
+/* MOBILE - Optimized sizes */
+@media (min-width: 480px) and (max-width: 767px) {
+    body {
+        font-size: 14px;
+    }
+    
+    h1 { font-size: 1.5rem; line-height: 1.2; }
+    h2 { font-size: 1.3rem; line-height: 1.2; }
+    h3 { font-size: 1.1rem; line-height: 1.2; }
+    h4 { font-size: 1rem; }
+    
+    p, span, label { font-size: 13px; }
+    small { font-size: 11px; }
+    
+    .section-title { font-size: 1.3rem; }
+    .glass-box h2 { font-size: 1.1rem; }
+    .analysis-card h3, .opt-card h3 { font-size: 0.95rem; }
+    
+    /* Ensure word wrapping */
+    h1, h2, h3, p { word-wrap: break-word; word-break: break-word; }
+}
+
+/* SMALL PHONE - Minimum readable sizes */
+@media (max-width: 479px) {
+    body {
+        font-size: 13px;
+    }
+    
+    h1 { font-size: 1.3rem; line-height: 1.15; }
+    h2 { font-size: 1.15rem; line-height: 1.15; }
+    h3 { font-size: 1rem; line-height: 1.15; }
+    h4 { font-size: 0.95rem; }
+    
+    p, span, label { font-size: 12px; }
+    small { font-size: 10px; }
+    
+    .section-title { font-size: 1.2rem; letter-spacing: -0.5px; }
+    .glass-box h2 { font-size: 1rem; }
+    .analysis-card h3, .opt-card h3 { font-size: 0.9rem; }
+    
+    /* Better spacing for small screens */
+    h1, h2, h3, p { word-wrap: break-word; word-break: break-word; }
+    
+    /* Ensure all text elements are readable */
+    .mono-box, .hashtag-display, .status-message {
+        line-height: 1.4;
+        word-break: break-word;
+    }
+}
+
+/* EXTRA SMALL (320px) */
+@media (max-width: 320px) {
+    body {
+        font-size: 12px;
+    }
+    
+    h1, h2 { font-size: 1.1rem; }
+    h3 { font-size: 0.95rem; }
+    
+    p, span, label { font-size: 11px; }
+    small { font-size: 9px; }
+    
+    .section-title { font-size: 1.1rem; }
+    
+    /* Compact layouts */
+    .glass-box { padding: 10px; }
+    .analysis-card, .opt-card { padding: 8px; }
+}
+
+/* =========================================================
+   UNIVERSAL READABILITY FIXES
+========================================================= */
+
+/* Ensure all text wraps properly */
+* {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Improve contrast on all text */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Line heights for readability */
+p, span, label, li, a {
+    line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.2;
+    margin-bottom: 0.5em;
+}
+
+/* Textarea readable fonts */
+textarea, input, select {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* Card text readability */
+.glass-box, .analysis-card, .opt-card {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+

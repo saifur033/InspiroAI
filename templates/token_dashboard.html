@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InspiroAI Token - Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0D0F23 0%, #1a1d3a 100%);
+            color: #e0e0ff;
+            min-height: 100vh;
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(13, 15, 35, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #8A7AFF;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(138, 122, 255, 0.15);
+        }
+
+        nav .logo {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8A7AFF, #6F5BFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        nav .links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #a0a0ff;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        nav a:hover {
+            color: #8A7AFF;
+            background: rgba(138, 122, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        nav a.active {
+            color: #8A7AFF;
+            background: rgba(138, 122, 255, 0.2);
+            box-shadow: 0 0 20px rgba(138, 122, 255, 0.4);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .card {
+            background: rgba(26, 29, 62, 0.5);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(138, 122, 255, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(138, 122, 255, 0.1), inset 0 0 30px rgba(138, 122, 255, 0.05);
+        }
+
+        .card:hover {
+            border-color: rgba(138, 122, 255, 0.6);
+            box-shadow: 0 16px 40px rgba(138, 122, 255, 0.2), inset 0 0 40px rgba(138, 122, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #8A7AFF, #6F5BFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 1rem;
+            background: rgba(13, 15, 35, 0.6);
+            border: 2px solid rgba(138, 122, 255, 0.2);
+            border-radius: 12px;
+            color: #e0e0ff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #8A7AFF;
+            background: rgba(13, 15, 35, 0.8);
+            box-shadow: 0 0 20px rgba(138, 122, 255, 0.4);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #8A7AFF, #6F5BFF);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(138, 122, 255, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(138, 122, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(138, 122, 255, 0.1);
+            color: #8A7AFF;
+            border: 2px solid #8A7AFF;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(138, 122, 255, 0.2);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+
+        .status {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status.success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+            display: block;
+        }
+
+        .status.error {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+            border: 1px solid #ff4444;
+            display: block;
+        }
+
+        .visualizer {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+            height: 40px;
+            margin: 1rem 0;
+        }
+
+        .bar {
+            width: 3px;
+            background: linear-gradient(180deg, #8A7AFF, #6F5BFF);
+            border-radius: 2px;
+            animation: pulse 0.3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { height: 10%; }
+            50% { height: 80%; }
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 12px;
+            border: 2px solid #8A7AFF;
+            margin: 1rem 0;
+            box-shadow: 0 0 20px rgba(138, 122, 255, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        label {
+            color: #a0a0ff;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-2, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            nav .links {
+                gap: 1.5rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .card-title {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                padding: 0.8rem 1rem;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            nav .logo {
+                font-size: 18px;
+            }
+
+            nav .links {
+                gap: 0.8rem;
+                font-size: 12px;
+                width: 100%;
+                justify-content: center;
+            }
+
+            nav a {
+                padding: 0.4rem 0.8rem;
+                font-size: 12px;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 1rem;
+                border-radius: 14px;
+                margin-bottom: 1.5rem;
+            }
+
+            .card-title {
+                font-size: 16px;
+                margin-bottom: 1rem;
+            }
+
+            input, select, textarea {
+                padding: 10px 12px;
+                margin-bottom: 0.8rem;
+                font-size: 13px;
+            }
+
+            button {
+                padding: 10px 16px;
+                font-size: 13px;
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            textarea {
+                min-height: 100px;
+            }
+
+            .image-preview {
+                max-height: 200px;
+            }
+
+            label {
+                font-size: 12px;
+                margin-bottom: 0.4rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            nav {
+                padding: 0.6rem 0.8rem;
+            }
+
+            nav .logo {
+                font-size: 16px;
+            }
+
+            nav .links {
+                gap: 0.6rem;
+                font-size: 11px;
+            }
+
+            nav a {
+                padding: 0.3rem 0.6rem;
+                font-size: 11px;
+            }
+
+            .container {
+                padding: 0.8rem;
+            }
+
+            .card {
+                padding: 0.8rem;
+                border-radius: 12px;
+                margin-bottom: 1rem;
+            }
+
+            .card-title {
+                font-size: 14px;
+                margin-bottom: 0.8rem;
+            }
+
+            input, select, textarea {
+                padding: 8px 10px;
+                margin-bottom: 0.6rem;
+                font-size: 12px;
+            }
+
+            button {
+                padding: 8px 12px;
+                font-size: 12px;
+                width: 100%;
+                margin-bottom: 0.4rem;
+            }
+
+            .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.6rem;
+            }
+
+            textarea {
+                min-height: 80px;
+            }
+
+            .visualizer {
+                height: 30px;
+                gap: 2px;
+            }
+
+            .image-preview {
+                max-height: 150px;
+            }
+
+            .status {
+                padding: 0.8rem;
+                font-size: 12px;
+            }
+
+            label {
+                font-size: 11px;
+            }
+
+            p {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            nav {
+                padding: 0.5rem 0.6rem;
+            }
+
+            nav .logo {
+                font-size: 14px;
+            }
+
+            nav .links {
+                font-size: 10px;
+                gap: 0.4rem;
+            }
+
+            nav a {
+                padding: 0.25rem 0.4rem;
+                font-size: 10px;
+            }
+
+            .container {
+                padding: 0.6rem;
+            }
+
+            .card {
+                padding: 0.6rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .card-title {
+                font-size: 13px;
+            }
+
+            input, select, textarea {
+                padding: 6px 8px;
+                font-size: 11px;
+                margin-bottom: 0.4rem;
+            }
+
+            button {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+
+            .grid-4 {
+                gap: 0.4rem;
+            }
+
+            textarea {
+                min-height: 70px;
+            }
+
+            .status {
+                padding: 0.6rem;
+                font-size: 11px;
+            }
+
+            label {
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            nav {
+                flex-direction: column;
+                padding: 0.4rem;
+                gap: 0.4rem;
+            }
+
+            nav .logo {
+                font-size: 12px;
+            }
+
+            nav .links {
+                width: 100%;
+                gap: 0.3rem;
+                font-size: 9px;
+            }
+
+            .container {
+                padding: 0.4rem;
+            }
+
+            .card {
+                padding: 0.5rem;
+                margin-bottom: 0.6rem;
+            }
+
+            .card-title {
+                font-size: 12px;
+            }
+
+            input, select, textarea {
+                padding: 5px 6px;
+                font-size: 10px;
+            }
+
+            button {
+                padding: 5px 8px;
+                font-size: 10px;
+            }
+
+            label {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">✨ InspiroAI</div>
+        <ul class="links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/free_dashboard">Free</a></li>
+            <li><a href="/token_dashboard" class="active">Token</a></li>
+            <li><a href="/comment_helper">Comment</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- Facebook Connection -->
+        <div class="card">
+            <div class="card-title">🔐 Facebook Connection</div>
+            <div class="grid-2">
+                <div>
+                    <label>API Token</label>
+                    <input type="password" id="fbToken" placeholder="Paste your Facebook API token here">
+                </div>
+                <div>
+                    <label>Page ID</label>
+                    <input type="text" id="pageId" placeholder="Your Facebook page ID">
+                </div>
+            </div>
+            <button onclick="connectFacebook()">🔗 Connect</button>
+            <div id="tokenStatus" class="status"></div>
+        </div>
+
+        <!-- Create Caption -->
+        <div class="card">
+            <div class="card-title">📝 Create Caption</div>
+            
+            <label>Language</label>
+            <select id="language" style="margin-bottom: 1rem;">
+                <option value="english">English</option>
+                <option value="bangla">Bangla</option>
+            </select>
+
+            <label>Caption Text</label>
+            <textarea id="captionText" placeholder="Type or paste your caption..."></textarea>
+
+            <div class="grid-4">
+                <button class="btn-secondary" onclick="toggleVoiceRecording()" id="voiceBtn">🎤 Voice</button>
+                <button class="btn-secondary" onclick="document.getElementById('imageInput').click()">🖼️ Image</button>
+                <button class="btn-secondary" onclick="clearCaption()">🗑️ Clear</button>
+                <button class="btn-secondary" onclick="shareCaption()">📤 Share</button>
+            </div>
+
+            <input type="file" id="imageInput" accept="image/jpeg,image/png" style="display: none;" onchange="uploadImage(this)">
+            
+            <div id="voiceVisualizer" class="visualizer hidden">
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            </div>
+
+            <img id="uploadedImage" class="image-preview hidden">
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-title">⚡ Quick Actions</div>
+            <div class="grid-2">
+                <button onclick="analyzeCaption()">📈 Analyze Caption</button>
+                <button onclick="optimizeCaption()">✨ Optimize Caption</button>
+            </div>
+            <div id="analysisStatus" class="status"></div>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="card">
+            <div class="card-title">🚀 Navigate to Pro Features</div>
+            <p style="margin-bottom: 1.5rem; color: #a0a0ff;">Go to Pro Dashboard for advanced features:</p>
+            <div class="grid-2">
+                <a href="/pro_dashboard" style="text-decoration: none;">
+                    <button style="width: 100%;">📊 Pro Dashboard →</button>
+                </a>
+                <a href="/free_dashboard" style="text-decoration: none;">
+                    <button style="width: 100%;">💰 Free Dashboard →</button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let recorder, isRecording = false, audioChunks = [];
+
+        async function connectFacebook() {
+            const token = document.getElementById('fbToken').value.trim();
+            const pageId = document.getElementById('pageId').value.trim();
+
+            if (!token || !pageId) {
+                showStatus('tokenStatus', 'Please enter both token and page ID', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/save_token_settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, page_id: pageId })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showStatus('tokenStatus', '✅ Connected successfully!', 'success');
+                } else {
+                    showStatus('tokenStatus', '❌ ' + (data.error || 'Failed to connect'), 'error');
+                }
+            } catch (err) {
+                showStatus('tokenStatus', '❌ Error: ' + err.message, 'error');
+            }
+        }
+
+        async function toggleVoiceRecording() {
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    recorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    recorder.ondataavailable = (event) => audioChunks.push(event.data);
+                    recorder.onstop = sendVoiceToAPI;
+
+                    recorder.start();
+                    isRecording = true;
+                    document.getElementById('voiceBtn').textContent = '⏹️ Stop';
+                    document.getElementById('voiceVisualizer').classList.remove('hidden');
+                } catch (err) {
+                    alert('Microphone access denied: ' + err.message);
+                }
+            } else {
+                recorder.stop();
+                isRecording = false;
+                document.getElementById('voiceBtn').textContent = '🎤 Voice';
+                document.getElementById('voiceVisualizer').classList.add('hidden');
+            }
+        }
+
+        async function sendVoiceToAPI() {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const formData = new FormData();
+            formData.append('audio', audioBlob);
+
+            try {
+                const response = await fetch('/api/voice_to_text', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('captionText').value += '\n' + data.text;
+                }
+            } catch (err) {
+                console.error('Voice error:', err);
+            }
+        }
+
+        async function uploadImage(input) {
+            if (!input.files[0]) return;
+
+            const formData = new FormData();
+            formData.append('image', input.files[0]);
+
+            try {
+                const response = await fetch('/api/image_caption', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('captionText').value += '\n' + data.caption;
+                    if (data.hashtags) {
+                        const hashtags = data.hashtags.map(h => '#' + h).join(' ');
+                        document.getElementById('captionText').value += '\n' + hashtags;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        document.getElementById('uploadedImage').src = e.target.result;
+                        document.getElementById('uploadedImage').classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            } catch (err) {
+                console.error('Image error:', err);
+            }
+        }
+
+        async function analyzeCaption() {
+            const caption = document.getElementById('captionText').value.trim();
+            if (!caption) {
+                alert('Please enter a caption');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/process_caption', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ caption, action: 'analyze', language: document.getElementById('language').value })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Analysis Complete!\n\nSEO: ' + Math.round(data.seo) + '/100\nEmotion: ' + data.emotion);
+                } else {
+                    alert('❌ ' + (data.error || 'Analysis failed'));
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        async function optimizeCaption() {
+            const caption = document.getElementById('captionText').value.trim();
+            if (!caption) {
+                alert('Please enter a caption');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/process_caption', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ caption, action: 'optimize', tone: 'professional', language: document.getElementById('language').value })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('captionText').value = data.optimized_caption;
+                    alert('✅ Caption optimized!\n\nSEO improved: ' + Math.round(data.old_seo) + ' → ' + Math.round(data.new_seo));
+                } else {
+                    alert('❌ ' + (data.error || 'Optimization failed'));
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        async function shareCaption() {
+            const caption = document.getElementById('captionText').value.trim();
+            if (!caption) {
+                alert('Please enter a caption');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/facebook_post', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ caption })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Posted to Facebook successfully!');
+                } else {
+                    alert('❌ ' + (data.error || 'Failed to post'));
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        function clearCaption() {
+            document.getElementById('captionText').value = '';
+            document.getElementById('uploadedImage').classList.add('hidden');
+            document.getElementById('imageInput').value = '';
+        }
+
+        function showStatus(elementId, message, type) {
+            const elem = document.getElementById(elementId);
+            elem.textContent = message;
+            elem.className = 'status ' + type;
+            setTimeout(() => {
+                if (type !== 'success') elem.className = 'status';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
+
