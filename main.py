@@ -62,15 +62,16 @@ except ImportError:
     def get_live_trends():
         """Fallback trending data when pytrends unavailable"""
         return {
-            "topics": [
-                {"topic": "Technology & AI", "momentum": "Rising 📈", "category": "Tech", "score": 95},
-                {"topic": "Climate Change", "momentum": "Trending 🔥", "category": "Environment", "score": 88},
-                {"topic": "Social Media", "momentum": "Viral 💥", "category": "General", "score": 92},
-                {"topic": "Sports News", "momentum": "Hot 🏆", "category": "Sports", "score": 85},
-                {"topic": "Entertainment", "momentum": "Popular ⭐", "category": "Entertainment", "score": 80},
-                {"topic": "Business Update", "momentum": "Growing 📊", "category": "Business", "score": 78},
-                {"topic": "Health & Wellness", "momentum": "Rising 💪", "category": "Health", "score": 75},
-                {"topic": "Education News", "momentum": "Trending 🎓", "category": "Education", "score": 70},
+            "source": "Fallback Mode",
+            "trends": [
+                {"topic": "Technology & AI", "raw": "Technology & AI", "momentum": "Rising 📈", "category": "Tech", "score": 95},
+                {"topic": "Climate Change", "raw": "Climate Change", "momentum": "Trending 🔥", "category": "General", "score": 88},
+                {"topic": "Social Media", "raw": "Social Media", "momentum": "Viral 💥", "category": "General", "score": 92},
+                {"topic": "Sports News", "raw": "Sports News", "momentum": "Hot 🏆", "category": "Cricket", "score": 85},
+                {"topic": "Entertainment", "raw": "Entertainment", "momentum": "Popular ⭐", "category": "Entertainment", "score": 80},
+                {"topic": "Business Update", "raw": "Business Update", "momentum": "Growing 📊", "category": "General", "score": 78},
+                {"topic": "Health & Wellness", "raw": "Health & Wellness", "momentum": "Rising 💪", "category": "General", "score": 75},
+                {"topic": "Education News", "raw": "Education News", "momentum": "Trending 🎓", "category": "Campus", "score": 70},
             ],
             "graph_data": [65, 72, 68, 85, 92, 88, 95, 90, 78, 82],
             "timestamp": "fallback"
