@@ -5,113 +5,164 @@
 import re
 import random
 import tempfile
-import speech_recognition as sr
+
+try:
+    import speech_recognition as sr
+    HAS_SPEECH_RECOGNITION = True
+except ImportError:
+    HAS_SPEECH_RECOGNITION = False
+    sr = None
 
 from src.utils import detect_language
 
 
 # ---------------------------------------------------------
-# 🎬 Video → Caption Engine
+# 🎬 Video → Caption Engine (Fallback Mode)
 # ---------------------------------------------------------
 def get_caption_from_video(video_path: str) -> dict:
     """
     Extracts audio from video and converts to caption.
-    Returns: {caption, hashtags, duration}
+    Falls back gracefully if speech_recognition unavailable.
     """
+    if not HAS_SPEECH_RECOGNITION:
+        return {
+            "caption": "Video processing unavailable (speech recognition not installed)",
+            "hashtags": [],
+            "duration": 0
+        }
+    
     try:
-        # Try importing moviepy for audio extraction
+        import importlib
+        import os
+
+        # Try to use moviepy first
         try:
-            from moviepy.editor import VideoFileClip
+            moviepy_editor = importlib.import_module("moviepy.editor")
+            VideoFileClip = getattr(moviepy_editor, "VideoFileClip")
+
             clip = VideoFileClip(video_path)
-            duration = int(clip.duration)
-            
+            duration = int(getattr(clip, "duration", 0))
+
             if clip.audio is None:
+                clip.close()
                 return {
                     "caption": "No audio detected in video. Please add audio to the video.",
                     "hashtags": [],
                     "duration": duration
                 }
-            
-            # Extract audio to temp wav file
+
+            # Extract audio to a temp wav file
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_audio:
                 audio_path = tmp_audio.name
-            
+
             clip.audio.write_audiofile(audio_path, verbose=False, logger=None)
-            
-            # Convert audio to text
-            recognizer = sr.Recognizer()
-            with sr.AudioFile(audio_path) as source:
-                audio = recognizer.record(source)
-            
-            try:
-                text = recognizer.recognize_google(audio, language="bn-BD")
-            except sr.UnknownValueError:
-                text = recognizer.recognize_google(audio, language="en-US")
-            
             clip.close()
-            
-            # Clean and beautify
+
+            # Recognize speech from the extracted audio
+            recognizer = sr.Recognizer()
+            try:
+                with sr.AudioFile(audio_path) as source:
+                    audio = recognizer.record(source)
+                try:
+                    text = recognizer.recognize_google(audio, language="bn-BD")
+                except sr.UnknownValueError:
+                    try:
+                        text = recognizer.recognize_google(audio, language="en-US")
+                    except Exception:
+                        text = ""
+                except sr.RequestError:
+                    text = ""
+            except Exception:
+                text = ""
+
+            # Clean up temp file
+            try:
+                if os.path.exists(audio_path):
+                    os.remove(audio_path)
+            except Exception:
+                pass
+
+            if isinstance(text, (list, tuple)):
+                text = " ".join(map(str, text))
+            else:
+                text = "" if text is None else str(text)
+
             lang = detect_language(text)
             caption = _beautify_text(text, lang)
-            
-            # Generate hashtags from caption
-            words = caption.split()
-            hashtags = [f"#{word.lower()}" for word in words if len(word) > 3][:10]
-            
+            hashtags = [f"#{word.lower()}" for word in caption.split() if len(word) > 3][:10]
+
             return {
                 "caption": caption,
                 "hashtags": hashtags,
                 "duration": duration
             }
-        
+
         except ImportError:
-            # Fallback: use FFmpeg if available
+            # Fallback: use FFmpeg extraction
             import subprocess
-            import os
-            
+
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_audio:
                 audio_path = tmp_audio.name
-            
-            # Extract audio using ffmpeg
+
             cmd = [
                 "ffmpeg", "-i", video_path, "-q:a", "9", "-n",
                 "-acodec", "libmp3lame", "-ac", "2", "-ar", "44100",
                 audio_path
             ]
-            
+
             try:
                 subprocess.run(cmd, capture_output=True, timeout=60, check=True)
             except (subprocess.CalledProcessError, FileNotFoundError):
+                try:
+                    if os.path.exists(audio_path):
+                        os.remove(audio_path)
+                except Exception:
+                    pass
                 return {
-                    "caption": "Unable to extract audio from video. FFmpeg not installed.",
+                    "caption": "Unable to extract audio from video. FFmpeg not installed or failed.",
                     "hashtags": [],
                     "duration": 0
                 }
-            
-            # Convert extracted audio to text
+
+            # Use speech_recognition to convert extracted audio to text
             recognizer = sr.Recognizer()
-            with sr.AudioFile(audio_path) as source:
-                audio = recognizer.record(source)
-            
             try:
-                text = recognizer.recognize_google(audio, language="bn-BD")
-            except sr.UnknownValueError:
-                text = recognizer.recognize_google(audio, language="en-US")
-            
+                with sr.AudioFile(audio_path) as source:
+                    audio = recognizer.record(source)
+                try:
+                    text = recognizer.recognize_google(audio, language="bn-BD")
+                except sr.UnknownValueError:
+                    try:
+                        text = recognizer.recognize_google(audio, language="en-US")
+                    except Exception:
+                        text = ""
+                except sr.RequestError:
+                    text = ""
+            except Exception:
+                text = ""
+
             # Clean up temp file
-            if os.path.exists(audio_path):
-                os.remove(audio_path)
-            
+            try:
+                if os.path.exists(audio_path):
+                    os.remove(audio_path)
+            except Exception:
+                pass
+
+            if isinstance(text, (list, tuple)):
+                text = " ".join(map(str, text))
+            else:
+                text = "" if text is None else str(text)
+
             lang = detect_language(text)
             caption = _beautify_text(text, lang)
             hashtags = [f"#{word.lower()}" for word in caption.split() if len(word) > 3][:10]
-            
+
             return {
                 "caption": caption,
                 "hashtags": hashtags,
                 "duration": 0
             }
-    
+
     except Exception as e:
         return {
             "caption": f"Error processing video: {str(e)}",
@@ -175,27 +226,32 @@ def convert_voice(audio_bytes: bytes) -> str:
     """
 
     recognizer = sr.Recognizer()
-
+    temp_path = None
     try:
-        # Save bytes → temp .wav file (SpeechRecognition requires file)
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as temp_file:
+        import os
+        # Save incoming bytes to a temporary WAV file so sr.AudioFile can read it
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
             temp_file.write(audio_bytes)
-            temp_file.flush()
+            temp_path = temp_file.name
 
-            # Read audio
-            with sr.AudioFile(temp_file.name) as source:
-                audio = recognizer.record(source)
+        # Read audio from the temp file
+        with sr.AudioFile(temp_path) as source:
+            audio = recognizer.record(source)
 
-        # Try both English + Bangla (auto failover)
+        # Try both Bangla then English (auto failover)
         try:
             text = recognizer.recognize_google(audio, language="bn-BD")
         except sr.UnknownValueError:
             text = recognizer.recognize_google(audio, language="en-US")
 
-        # Detect actual language
-        lang = detect_language(text)
+        # Ensure recognized result is a string
+        if isinstance(text, (list, tuple)):
+            text = " ".join(map(str, text))
+        else:
+            text = "" if text is None else str(text)
 
-        # Make text beautiful
+        # Detect actual language and beautify
+        lang = detect_language(text)
         final_caption = _beautify_text(text, lang)
 
         return final_caption
@@ -211,3 +267,11 @@ def convert_voice(audio_bytes: bytes) -> str:
 
     except Exception as e:
         return f"Unexpected Error: {e}"
+
+    finally:
+        # Clean up the temporary file if it was created
+        try:
+            if temp_path and os.path.exists(temp_path):
+                os.remove(temp_path)
+        except Exception:
+            pass
