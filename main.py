@@ -55,27 +55,7 @@ USE_LOCAL_AI = os.environ.get("USE_LOCAL_AI", "1").lower() not in ("0", "false",
 # ---------------------------------------------------------
 # TREND ENGINE
 # ---------------------------------------------------------
-# Note: pytrends not in requirements.txt - optional for Render deployment
-try:
-    from src.trend_scraper import get_live_trends
-except ImportError:
-    def get_live_trends():
-        """Fallback trending data when pytrends unavailable"""
-        return {
-            "source": "Fallback Mode",
-            "trends": [
-                {"topic": "Technology & AI", "raw": "Technology & AI", "momentum": "Rising 📈", "category": "Tech", "score": 95},
-                {"topic": "Climate Change", "raw": "Climate Change", "momentum": "Trending 🔥", "category": "General", "score": 88},
-                {"topic": "Social Media", "raw": "Social Media", "momentum": "Viral 💥", "category": "General", "score": 92},
-                {"topic": "Sports News", "raw": "Sports News", "momentum": "Hot 🏆", "category": "Cricket", "score": 85},
-                {"topic": "Entertainment", "raw": "Entertainment", "momentum": "Popular ⭐", "category": "Entertainment", "score": 80},
-                {"topic": "Business Update", "raw": "Business Update", "momentum": "Growing 📊", "category": "General", "score": 78},
-                {"topic": "Health & Wellness", "raw": "Health & Wellness", "momentum": "Rising 💪", "category": "General", "score": 75},
-                {"topic": "Education News", "raw": "Education News", "momentum": "Trending 🎓", "category": "Campus", "score": 70},
-            ],
-            "graph_data": [65, 72, 68, 85, 92, 88, 95, 90, 78, 82],
-            "timestamp": "fallback"
-        }
+from src.trend_scraper import get_live_trends
 
 TREND_HISTORY = {}
 
