@@ -896,15 +896,20 @@ def process_caption():
             lang_detected = detect_language(caption)
             is_bangla = lang_detected == "bn"
             
-            # CRITICAL: Analyze ORIGINAL caption ONLY for SEO/Emotion/Fake-Real
-            # DO NOT analyze optimized_caption - that's the rule
+            # CRITICAL: Analyze ORIGINAL caption FIRST
             try:
                 original_seo = compute_seo_score(caption) or {}
                 old_seo_opt = int(original_seo.get("score", 50)) if isinstance(original_seo, dict) else 50
+                original_emotion = detect_emotion(caption) or {}
+                original_fake_real = detect_fake(caption) or {}
             except Exception:
                 old_seo_opt = 50
+                original_emotion = {}
+                original_fake_real = {}
             
             old_seo_opt = max(0, min(100, old_seo_opt))
+            original_emotion_val = original_emotion.get("emotion", original_emotion.get("top_emotion", "NEUTRAL")).upper() if isinstance(original_emotion, dict) else "NEUTRAL"
+            original_real_pct = int(original_fake_real.get("real", 50)) if isinstance(original_fake_real, dict) else 50
             
             # Get optimized caption (DO NOT re-analyze it)
             try:
@@ -983,6 +988,22 @@ def process_caption():
 
             logger.info(f"[OK] OPTIMIZE: {old_seo_opt} → {new_seo_opt} (+{seo_improvement}), hashtags: {len(hashtags_list)}, emotion: {updated_emotion}")
             
+            # Analyze OPTIMIZED caption for NEW metrics
+            try:
+                optimized_seo = compute_seo_score(new_caption) or {}
+                new_seo_opt = int(optimized_seo.get("score", old_seo_opt)) if isinstance(optimized_seo, dict) else old_seo_opt
+                optimized_emotion = detect_emotion(new_caption) or {}
+                optimized_fake_real = detect_fake(new_caption) or {}
+            except Exception:
+                new_seo_opt = old_seo_opt
+                optimized_emotion = {}
+                optimized_fake_real = {}
+            
+            new_seo_opt = max(0, min(100, new_seo_opt))
+            optimized_emotion_val = optimized_emotion.get("emotion", optimized_emotion.get("top_emotion", updated_emotion)).upper() if isinstance(optimized_emotion, dict) else updated_emotion.upper()
+            optimized_real_pct = int(optimized_fake_real.get("real", 50)) if isinstance(optimized_fake_real, dict) else 50
+            optimized_fake_pct = int(optimized_fake_real.get("fake", 50)) if isinstance(optimized_fake_real, dict) else 50
+            
             # Auto-enhance optimized caption with multiple styles
             optimized_styles = format_caption_styles(new_caption, is_bangla)
             
@@ -990,34 +1011,42 @@ def process_caption():
             result = {
                 "optimized_caption": safe_string(new_caption),
                 "hashtags": hashtags_list,
-                "old_seo_score": max(0, min(100, int(old_seo_opt))),
-                "new_seo_score": max(0, min(100, int(new_seo_opt))),
-                "seo_improvement": max(-100, min(100, seo_improvement)),
-                "updated_emotion": updated_emotion.upper() if isinstance(updated_emotion, str) else "NEUTRAL",
+                "original_seo_score": max(0, min(100, int(old_seo_opt))),
+                "optimized_seo_score": max(0, min(100, int(new_seo_opt))),
+                "seo_improvement": max(-100, min(100, int(new_seo_opt) - int(old_seo_opt))),
+                "original_emotion": original_emotion_val,
+                "optimized_emotion": optimized_emotion_val,
                 "emotion_change": emotion_change_text,
-                "updated_fake_percent": max(0, min(100, int(updated_fake))),
-                "updated_real_percent": max(0, min(100, int(updated_real))),
-                "fake_real_change": fake_real_change_text,
+                "original_real_percent": max(0, min(100, int(original_real_pct))),
+                "original_fake_percent": max(0, min(100, 100 - int(original_real_pct))),
+                "optimized_real_percent": max(0, min(100, int(optimized_real_pct))),
+                "optimized_fake_percent": max(0, min(100, int(optimized_fake_pct))),
+                "authenticity_change": fake_real_change_text,
                 "caption_styles": optimized_styles,
-                "ready_for_facebook": optimized_styles.get("story", new_caption)
+                "ready_for_facebook": optimized_styles.get("story", new_caption),
+                "user_caption_used": "NO - Optimized caption ready to use"
             }
             
             # Validate response structure - NEVER return error, regenerate if invalid
-            if not isinstance(result, dict) or len(result) < 12:
+            if not isinstance(result, dict) or len(result) < 14:
                 # Silently regenerate with fallback
                 result = {
                     "optimized_caption": safe_string(new_caption) if new_caption else caption,
                     "hashtags": hashtags_list[:25] if isinstance(hashtags_list, list) else ["trending"] * 10,
-                    "old_seo_score": max(0, min(100, int(old_seo_opt) if old_seo_opt else 50)),
-                    "new_seo_score": max(0, min(100, int(new_seo_opt) if new_seo_opt else 50)),
-                    "seo_improvement": 0,
-                    "updated_emotion": "NEUTRAL",
+                    "original_seo_score": max(0, min(100, int(old_seo_opt) if old_seo_opt else 50)),
+                    "optimized_seo_score": max(0, min(100, int(new_seo_opt) if new_seo_opt else 50)),
+                    "seo_improvement": max(-100, min(100, int(new_seo_opt - old_seo_opt) if (new_seo_opt and old_seo_opt) else 0)),
+                    "original_emotion": original_emotion_val if original_emotion_val else "NEUTRAL",
+                    "optimized_emotion": optimized_emotion_val if optimized_emotion_val else "NEUTRAL",
                     "emotion_change": emotion_change_text if emotion_change_text else ("অপ্টিমাইজড ক্যাপশন আবেগজনক প্রভাব বৃদ্ধি করে।" if is_bangla else "Optimized caption improves emotional resonance."),
-                    "updated_fake_percent": 50,
-                    "updated_real_percent": 50,
-                    "fake_real_change": fake_real_change_text if fake_real_change_text else ("অপ্টিমাইজড সংস্করণে সত্যতা বজায় থাকে।" if is_bangla else "Authenticity maintained in optimized version."),
+                    "original_real_percent": max(0, min(100, int(original_real_pct))),
+                    "original_fake_percent": max(0, min(100, 100 - int(original_real_pct))),
+                    "optimized_real_percent": max(0, min(100, int(optimized_real_pct))),
+                    "optimized_fake_percent": max(0, min(100, int(optimized_fake_pct))),
+                    "authenticity_change": fake_real_change_text if fake_real_change_text else ("অপ্টিমাইজড সংস্করণে সত্যতা বজায় থাকে।" if is_bangla else "Authenticity maintained in optimized version."),
                     "caption_styles": optimized_styles,
-                    "ready_for_facebook": optimized_styles.get("story", new_caption)
+                    "ready_for_facebook": optimized_styles.get("story", new_caption),
+                    "user_caption_used": "NO - Optimized caption ready to use"
                 }
             
             # Ensure hashtags are valid
