@@ -524,9 +524,10 @@
 
         <div id="optimizeResults" class="optimize-grid hidden" style="margin-top:20px;">
             <article class="opt-card">
-                <h3>✨ Rewritten Caption</h3>
+                <h3>✨ Optimized Caption (Ready to Use!)</h3>
                 <p id="rewrittenCaption" class="mono-box">–</p>
-                <button class="btn-ghost small" id="copyBtn" style="margin-top:8px; width:100%;">📋 Copy</button>
+                <button class="btn-ghost small" id="copyBtn" style="margin-top:8px; width:100%;">📋 Copy to Clipboard</button>
+                <p style="font-size:11px; color:#8A7AFF; margin-top:8px; text-align:center;">✅ No editing needed - ready for Facebook!</p>
             </article>
 
             <!-- NEW: Caption Styles Selector (Pro Mode) -->
@@ -548,26 +549,37 @@
             </article>
 
             <article class="opt-card">
-                <h3>📈 SEO Improvement</h3>
-                <p><strong>Before:</strong> <span id="oldSeoScore">–</span>/100</p>
-                <p><strong>After:</strong> <span id="newSeoScore">–</span>/100</p>
-                <p style="color:#4ade80; margin-top:8px;"><strong>Gain:</strong> <span id="seoImprovement">–</span></p>
+                <h3>📈 SEO Score Change</h3>
+                <p><strong>Original:</strong> <span id="oldSeoScore">–</span>/100</p>
+                <p><strong>Optimized:</strong> <span id="newSeoScore">–</span>/100</p>
+                <p style="color:#4ade80; margin-top:8px; font-weight:bold;"><strong>📊 Improvement:</strong> +<span id="seoImprovement">0</span> points</p>
             </article>
 
             <article class="opt-card">
-                <h3>😊 Updated Emotion</h3>
-                <p><strong>Type:</strong> <span id="updatedEmotion">–</span></p>
+                <h3>😊 Emotion Boost</h3>
+                <p><strong>Original:</strong> <span id="originalEmotion">–</span></p>
+                <p><strong>Optimized:</strong> <span id="updatedEmotion">–</span></p>
                 <p style="font-size:12px; margin-top:8px; color:#d5c8ff; line-height:1.4;">
-                    <span id="emotionChangeDisplay">–</span>
+                    ➜ <span id="emotionChangeDisplay">–</span>
                 </p>
             </article>
 
             <article class="opt-card">
-                <h3>🔍 Updated Authenticity</h3>
-                <p><strong>Human:</strong> <span id="updatedReal">–</span>%</p>
-                <p><strong>AI:</strong> <span id="updatedFake">–</span>%</p>
+                <h3>✔️ Authenticity Check</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div style="border-left: 3px solid #8A7AFF; padding-left: 10px;">
+                        <p style="font-size:12px; color:#a8a0d5;">Original</p>
+                        <p><strong><span id="originalReal">–</span>%</strong> human</p>
+                        <p style="font-size:11px; color:#888;">(<span id="originalFake">–</span>% AI)</p>
+                    </div>
+                    <div style="border-left: 3px solid #4ade80; padding-left: 10px;">
+                        <p style="font-size:12px; color:#a8a0d5;">Optimized</p>
+                        <p><strong><span id="updatedReal">–</span>%</strong> human</p>
+                        <p style="font-size:11px; color:#888;">(<span id="updatedFake">–</span>% AI)</p>
+                    </div>
+                </div>
                 <p style="font-size:12px; margin-top:8px; color:#d5c8ff; line-height:1.4;">
-                    <span id="fakeRealChangeDisplay">–</span>
+                    💡 <span id="fakeRealChangeDisplay">–</span>
                 </p>
             </article>
         </div>
@@ -991,7 +1003,7 @@ async function handleOptimize() {
 
         console.log('[PRO-OPTIMIZE] Backend response:', result);
 
-        // Map exactly 10 OPTIMIZE fields
+        // Map exactly OPTIMIZE fields (with original metrics too)
         $id('rewrittenCaption').textContent = result.optimized_caption || '–';
 
         // Hashtags (10-25 items)
@@ -1009,19 +1021,22 @@ async function handleOptimize() {
             hashtagContainer.textContent = '–';
         }
 
-        // SEO Analysis: Before/After/Gain
-        $id('oldSeoScore').textContent = result.old_seo_score !== undefined ? result.old_seo_score : '–';
-        $id('newSeoScore').textContent = result.new_seo_score !== undefined ? result.new_seo_score : '–';
-        $id('seoImprovement').textContent = result.seo_improvement !== undefined ? `+${result.seo_improvement}` : '–';
+        // SEO Analysis: Original/After/Gain
+        $id('oldSeoScore').textContent = result.original_seo_score !== undefined ? result.original_seo_score : '–';
+        $id('newSeoScore').textContent = result.optimized_seo_score !== undefined ? result.optimized_seo_score : '–';
+        $id('seoImprovement').textContent = result.seo_improvement !== undefined ? result.seo_improvement : '0';
 
-        // Emotion: Type + Change explanation
-        $id('updatedEmotion').textContent = (result.updated_emotion || '–').toUpperCase();
+        // Emotion: Original vs Optimized + Change explanation
+        $id('originalEmotion').textContent = (result.original_emotion || '–').toUpperCase();
+        $id('updatedEmotion').textContent = (result.optimized_emotion || '–').toUpperCase();
         $id('emotionChangeDisplay').textContent = result.emotion_change || '–';
 
-        // Authenticity: Percentages + Change explanation
-        $id('updatedReal').textContent = result.updated_real_percent !== undefined ? result.updated_real_percent : '–';
-        $id('updatedFake').textContent = result.updated_fake_percent !== undefined ? result.updated_fake_percent : '–';
-        $id('fakeRealChangeDisplay').textContent = result.fake_real_change || '–';
+        // Authenticity: Original vs Optimized percentages + Change explanation
+        $id('originalReal').textContent = result.original_real_percent !== undefined ? result.original_real_percent : '–';
+        $id('originalFake').textContent = result.original_fake_percent !== undefined ? result.original_fake_percent : '–';
+        $id('updatedReal').textContent = result.optimized_real_percent !== undefined ? result.optimized_real_percent : '–';
+        $id('updatedFake').textContent = result.optimized_fake_percent !== undefined ? result.optimized_fake_percent : '–';
+        $id('fakeRealChangeDisplay').textContent = result.authenticity_change || '–';
 
         // Store caption styles for style selector
         window.captionStyles = result.caption_styles || {};
@@ -1032,7 +1047,7 @@ async function handleOptimize() {
         $id('optimizeResults').classList.remove('hidden');
         $id('hashtagSection').classList.remove('hidden');
 
-        console.log('[PRO-OPTIMIZE] Complete - all fields rendered + Caption Styles loaded:', Object.keys(window.captionStyles || {}).length, 'styles');
+        console.log('[PRO-OPTIMIZE] Complete - Original vs Optimized comparison + Caption Styles loaded:', Object.keys(window.captionStyles || {}).length, 'styles');
 
     } finally {
         btn.disabled = false;
