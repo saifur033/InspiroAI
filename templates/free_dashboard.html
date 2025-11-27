@@ -624,7 +624,7 @@ async function handleOptimize() {
 
         console.log('[FREE-OPTIMIZE] Mapping 10 fields:', Object.keys(result));
 
-        // Map exactly 10 OPTIMIZE fields
+        // Map exactly 10 OPTIMIZE fields - use correct backend field names
         $id('rewrittenCaption').textContent = result.optimized_caption || '–';
 
         // Hashtags (10-25 items)
@@ -642,19 +642,36 @@ async function handleOptimize() {
             hashtagContainer.textContent = '–';
         }
 
-        // SEO Analysis: Before/After/Gain
-        $id('oldSeoScore').textContent = result.old_seo_score !== undefined ? result.old_seo_score : '–';
-        $id('newSeoScore').textContent = result.new_seo_score !== undefined ? result.new_seo_score : '–';
-        $id('seoImprovement').textContent = result.seo_improvement !== undefined ? `+${result.seo_improvement}` : '–';
+        // SEO Analysis: CORRECTED field names
+        // Backend returns: original_seo_score, optimized_seo_score, seo_improvement
+        const origSeo = result.original_seo_score !== undefined ? result.original_seo_score : (result.old_seo_score !== undefined ? result.old_seo_score : 0);
+        const optSeo = result.optimized_seo_score !== undefined ? result.optimized_seo_score : (result.new_seo_score !== undefined ? result.new_seo_score : origSeo);
+        const seoGain = result.seo_improvement !== undefined ? result.seo_improvement : (optSeo - origSeo);
+        
+        $id('oldSeoScore').textContent = origSeo;
+        $id('newSeoScore').textContent = optSeo;
+        $id('seoImprovement').textContent = seoGain >= 0 ? `+${seoGain}` : `${seoGain}`;
+        
+        console.log(`[FREE-OPTIMIZE] SEO: ${origSeo} → ${optSeo} (${seoGain >= 0 ? '+' : ''}${seoGain})`);
 
         // Emotion: Type + Change explanation
-        $id('updatedEmotion').textContent = (result.updated_emotion || '–').toUpperCase();
+        // Backend returns: optimized_emotion, emotion_change
+        const optEmotion = result.optimized_emotion !== undefined ? result.optimized_emotion : (result.updated_emotion || 'NEUTRAL');
+        $id('updatedEmotion').textContent = optEmotion.toUpperCase();
         $id('emotionChangeDisplay').textContent = result.emotion_change || '–';
+        
+        console.log(`[FREE-OPTIMIZE] Emotion: ${optEmotion}`);
 
         // Authenticity: Percentages + Change explanation
-        $id('updatedReal').textContent = result.updated_real_percent !== undefined ? result.updated_real_percent : '–';
-        $id('updatedFake').textContent = result.updated_fake_percent !== undefined ? result.updated_fake_percent : '–';
-        $id('fakeRealChangeDisplay').textContent = result.fake_real_change || '–';
+        // Backend returns: optimized_real_percent, optimized_fake_percent, authenticity_change
+        const optReal = result.optimized_real_percent !== undefined ? result.optimized_real_percent : (result.updated_real_percent !== undefined ? result.updated_real_percent : 50);
+        const optFake = result.optimized_fake_percent !== undefined ? result.optimized_fake_percent : (result.updated_fake_percent !== undefined ? result.updated_fake_percent : 50);
+        
+        $id('updatedReal').textContent = optReal;
+        $id('updatedFake').textContent = optFake;
+        $id('fakeRealChangeDisplay').textContent = result.authenticity_change || result.fake_real_change || '–';
+        
+        console.log(`[FREE-OPTIMIZE] Authenticity: ${optReal}% real, ${optFake}% fake`);
 
         // STORE Caption Styles for selector
         window.captionStyles = result.caption_styles || {};
