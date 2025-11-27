@@ -36,7 +36,7 @@ DetectorFactory.seed = 0
 # ---------------------------------------------------------
 # INTERNAL MODULES (Primary)
 # ---------------------------------------------------------
-from src.caption_generator import rewrite_caption
+from src.caption_generator import rewrite_caption, generate_caption_variations
 from src.emotion_model import detect_emotion
 from src.seo_score import compute_seo_score
 from src.fake_real_model import detect_fake
@@ -1074,7 +1074,6 @@ def process_caption():
 @validate_json_request
 def caption_variations():
     """Generate multiple caption variations for selected tone"""
-    from src.caption_generator import generate_caption_variations
     
     data = request.get_json() or {}
     caption = safe_string(data.get("caption", ""), 2000)
