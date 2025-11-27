@@ -1305,6 +1305,27 @@ def scheduler_delete():
 
 
 # ---------------------------------------------------------
+# 🔍 CACHE INFO ENDPOINT (For debugging)
+# ---------------------------------------------------------
+@app.route("/api/cache_info")
+def cache_info():
+    """Get trend cache status and info"""
+    try:
+        from src.trend_cache import get_cache_info
+        cache_info_data = get_cache_info()
+        return jsonify({
+            "success": True,
+            "cache": cache_info_data
+        })
+    except Exception as e:
+        logger.error(f"[ERROR] cache_info: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+# ---------------------------------------------------------
 # RUN SERVER
 # ---------------------------------------------------------
 if __name__ == "__main__":

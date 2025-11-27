@@ -11,6 +11,7 @@ from pytrends.request import TrendReq
 import random
 import time
 import re
+from .trend_cache import load_cache, save_cache, get_cache_info
 
 _last_topics = set()
 
@@ -159,11 +160,41 @@ def smart_merge(bn_list, en_list):
 
 
 # ================================================================
-# 🚀 MAIN TREND ENGINE — FINAL OUTPUT
+# 🚀 MAIN TREND ENGINE — FINAL OUTPUT WITH CACHE
 # ================================================================
 def get_live_trends():
     global _last_topics
     
+    # STEP 1: Check if we have fresh cached trends (< 24 hours)
+    cached_trends_list = load_cache()
+    if cached_trends_list is not None:
+        print(f"[TREND] ✓ Using cached trends ({len(cached_trends_list)} items)")
+        output = []
+        for t in cached_trends_list[:25]:
+            if isinstance(t, dict):
+                output.append(t)
+            elif isinstance(t, str) and len(t.strip()) > 0:
+                output.append({
+                    "topic": t.replace(" ", ""),
+                    "raw": t,
+                    "score": random.randint(60, 99),
+                    "category": detect_category(t),
+                    "momentum": detect_momentum(t),
+                    "time": time.strftime("%I:%M %p"),
+                })
+        
+        if len(output) > 0:
+            _last_topics = set([t.get('raw', t.get('topic', '')) for t in output])
+            return {
+                "source": "BD Trend Engine PRO v12.0 (CACHED)",
+                "trends": output,
+                "count": len(output),
+                "timestamp": time.time(),
+                "cache_status": "fresh"
+            }
+    
+    # STEP 2: Cache miss or expired - fetch fresh trends
+    print("[TREND] Cache miss/expired - fetching fresh trends...")
     final_topics = []
     
     # Try pytrends first (with error handling)
@@ -174,9 +205,9 @@ def get_live_trends():
         if len(trending_searches_df) > 0:
             trending_list = trending_searches_df.values.flatten().tolist()
             final_topics = trending_list[:15]
-            print(f"[TREND OK] Got {len(final_topics)} trends from pytrends")
+            print(f"[TREND] ✓ Got {len(final_topics)} fresh trends from pytrends")
     except Exception as e:
-        print(f"[TREND WARNING] pytrends failed: {str(e)}")
+        print(f"[TREND] ⚠ pytrends failed: {str(e)}")
         final_topics = []
     
     # If pytrends failed, use fallback scrapers
@@ -218,9 +249,9 @@ def get_live_trends():
             
             # Merge safely
             final_topics = smart_merge(combined_bn, combined_en)
-            print(f"[TREND OK] Got {len(final_topics)} trends from fallback scrapers")
+            print(f"[TREND] ✓ Got {len(final_topics)} fresh trends from fallback scrapers")
         except Exception as e:
-            print(f"[TREND ERROR] All scrapers failed: {str(e)}")
+            print(f"[TREND] ⚠ Fallback scrapers failed: {str(e)}")
             final_topics = []
     
     # Ultimate fallback - never return empty
@@ -258,9 +289,13 @@ def get_live_trends():
 
     _last_topics = set(final_topics)
 
+    # STEP 3: Save fresh trends to cache for next 24 hours
+    save_cache(final_topics)
+
     return {
-        "source": "BD Trend Engine PRO v12.0",
+        "source": "BD Trend Engine PRO v12.0 (FRESH)",
         "trends": output,
         "count": len(output),
         "timestamp": time.time(),
+        "cache_status": "refreshed"
     }
