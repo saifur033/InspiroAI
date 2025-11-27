@@ -43,7 +43,12 @@ from src.fake_real_model import detect_fake
 from src.hashtag_ranker import generate_hashtags
 from src.comment_ai import generate_comments
 from src.image_caption_generator import generate_caption_for_image
-from src.voice_caption import convert_voice
+try:
+    import importlib
+    _vc_mod = importlib.import_module("src.voice_caption")
+    convert_voice = getattr(_vc_mod, "convert_voice", None)
+except Exception:
+    convert_voice = None
 from src.utils import detect_language
 from src.caption_styler import auto_enhance_caption, format_caption_styles
 
@@ -1062,6 +1067,54 @@ def process_caption():
     except Exception as e:
         logger.error(f"[ERROR] process_caption [{action}]: {str(e)}")
         return jsonify({"success": False, "error": f"Processing failed: {action}"}), 500
+
+
+# 4A. Caption Variations (Multiple rewrite options by tone)
+@app.post("/api/caption_variations")
+@validate_json_request
+def caption_variations():
+    """Generate multiple caption variations for selected tone"""
+    from src.caption_generator import generate_caption_variations
+    
+    data = request.get_json() or {}
+    caption = safe_string(data.get("caption", ""), 2000)
+    tone = safe_string(data.get("tone", "friendly"), 50).lower()
+    
+    valid_tones = ["professional", "friendly", "emotional", "trendy", "funny"]
+    if tone not in valid_tones:
+        tone = "friendly"
+    
+    if not caption or len(caption) < 5:
+        return jsonify({"success": False, "error": "Caption too short (min 5 chars)"}), 400
+    
+    try:
+        print(f"\n[VARIATIONS] Processing caption: {caption[:80]}... | Tone: {tone}")
+        
+        # Generate variations using the new function
+        variations_result = generate_caption_variations(caption, tone)
+        
+        if "error" in variations_result:
+            return jsonify({"success": False, "error": variations_result["error"]}), 400
+        
+        print(f"[VARIATIONS] Generated {len(variations_result.get('variations', []))} variations")
+        
+        # Build response
+        result = {
+            "success": True,
+            "tone": tone,
+            "original_caption": variations_result.get("original_caption", ""),
+            "tone_description": variations_result.get("tone_description", ""),
+            "variations": variations_result.get("variations", []),
+            "total_variations": len(variations_result.get("variations", []))
+        }
+        
+        logger.info(f"[OK] Caption variations generated: tone={tone}, count={result['total_variations']}")
+        return Response(json.dumps(result, ensure_ascii=False), mimetype='application/json; charset=utf-8')
+        
+    except Exception as e:
+        print(f"[VARIATIONS] ERROR: {str(e)}")
+        logger.error(f"[ERROR] caption_variations: {str(e)}")
+        return jsonify({"success": False, "error": f"Variations failed: {str(e)}"}), 500
 
 
 # 5. Post Reach Predictor

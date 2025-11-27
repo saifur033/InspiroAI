@@ -520,6 +520,21 @@
                 <option value="trendy">Trendy</option>
                 <option value="funny">Funny</option>
             </select>
+            
+            <!-- NEW: Show Variations Button -->
+            <button class="btn-primary" id="showVariationsBtn" style="width:100%; margin-bottom:16px;">
+                📝 Show Caption Variations
+            </button>
+        </div>
+
+        <!-- NEW: Variations Display Section -->
+        <div id="variationsSection" class="hidden" style="margin-top:20px;">
+            <div class="glass-card" style="background:rgba(100,80,200,.12); border:1px solid rgba(150,130,255,.3);">
+                <h2 style="margin-bottom:20px; color:#d5c8ff;">📋 Caption Variations for <span id="variationsToneDisplay">Professional</span> Tone</h2>
+                <div id="variationsContainer" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+                    <!-- Variations will be inserted here -->
+                </div>
+            </div>
         </div>
 
         <div id="optimizeResults" class="optimize-grid hidden" style="margin-top:20px;">
@@ -1053,6 +1068,135 @@ async function handleOptimize() {
         btn.disabled = false;
         btn.textContent = 'Optimize';
     }
+}
+
+// ============= SHOW CAPTION VARIATIONS (PRO MODE) =============
+async function handleShowVariations() {
+    const caption = $id('userCaption').value.trim();
+    const tone = $id('toneSelect').value.trim();
+    
+    if (!caption) {
+        alert('Please enter a caption first.');
+        return;
+    }
+    if (!tone) {
+        alert('Please select a tone.');
+        return;
+    }
+
+    const btn = $id('showVariationsBtn');
+    btn.disabled = true;
+    btn.textContent = 'Loading variations...';
+
+    try {
+        console.log(`[PRO-VARIATIONS] Fetching variations for tone: ${tone}`);
+        showLoader();
+
+        const response = await fetch('/api/caption_variations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ caption, tone })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            alert(`Error: ${error.error || 'Failed to generate variations'}`);
+            return;
+        }
+
+        const result = await response.json();
+        console.log(`[PRO-VARIATIONS] Received ${result.total_variations} variations`);
+
+        // Update tone display
+        $id('variationsToneDisplay').textContent = tone.charAt(0).toUpperCase() + tone.slice(1);
+
+        // Clear and populate variations container
+        const container = $id('variationsContainer');
+        container.innerHTML = '';
+
+        if (result.variations && result.variations.length > 0) {
+            result.variations.forEach((variation, index) => {
+                const card = document.createElement('div');
+                card.className = 'variation-card';
+                card.style.cssText = `
+                    background: rgba(12,10,30,.9);
+                    border: 1px solid rgba(150,130,255,.3);
+                    border-radius: 8px;
+                    padding: 16px;
+                    transition: all 0.3s ease;
+                    cursor: pointer;
+                `;
+
+                const seoColor = variation.seo_score >= 80 ? '#4ade80' : variation.seo_score >= 60 ? '#fbbf24' : '#f87171';
+                const emotionEmoji = {
+                    'HAPPY': '😊', 'SAD': '😢', 'ANGRY': '😠', 
+                    'EXCITED': '🎉', 'CALM': '😌', 'NEUTRAL': '😐'
+                }[variation.emotion] || '😐';
+
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
+                        <div style="font-size:20px;">${emotionEmoji}</div>
+                        <div style="font-size:12px; background:rgba(150,130,255,.2); padding:4px 8px; border-radius:4px; color:#b8a3ff;">
+                            Variation ${index + 1}
+                        </div>
+                    </div>
+                    <p style="color:#d5c8ff; line-height:1.5; margin-bottom:12px; font-size:13px;">
+                        ${variation.caption}
+                    </p>
+                    <div style="display:flex; gap:8px; font-size:11px;">
+                        <div style="flex:1; background:rgba(74,222,128,.1); padding:6px 8px; border-radius:4px; border-left:2px solid ${seoColor};">
+                            <strong>SEO:</strong> ${variation.seo_score}/100
+                        </div>
+                        <div style="flex:1; background:rgba(168,160,213,.1); padding:6px 8px; border-radius:4px;">
+                            <strong>Emotion:</strong> ${variation.emotion}
+                        </div>
+                    </div>
+                    <button class="btn-ghost small" style="width:100%; margin-top:10px;" onclick="copyVariationCaption('${variation.caption.replace(/'/g, "\\'")}')">
+                        📋 Copy
+                    </button>
+                `;
+
+                card.addEventListener('mouseenter', () => {
+                    card.style.background = 'rgba(12,10,30,.95)';
+                    card.style.borderColor = 'rgba(150,130,255,.6)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.background = 'rgba(12,10,30,.9)';
+                    card.style.borderColor = 'rgba(150,130,255,.3)';
+                });
+
+                container.appendChild(card);
+            });
+        } else {
+            container.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#a8a0d5;">No variations available.</p>';
+        }
+
+        // Show variations section
+        $id('variationsSection').classList.remove('hidden');
+        $id('analyzeResults').classList.add('hidden');
+        $id('optimizeResults').classList.add('hidden');
+        $id('hashtagSection').classList.add('hidden');
+
+        console.log('[PRO-VARIATIONS] Display complete');
+
+    } catch (error) {
+        console.error('[PRO-VARIATIONS] Error:', error);
+        alert('Failed to generate caption variations. Please try again.');
+    } finally {
+        hideLoader();
+        btn.disabled = false;
+        btn.textContent = '📝 Show Caption Variations';
+    }
+}
+
+// ============= COPY VARIATION CAPTION (PRO MODE) =============
+function copyVariationCaption(caption) {
+    navigator.clipboard.writeText(caption).then(() => {
+        showToast('✓ Caption copied!', 'success');
+    }).catch(err => {
+        console.error('Copy failed:', err);
+        showToast('❌ Copy failed', 'error');
+    });
 }
 
 // ============= COPY HANDLER =============
@@ -1597,6 +1741,11 @@ window.addEventListener('DOMContentLoaded', safe(() => {
         const caption = $id('userCaption').value.trim();
         lastAnalyzedCaption = caption; // Update last analyzed caption when optimizing
         handleOptimize();
+    });
+
+    $id('showVariationsBtn').addEventListener('click', e => {
+        e.preventDefault();
+        handleShowVariations();
     });
 
     $id('copyBtn').addEventListener('click', e => {

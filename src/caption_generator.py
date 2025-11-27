@@ -17,6 +17,87 @@ def clean_caption(text: str) -> str:
     return text.strip()
 
 
+def generate_caption_variations(caption: str, tone: str = "friendly"):
+    """
+    Generate multiple caption variations for selected tone.
+    Returns 3-5 variations based on caption content and tone.
+    """
+    if not caption or not caption.strip():
+        return {"error": "Caption is empty", "variations": []}
+    
+    lang = detect_language(caption)
+    base = clean_caption(caption)
+    
+    # Tone-specific variation templates
+    variations_templates = {
+        "professional": [
+            f"{base}\n\nLearn more today!",
+            f"{base}\n\nStay informed.",
+            f"{base}\n\nTake action now.",
+            f"Important update:\n{base}",
+            f"{base}\n\n#StayUpdated"
+        ],
+        "friendly": [
+            f"{base}\n\nWhat do you think?",
+            f"{base}\n\nShare your thoughts!",
+            f"Hey, {base}",
+            f"{base}\n\nLet me know!",
+            f"{base}\n\nChat with us!"
+        ],
+        "emotional": [
+            f"{base}\n\nFeel the moment.",
+            f"This is powerful: {base}",
+            f"{base}\n\nStay connected.",
+            f"{base}\n\nHear our hearts.",
+            f"{base}\n\nLet's care together."
+        ],
+        "trendy": [
+            f"{base}\n\n🔥 Trending now!",
+            f"{base}\n\nJoin the conversation!",
+            f"Just in: {base}",
+            f"{base}\n\n#Trending",
+            f"{base}\n\nTalk about it! 🔥"
+        ],
+        "funny": [
+            f"{base}\n\n😂 Seriously though!",
+            f"{base}\n\nHaha right?",
+            f"Plot twist: {base}",
+            f"{base}\n\nMake me laugh!",
+            f"{base}\n\nToo real! 😄"
+        ]
+    }
+    
+    # Get appropriate variations based on tone
+    templates = variations_templates.get(tone, variations_templates["professional"])
+    
+    # Score each variation
+    scored_variations = []
+    for variation in templates:
+        var_clean = clean_caption(variation)
+        seo = compute_seo_score(var_clean) or {}
+        emo = detect_emotion(var_clean) or {}
+        
+        scored_variations.append({
+            "caption": var_clean,
+            "seo_score": int(seo.get("score", 50)),
+            "emotion": emo.get("emotion", emo.get("top_emotion", "NEUTRAL")).upper(),
+            "emotion_confidence": int(emo.get("confidence", 50))
+        })
+    
+    return {
+        "tone": tone,
+        "original_caption": base,
+        "variations": scored_variations[:5],  # Return top 5 variations
+        "tone_description": {
+            "professional": "Corporate authority, credibility, expertise",
+            "friendly": "Warm, conversational, relatable",
+            "emotional": "Deep feelings, emotional connection, inspiring",
+            "trendy": "Viral language, trending phrases, shareable",
+            "funny": "Humor, wit, playful and relatable comedy"
+        }.get(tone, "")
+    }
+
+
 def rewrite_caption(caption: str, tone: str = "friendly", rewrite_type: str = "standard"):
     """
     Rewrite caption to be VIRAL, EMOTIONAL, ENGAGING, and PROFESSIONAL
