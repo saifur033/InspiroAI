@@ -55,7 +55,13 @@ USE_LOCAL_AI = os.environ.get("USE_LOCAL_AI", "1").lower() not in ("0", "false",
 # ---------------------------------------------------------
 # TREND ENGINE
 # ---------------------------------------------------------
-from src.trend_scraper import get_live_trends
+# Note: pytrends not in requirements.txt - optional for Render deployment
+# from src.trend_scraper import get_live_trends
+try:
+    from src.trend_scraper import get_live_trends
+except ImportError:
+    def get_live_trends():
+        return {"trends": [], "error": "Trend scraper unavailable"}
 
 TREND_HISTORY = {}
 
