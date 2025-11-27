@@ -1574,22 +1574,28 @@ window.addEventListener('DOMContentLoaded', safe(() => {
         handleAnalyze();
     });
 
-    // Auto-analyze with 2-second delay (Pro Mode)
+    // Auto-analyze with 1.5-second delay (Pro Mode) - LIVE METRICS UPDATE
     let autoAnalyzeTimer;
+    let lastAnalyzedCaption = '';
+    
     $id('userCaption').addEventListener('input', () => {
         clearTimeout(autoAnalyzeTimer);
         const caption = $id('userCaption').value.trim();
         
-        if (caption.length >= 10) {
+        // Only analyze if caption changed from last analysis
+        if (caption !== lastAnalyzedCaption && caption.length >= 10) {
             autoAnalyzeTimer = setTimeout(() => {
-                console.log('[PRO-AUTO-ANALYZE] Triggered by auto-delay (2s)');
+                console.log('[PRO-AUTO-ANALYZE] Triggered - Live metrics update');
+                lastAnalyzedCaption = caption;
                 handleAnalyze();
-            }, 2000);
+            }, 1500); // Reduced to 1500ms for faster response
         }
     });
 
     $id('optimizeBtn').addEventListener('click', e => {
         e.preventDefault();
+        const caption = $id('userCaption').value.trim();
+        lastAnalyzedCaption = caption; // Update last analyzed caption when optimizing
         handleOptimize();
     });
 

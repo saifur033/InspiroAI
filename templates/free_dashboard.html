@@ -783,21 +783,25 @@ window.addEventListener('DOMContentLoaded', safe(() => {
 
     setTimeout(() => hideLoader(), 300);
 
-    // AUTO-ANALYZE on caption input (after 2 seconds of inactivity)
+    // AUTO-ANALYZE + LIVE METRICS on caption input (after 2 seconds of inactivity)
     const captionInput = $id('userCaption');
     let autoAnalyzeTimeout;
+    let lastAnalyzedCaption = '';
+    
     captionInput.addEventListener('input', e => {
         clearTimeout(autoAnalyzeTimeout);
         const caption = captionInput.value.trim();
         
-        // Auto-analyze if caption is 10+ characters
-        if (caption && caption.length >= 10) {
+        // Only auto-analyze if caption changed from last analysis
+        if (caption !== lastAnalyzedCaption && caption && caption.length >= 10) {
             const btn = $id('analyzeBtn');
             btn.textContent = 'Auto-analyzing...';
             
             autoAnalyzeTimeout = setTimeout(() => {
+                console.log('[FREE-DASHBOARD] Auto-analyzing caption (live update)...');
                 handleAnalyze();
-            }, 2000);
+                lastAnalyzedCaption = caption;
+            }, 1500); // Reduced from 2000ms to 1500ms for faster response
         }
     });
 
@@ -805,6 +809,7 @@ window.addEventListener('DOMContentLoaded', safe(() => {
         e.preventDefault();
         console.log('[FREE-DASHBOARD] Clear button clicked');
         clearTimeout(autoAnalyzeTimeout);
+        lastAnalyzedCaption = '';
         $id('userCaption').value = '';
         $id('analyzeResults').classList.add('hidden');
         $id('optimizeResults').classList.add('hidden');
@@ -815,12 +820,16 @@ window.addEventListener('DOMContentLoaded', safe(() => {
     $id('analyzeBtn').addEventListener('click', e => {
         e.preventDefault();
         console.log('[FREE-DASHBOARD] Analyze button clicked');
+        const caption = $id('userCaption').value.trim();
+        lastAnalyzedCaption = caption;
         handleAnalyze();
     });
 
     $id('optimizeBtn').addEventListener('click', e => {
         e.preventDefault();
         console.log('[FREE-DASHBOARD] Optimize button clicked');
+        const caption = $id('userCaption').value.trim();
+        lastAnalyzedCaption = caption; // Update last analyzed caption when optimizing
         handleOptimize();
     });
 
@@ -839,7 +848,7 @@ window.addEventListener('DOMContentLoaded', safe(() => {
     // Setup caption style selector listener
     setupCaptionStyleListener();
 
-    console.log('[FREE-DASHBOARD] Ready');
+    console.log('[FREE-DASHBOARD] Ready - Auto-analyze enabled');
 }));
 </script>
 
