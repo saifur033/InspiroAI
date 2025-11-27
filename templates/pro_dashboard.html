@@ -1037,21 +1037,49 @@ async function handleOptimize() {
         }
 
         // SEO Analysis: Original/After/Gain
-        $id('oldSeoScore').textContent = result.original_seo_score !== undefined ? result.original_seo_score : '–';
-        $id('newSeoScore').textContent = result.optimized_seo_score !== undefined ? result.optimized_seo_score : '–';
-        $id('seoImprovement').textContent = result.seo_improvement !== undefined ? result.seo_improvement : '0';
+        const origSeo = result.original_seo_score !== undefined && result.original_seo_score !== null ? 
+            parseInt(result.original_seo_score) : 
+            (result.old_seo_score !== undefined ? parseInt(result.old_seo_score) : 50);
+        
+        const optSeo = result.optimized_seo_score !== undefined && result.optimized_seo_score !== null ? 
+            parseInt(result.optimized_seo_score) : 
+            (result.new_seo_score !== undefined ? parseInt(result.new_seo_score) : origSeo);
+        
+        const seoGain = result.seo_improvement !== undefined && result.seo_improvement !== null ? 
+            parseInt(result.seo_improvement) : 
+            (optSeo - origSeo);
+        
+        $id('oldSeoScore').textContent = isNaN(origSeo) ? '–' : origSeo;
+        $id('newSeoScore').textContent = isNaN(optSeo) ? '–' : optSeo;
+        $id('seoImprovement').textContent = isNaN(seoGain) ? '–' : (seoGain >= 0 ? `+${seoGain}` : `${seoGain}`);
 
         // Emotion: Original vs Optimized + Change explanation
-        $id('originalEmotion').textContent = (result.original_emotion || '–').toUpperCase();
-        $id('updatedEmotion').textContent = (result.optimized_emotion || '–').toUpperCase();
-        $id('emotionChangeDisplay').textContent = result.emotion_change || '–';
+        const origEmo = result.original_emotion !== undefined && result.original_emotion ? 
+            String(result.original_emotion).toUpperCase() : 'NEUTRAL';
+        const optEmo = result.optimized_emotion !== undefined && result.optimized_emotion ? 
+            String(result.optimized_emotion).toUpperCase() : 'NEUTRAL';
+        
+        $id('originalEmotion').textContent = origEmo || '–';
+        $id('updatedEmotion').textContent = optEmo || '–';
+        $id('emotionChangeDisplay').textContent = (result.emotion_change && result.emotion_change.trim().length > 0) ? result.emotion_change : '–';
 
         // Authenticity: Original vs Optimized percentages + Change explanation
-        $id('originalReal').textContent = result.original_real_percent !== undefined ? result.original_real_percent : '–';
-        $id('originalFake').textContent = result.original_fake_percent !== undefined ? result.original_fake_percent : '–';
-        $id('updatedReal').textContent = result.optimized_real_percent !== undefined ? result.optimized_real_percent : '–';
-        $id('updatedFake').textContent = result.optimized_fake_percent !== undefined ? result.optimized_fake_percent : '–';
-        $id('fakeRealChangeDisplay').textContent = result.authenticity_change || '–';
+        const origReal = result.original_real_percent !== undefined && result.original_real_percent !== null ? 
+            parseInt(result.original_real_percent) : 50;
+        const origFake = result.original_fake_percent !== undefined && result.original_fake_percent !== null ? 
+            parseInt(result.original_fake_percent) : 50;
+        const optReal = result.optimized_real_percent !== undefined && result.optimized_real_percent !== null ? 
+            parseInt(result.optimized_real_percent) : 50;
+        const optFake = result.optimized_fake_percent !== undefined && result.optimized_fake_percent !== null ? 
+            parseInt(result.optimized_fake_percent) : 50;
+        
+        $id('originalReal').textContent = isNaN(origReal) ? '–' : origReal;
+        $id('originalFake').textContent = isNaN(origFake) ? '–' : origFake;
+        $id('updatedReal').textContent = isNaN(optReal) ? '–' : optReal;
+        $id('updatedFake').textContent = isNaN(optFake) ? '–' : optFake;
+        $id('fakeRealChangeDisplay').textContent = (result.authenticity_change && result.authenticity_change.trim().length > 0) ? 
+            result.authenticity_change : 
+            (result.fake_real_change && result.fake_real_change.trim().length > 0 ? result.fake_real_change : '–');
 
         // Store caption styles for style selector
         window.captionStyles = result.caption_styles || {};
