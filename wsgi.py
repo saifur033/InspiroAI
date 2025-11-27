@@ -2,15 +2,14 @@
 import sys
 import os
 
-# Add project to path
+# Add project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# Lazy import to handle environment issues
-def create_app():
+try:
+    # Import Flask app from main.py
     from main import app
-    return app
-
-# Create app instance
-app = create_app()
+except ImportError as e:
+    print(f"ERROR: Could not import app from main.py: {e}")
+    raise
 
 
