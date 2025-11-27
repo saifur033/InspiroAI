@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-WSGI Entry Point for Gunicorn
-"""
-
-import os
 import sys
+import os
 
-# Add current directory to path
+# Add project to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# Import Flask app from main
-from main import app
+# Lazy import to handle environment issues
+def create_app():
+    from main import app
+    return app
 
-# Gunicorn will use this 'app' variable
+# Create app instance
+app = create_app()
+
 
