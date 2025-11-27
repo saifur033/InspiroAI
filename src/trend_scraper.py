@@ -163,29 +163,65 @@ def smart_merge(bn_list, en_list):
 # ================================================================
 def get_live_trends():
     global _last_topics
+    
+    try:
+        # Use pytrends for real Google Trends data
+        pytrends = TrendReq(hl='en-US', tz=360)
+        
+        # Get trending searches
+        trending_searches_df = pytrends.trending_searches(pn='united_states')
+        trending_list = trending_searches_df.values.flatten().tolist() if len(trending_searches_df) > 0 else []
+        
+        # Also try for Bangladesh
+        try:
+            bd_pytrends = TrendReq(hl='bn', tz=360)
+            bd_trending = bd_pytrends.trending_searches(pn='bangladesh')
+            if len(bd_trending) > 0:
+                bd_list = bd_trending.values.flatten().tolist()
+                trending_list = bd_list + trending_list  # BD trends first
+        except:
+            pass
+        
+        if len(trending_list) == 0:
+            # Fallback to old scraping methods
+            yt = yt_bd()
+            goog = google_bd()
+            alo = prothom_alo()
+            bd24 = bdnews24()
+            tik = tiktok_bd()
 
-    yt = yt_bd()
-    goog = google_bd()
-    alo = prothom_alo()
-    bd24 = bdnews24()
-    tik = tiktok_bd()
+            combined_bn = []
+            combined_en = []
 
-    combined_bn = []
-    combined_en = []
+            # Split by language
+            for t in yt + alo + bd24:
+                if is_bangla(t):
+                    combined_bn.append(clean_text(t))
+                else:
+                    combined_en.append(clean_text(t))
 
-    # Split by language
-    for t in yt + alo + bd24:
-        if is_bangla(t):
-            combined_bn.append(clean_text(t))
+            for t in goog + tik:
+                combined_en.append(clean_text(t))
+
+            # Fallback
+            if len(combined_bn) + len(combined_en) == 0:
+                combined_bn = [
+                    "বাংলাদেশ ক্রিকেট",
+                    "ঢাকা আগুন",
+                    "বিশ্ববিদ্যালয় আন্দোলন",
+                    "অর্থনীতি সংকট",
+                    "ট্রাফিক জ্যাম",
+                    "বিনোদন আপডেট",
+                ]
+
+            # Merge safely
+            final_topics = smart_merge(list(set(combined_bn)), list(set(combined_en)))
         else:
-            combined_en.append(clean_text(t))
+            final_topics = trending_list
 
-    for t in goog + tik:
-        combined_en.append(clean_text(t))
-
-    # Fallback
-    if len(combined_bn) + len(combined_en) == 0:
-        combined_bn = [
+    except Exception as e:
+        print(f"[TREND ERROR] {str(e)}")
+        final_topics = [
             "বাংলাদেশ ক্রিকেট",
             "ঢাকা আগুন",
             "বিশ্ববিদ্যালয় আন্দোলন",
@@ -194,23 +230,23 @@ def get_live_trends():
             "বিনোদন আপডেট",
         ]
 
-    # Merge safely
-    final_topics = smart_merge(list(set(combined_bn)), list(set(combined_en)))
-
     output = []
     for t in final_topics[:25]:
-        output.append({
-            "topic": t.replace(" ", ""),   # Clean version
-            "raw": t,                      # Original human-readable title
-            "score": random.randint(60, 99),
-            "category": detect_category(t),
-            "momentum": detect_momentum(t),
-            "time": time.strftime("%I:%M %p"),
-        })
+        if isinstance(t, str) and len(t) > 0:
+            output.append({
+                "topic": t.replace(" ", ""),   # Clean version
+                "raw": t,                      # Original human-readable title
+                "score": random.randint(60, 99),
+                "category": detect_category(t),
+                "momentum": detect_momentum(t),
+                "time": time.strftime("%I:%M %p"),
+            })
 
     _last_topics = set(final_topics)
 
     return {
         "source": "BD Trend Engine PRO v12.0",
-        "trends": output
+        "trends": output,
+        "count": len(output),
+        "timestamp": time.time(),
     }
