@@ -43,6 +43,7 @@ from src.fake_real_model import detect_fake
 from src.hashtag_ranker import generate_hashtags
 from src.comment_ai import generate_comments
 from src.image_caption_generator import generate_caption_for_image
+from src.comprehensive_analysis import comprehensive_caption_analysis, format_comprehensive_output
 try:
     import importlib
     _vc_mod = importlib.import_module("src.voice_caption")
@@ -1114,6 +1115,58 @@ def caption_variations():
         print(f"[VARIATIONS] ERROR: {str(e)}")
         logger.error(f"[ERROR] caption_variations: {str(e)}")
         return jsonify({"success": False, "error": f"Variations failed: {str(e)}"}), 500
+
+
+# 4B. Comprehensive Caption Analysis (Structured NLP Analysis)
+@app.post("/api/comprehensive_analysis")
+@validate_json_request
+def comprehensive_analysis_endpoint():
+    """
+    Advanced NLP-driven comprehensive caption analysis.
+    
+    Returns: {
+        "original_caption": str,
+        "language": "Bangla" or "English",
+        "analysis": {
+            "seo": {...},
+            "emotion": {...},
+            "authenticity": {...},
+            "rewrites": {...},
+            "tone_specific": {...},
+            "hashtags": [...]
+        }
+    }
+    """
+    
+    data = request.get_json() or {}
+    caption = safe_string(data.get("caption", ""), 2000)
+    tone = safe_string(data.get("tone", "professional"), 50).lower()
+    
+    valid_tones = ["professional", "friendly", "emotional", "viral", "breaking_news"]
+    if tone not in valid_tones:
+        tone = "professional"
+    
+    if not caption or len(caption) < 5:
+        return jsonify({"success": False, "error": "Caption too short (min 5 chars)"}), 400
+    
+    try:
+        print(f"\n[COMPREHENSIVE] Analyzing caption: {caption[:80]}... | Tone: {tone}")
+        
+        # Call comprehensive analysis
+        analysis_result = comprehensive_caption_analysis(caption, tone)
+        
+        if "error" in analysis_result:
+            return jsonify({"success": False, "error": analysis_result["error"]}), 400
+        
+        print(f"[COMPREHENSIVE] Analysis complete - Language: {analysis_result['language']}")
+        
+        logger.info(f"[OK] Comprehensive analysis generated: lang={analysis_result['language']}, tone={tone}")
+        return Response(json.dumps(analysis_result, ensure_ascii=False), mimetype='application/json; charset=utf-8')
+        
+    except Exception as e:
+        print(f"[COMPREHENSIVE] ERROR: {str(e)}")
+        logger.error(f"[ERROR] comprehensive_analysis: {str(e)}")
+        return jsonify({"success": False, "error": f"Analysis failed: {str(e)}"}), 500
 
 
 # 5. Post Reach Predictor

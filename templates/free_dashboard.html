@@ -383,6 +383,11 @@
             <button class="btn-primary" id="showVariationsBtn" style="width:100%; margin-bottom:16px;">
                 📝 Show Caption Variations
             </button>
+
+            <!-- NEW: Comprehensive Analysis Button -->
+            <button class="btn-primary" id="comprehensiveAnalysisBtn" style="width:100%; margin-bottom:16px; background:linear-gradient(135deg, #9d6eff, #7c3aed);">
+                🧠 Full Analysis (Structured)
+            </button>
         </div>
 
         <!-- NEW: Variations Display Section -->
@@ -392,6 +397,79 @@
                 <div id="variationsContainer" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
                     <!-- Variations will be inserted here -->
                 </div>
+            </div>
+        </div>
+
+        <!-- NEW: Comprehensive Analysis Display Section -->
+        <div id="comprehensiveSection" class="hidden" style="margin-top:20px;">
+            <div class="glass-card" style="background:rgba(100,80,200,.12); border:1px solid rgba(150,130,255,.3);">
+                <h2 style="margin-bottom:20px; color:#d5c8ff;">🧠 Comprehensive Caption Analysis</h2>
+                <p style="font-size:12px; margin-bottom:16px; color:#a8a0d5;">Language: <strong id="compLang">English</strong></p>
+                
+                <!-- 1. SEO Score -->
+                <article class="opt-card" style="margin-bottom:16px;">
+                    <h3>1️⃣ SEO SCORE</h3>
+                    <p><strong id="compSeoScore">–</strong>/100</p>
+                    <p style="font-size:12px; margin-top:6px; color:#a8a0d5;"><span id="compSeoGrade">–</span> Grade</p>
+                    <p style="font-size:11px; margin-top:8px; line-height:1.4; color:#d5c8ff;"><span id="compSeoExpl">–</span></p>
+                </article>
+
+                <!-- 2. Emotion Detection -->
+                <article class="opt-card" style="margin-bottom:16px;">
+                    <h3>2️⃣ EMOTION DETECTION</h3>
+                    <p><strong>Type:</strong> <span id="compEmotion">–</span></p>
+                    <p><strong>Confidence:</strong> <span id="compEmoConf">–</span>%</p>
+                    <p style="font-size:11px; margin-top:8px; line-height:1.4; color:#d5c8ff;"><strong>Reason:</strong> <span id="compEmoReason">–</span></p>
+                    <p style="font-size:11px; margin-top:6px; color:#a8a0d5;"><strong>Keywords:</strong> <span id="compEmoKeywords">–</span></p>
+                </article>
+
+                <!-- 3. Authenticity -->
+                <article class="opt-card" style="margin-bottom:16px;">
+                    <h3>3️⃣ AUTHENTICITY ANALYSIS</h3>
+                    <p><strong>Real:</strong> <span id="compRealPct">–</span>%</p>
+                    <p><strong>Fake/AI:</strong> <span id="compFakePct">–</span>%</p>
+                    <p style="font-size:11px; margin-top:8px; line-height:1.4; color:#d5c8ff;"><span id="compAuthAnalysis">–</span></p>
+                </article>
+
+                <!-- 4. Rewrites -->
+                <article class="opt-card" style="margin-bottom:16px;">
+                    <h3>4️⃣ CAPTION REWRITES</h3>
+                    
+                    <div style="margin-bottom:16px;">
+                        <p style="font-size:12px; font-weight:600; color:#d5c8ff; margin-bottom:8px;">📌 Short & Impactful:</p>
+                        <div id="compRewritesShort" style="display:grid; gap:8px;">
+                            <p style="font-size:11px; background:rgba(20,18,45,.4); padding:8px; border-radius:6px; border-left:3px solid #7c3aed; color:#fff;">–</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:16px;">
+                        <p style="font-size:12px; font-weight:600; color:#d5c8ff; margin-bottom:8px;">📱 Social Media Friendly:</p>
+                        <div id="compRewritesSocial" style="display:grid; gap:8px;">
+                            <p style="font-size:11px; background:rgba(20,18,45,.4); padding:8px; border-radius:6px; border-left:3px solid #7c3aed; color:#fff;">–</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p style="font-size:12px; font-weight:600; color:#d5c8ff; margin-bottom:8px;">⚠️ Emotional/Alert:</p>
+                        <div id="compRewritesEmotional" style="display:grid; gap:8px;">
+                            <p style="font-size:11px; background:rgba(20,18,45,.4); padding:8px; border-radius:6px; border-left:3px solid #7c3aed; color:#fff;">–</p>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 5. Tone-Specific -->
+                <article class="opt-card" style="margin-bottom:16px;">
+                    <h3>5️⃣ TONE-SPECIFIC REWRITE</h3>
+                    <p style="font-size:12px; margin-bottom:8px;"><strong>Tone:</strong> <span id="compTone">–</span></p>
+                    <p style="font-size:11px; line-height:1.4; color:#a8a0d5; margin-bottom:10px;"><span id="compToneExpl">–</span></p>
+                    <p style="font-size:11px; background:rgba(20,18,45,.4); padding:10px; border-radius:6px; border-left:3px solid #7c3aed; color:#fff; line-height:1.5;" id="compToneRewrite">–</p>
+                </article>
+
+                <!-- 6. Hashtags -->
+                <article class="opt-card">
+                    <h3>6️⃣ RECOMMENDED HASHTAGS</h3>
+                    <p style="font-size:11px; line-height:1.6; word-wrap:break-word;" id="compHashtags">–</p>
+                </article>
             </div>
         </div>
 
@@ -848,6 +926,113 @@ async function handleShowVariations() {
     }
 }
 
+// ============= COMPREHENSIVE ANALYSIS =============
+async function handleComprehensiveAnalysis() {
+    const caption = $id('userCaption').value.trim();
+    const tone = $id('toneSelect').value.trim();
+    
+    if (!caption) {
+        alert('Please enter a caption first.');
+        return;
+    }
+    if (!tone) {
+        alert('Please select a tone.');
+        return;
+    }
+
+    const btn = $id('comprehensiveAnalysisBtn');
+    btn.disabled = true;
+    btn.textContent = 'Analyzing...';
+
+    try {
+        console.log(`[COMPREHENSIVE] Starting full analysis for tone: ${tone}`);
+        showLoader();
+
+        const response = await fetch('/api/comprehensive_analysis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ caption, tone })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            alert(`Error: ${error.error || 'Failed to generate analysis'}`);
+            return;
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+            alert(`Error: ${result.error}`);
+            return;
+        }
+
+        console.log(`[COMPREHENSIVE] Analysis complete - Language: ${result.language}`);
+
+        // Populate fields
+        const a = result.analysis;
+        
+        // Language
+        $id('compLang').textContent = result.language;
+        
+        // 1. SEO
+        $id('compSeoScore').textContent = a.seo.score;
+        $id('compSeoGrade').textContent = a.seo.grade;
+        $id('compSeoExpl').textContent = a.seo.explanation;
+        
+        // 2. Emotion
+        $id('compEmotion').textContent = a.emotion.type;
+        $id('compEmoConf').textContent = a.emotion.confidence_percent;
+        $id('compEmoReason').textContent = a.emotion.reason;
+        $id('compEmoKeywords').textContent = a.emotion.keywords_detected.join(', ') || 'None';
+        
+        // 3. Authenticity
+        $id('compRealPct').textContent = a.authenticity.real_percent;
+        $id('compFakePct').textContent = a.authenticity.fake_percent;
+        $id('compAuthAnalysis').textContent = a.authenticity.reasoning || a.authenticity.linguistic_markers.intensity_level;
+        
+        // 4. Rewrites
+        const renderRewrites = (containerId, captions) => {
+            const container = $id(containerId);
+            container.innerHTML = '';
+            captions.forEach((cap, i) => {
+                const p = document.createElement('p');
+                p.style.cssText = 'font-size:11px; background:rgba(20,18,45,.4); padding:8px; border-radius:6px; border-left:3px solid #7c3aed; color:#fff; margin-bottom:6px;';
+                p.textContent = `${i + 1}. ${cap}`;
+                container.appendChild(p);
+            });
+        };
+        
+        renderRewrites('compRewritesShort', a.rewrites.short_impactful || []);
+        renderRewrites('compRewritesSocial', a.rewrites.social_media_friendly || []);
+        renderRewrites('compRewritesEmotional', a.rewrites.emotional_alert || []);
+        
+        // 5. Tone-Specific
+        $id('compTone').textContent = a.tone_specific.tone;
+        $id('compToneExpl').textContent = a.tone_specific.explanation;
+        $id('compToneRewrite').textContent = a.tone_specific.rewritten_caption;
+        
+        // 6. Hashtags
+        $id('compHashtags').textContent = a.hashtags.join(' ') || 'No hashtags generated';
+        
+        // Show comprehensive section
+        $id('comprehensiveSection').classList.remove('hidden');
+        $id('analyzeResults').classList.add('hidden');
+        $id('optimizeResults').classList.add('hidden');
+        $id('variationsSection').classList.add('hidden');
+        $id('hashtagSection').classList.add('hidden');
+
+        console.log('[COMPREHENSIVE] Display complete');
+
+    } catch (error) {
+        console.error('[COMPREHENSIVE] Error:', error);
+        alert('Failed to generate comprehensive analysis. Please try again.');
+    } finally {
+        hideLoader();
+        btn.disabled = false;
+        btn.textContent = '🧠 Full Analysis (Structured)';
+    }
+}
+
 // ============= COPY VARIATION CAPTION =============
 function copyVariationCaption(caption) {
     navigator.clipboard.writeText(caption).then(() => {
@@ -999,6 +1184,12 @@ window.addEventListener('DOMContentLoaded', safe(() => {
         e.preventDefault();
         console.log('[FREE-DASHBOARD] Show Variations button clicked');
         handleShowVariations();
+    });
+
+    $id('comprehensiveAnalysisBtn').addEventListener('click', e => {
+        e.preventDefault();
+        console.log('[FREE-DASHBOARD] Comprehensive Analysis button clicked');
+        handleComprehensiveAnalysis();
     });
 
     $id('copyBtn').addEventListener('click', e => {
