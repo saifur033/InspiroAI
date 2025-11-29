@@ -38,6 +38,7 @@ DetectorFactory.seed = 0
 # INTERNAL MODULES (Primary)
 # ---------------------------------------------------------
 from src.caption_generator import rewrite_caption, generate_caption_variations
+from src.caption_variations_engine import create_truly_different_variations
 from src.emotion_model import detect_emotion
 from src.seo_score import compute_seo_score
 from src.fake_real_model import detect_fake
@@ -1703,6 +1704,60 @@ def voice_caption():
         import traceback
         traceback.print_exc()
         return jsonify({"success": False, "error": "Voice processing failed"}), 500
+
+
+# ============================================================================
+# 14. ADVANCED CAPTION VARIATIONS ENGINE (TRULY DIFFERENT CAPTIONS)
+# ============================================================================
+
+@app.post("/api/caption_variations_pro")
+@validate_json_request
+def caption_variations_pro():
+    """
+    Generate 7 TRULY DIFFERENT caption variations using different approaches.
+    Each variation has:
+    - Different structure (hook, story, data, question, CTA, emoji, benefit)
+    - Different SEO score
+    - Different emotion
+    - Different length
+    
+    This creates REAL alternatives, not just cosmetic changes!
+    """
+    try:
+        data = request.get_json() or {}
+        caption = safe_string(data.get("caption", ""), 2000)
+        tone = safe_string(data.get("tone", "professional"), 50)
+        
+        if not caption or len(caption.strip()) < 5:
+            return jsonify({"success": False, "error": "Caption too short (min 5 chars)"}), 400
+        
+        # Generate truly different variations
+        result = create_truly_different_variations(caption, tone)
+        
+        if not result.get("success"):
+            return jsonify({
+                "success": False,
+                "error": result.get("error", "Failed to generate variations")
+            }), 400
+        
+        logger.info(f"[OK] Generated {result['total_variations']} pro variations for caption")
+        
+        return jsonify({
+            "success": True,
+            "data": {
+                "original_caption": caption,
+                "tone": tone,
+                "language": result.get("language", "en"),
+                "total_variations": result.get("total_variations", 0),
+                "variations": result.get("variations", []),
+                "insight": result.get("insight", "Caption variations generated"),
+                "note": "Each variation uses a DIFFERENT approach (hook, story, data, question, CTA, emoji-enhanced, benefit-focused). Different structure = Different SEO + Different emotion!"
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"[ERROR] caption_variations_pro: {str(e)}")
+        return jsonify({"success": False, "error": "Variation generation failed"}), 500
 
 
 # ============================================================================
