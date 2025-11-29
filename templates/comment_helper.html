@@ -350,10 +350,10 @@ async function generateComments(){
     if(genBtn) genBtn.disabled = true;
     if(window.showLoader) showLoader();
     try{
-        const res = await fetch('/api/comment_helper', { 
+        const res = await fetch('/api/generate_comments', { 
             method: 'POST', 
             headers: {'Content-Type':'application/json'}, 
-            body: JSON.stringify({ caption, tone, emoji }) 
+            body: JSON.stringify({ caption, tone }) 
         });
         
         let j;
@@ -363,51 +363,58 @@ async function generateComments(){
             throw new Error('Invalid JSON response from server');
         }
 
-        if(!res.ok) {
+        if(!res.ok || !j.success) {
             const errMsg = j && j.error ? j.error : ('Server error: ' + res.status);
             throw new Error(errMsg);
         }
         
-        // Use server-provided keywords and detected tone/emoji if available
-        const keywords = (j && Array.isArray(j.keywords)) ? j.keywords : [];
-        const detectedTone = j.tone || tone || 'auto';
-        const detectedEmoji = j.emoji || emoji || 'auto';
-        const relevanceScore = j.relevance_score || 0;
-        const language = j.language || 'en';
-        const feedback = j.feedback || 'Caption matching verified';
+        // Extract data from response
+        const data = j.data || {};
+        const comments = data.comments || {};
+        const language = data.language || 'en';
+        
+        // Extract comment categories
+        const friendly = comments.friendly || [];
+        const professional = comments.professional || [];
+        const emotional = comments.emotional || [];
+        const funny = comments.funny || [];
+        const tiktok = comments.tiktok || [];
+        const reels = comments.reels || [];
+        const topic = comments.topic || ['Post'];
 
-        // Server already returns personalized comments in most cases; display them directly
-        fill('friendlyComments', j.friendly || []);
-        fill('professionalComments', j.professional || []);
-        fill('emotionalComments', j.emotional || []);
-        fill('tiktokComments', j.tiktok || []);
-        fill('reelsComments', j.reels || []);
+        // Display comments in accordions
+        fill('friendlyComments', friendly);
+        fill('professionalComments', professional);
+        fill('emotionalComments', emotional);
+        fill('tiktokComments', tiktok);
+        fill('reelsComments', reels);
 
-        // Populate the new 3-column result cards for quick glance
-        fill('friendlyCommentsCard', j.friendly || []);
-        fill('professionalCommentsCard', j.professional || []);
-        fill('emotionalCommentsCard', j.emotional || []);
+        // Also populate result cards
+        fill('friendlyCommentsCard', friendly);
+        fill('professionalCommentsCard', professional);
+        fill('emotionalCommentsCard', emotional);
 
-        // Show the results grid and topic + chips
+        // Show the results grid
         const resultsGrid = document.getElementById('resultsGrid');
         if(resultsGrid) resultsGrid.style.display = (window.innerWidth <= 980) ? 'block' : 'grid';
 
-        fillTopicWithKeywords(j.topic || ['Post'], keywords);
+        // Show topic
+        fillTopicWithKeywords(topic, []);
 
-        // Keep the accordion available below for expanded view
+        // Show accordion section
         document.getElementById('accordionSection').style.display = 'block';
         enableAccordion();
         
-        // Show relevance status with language support
+        // Show success status
         let statusText;
         if(language === 'bn') {
-            statusText = `মন্তব্য তৈরি হয়েছে ✓ - Tone: ${detectedTone}, Emoji: ${detectedEmoji}, প্রাসঙ্গিকতা: ${relevanceScore.toFixed(0)}%`;
+            statusText = `✓ মন্তব্য তৈরি হয়েছে - ${friendly.length + professional.length + emotional.length + funny.length + tiktok.length + reels.length} টি মন্তব্য`;
         } else {
-            statusText = `Comments generated ✓ - Tone: ${detectedTone}, Emoji: ${detectedEmoji}, Relevance: ${relevanceScore.toFixed(0)}%`;
+            statusText = `✓ Comments generated - ${friendly.length + professional.length + emotional.length + funny.length + tiktok.length + reels.length} total comments`;
         }
         
         if(statusBox) statusBox.textContent = statusText;
-        if(window.toastSuccess) toastSuccess('Comments auto-generated!');
+        if(window.toastSuccess) toastSuccess('Comments generated successfully!');
         else console.log('Generated successfully');
     }catch(err){ 
         console.error('Comment generation error:', err); 

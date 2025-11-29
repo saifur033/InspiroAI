@@ -1551,6 +1551,74 @@ def process_caption_master():
         return jsonify({"success": False, "error": "Master processing failed"}), 500
 
 
+@app.route("/api/generate_comments", methods=["POST"])
+def generate_comments_api():
+    """
+    Generate friendly comments based on user's caption.
+    
+    Features:
+    - Auto-detects Bangla/English
+    - Generates 5 unique, friendly comments
+    - No repetition between comments
+    - Caption-context aware
+    - Supports different tones (friendly, professional, emotional, funny, tiktok, reels)
+    
+    Request JSON:
+    {
+        "caption": "User's caption text",
+        "tone": "friendly" (optional: friendly, professional, emotional, funny, tiktok, reels)
+    }
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "language": "en" or "bn",
+            "comments": {
+                "friendly": [...],
+                "professional": [...],
+                "emotional": [...],
+                ...
+            }
+        }
+    }
+    """
+    try:
+        data = request.get_json() or {}
+        caption = safe_string(data.get("caption", ""), 2000)
+        tone = data.get("tone", None)
+        
+        if not caption or len(caption.strip()) < 5:
+            return jsonify({"success": False, "error": "Caption required (min 5 chars)"}), 400
+        
+        print(f"[COMMENTS] Processing caption: {caption[:40]}...")
+        
+        # Generate comments
+        result = generate_comments(caption=caption, tone=tone)
+        
+        # Detect language
+        from src.comment_ai import detect_language
+        language = detect_language(caption)
+        
+        print(f"[COMMENTS] ✓ Generated - Language: {language}")
+        
+        return jsonify({
+            "success": True,
+            "data": {
+                "language": language,
+                "comments": result,
+                "caption_preview": caption[:100]
+            }
+        })
+    
+    except Exception as e:
+        print(f"[COMMENTS] EXCEPTION: {str(e)}")
+        logger.error(f"[ERROR] generate_comments_api: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": "Comment generation failed"}), 500
+
+
 # ---------------------------------------------------------
 # RUN SERVER
 # ---------------------------------------------------------
