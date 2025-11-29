@@ -172,3 +172,50 @@ def get_caption_from_video(video_path: str) -> dict:
             "hashtags": [],
             "duration": 0
         }
+
+
+# ==========================================================
+# VOICE RECORDING → TEXT CONVERSION
+# ==========================================================
+
+def convert_audio_to_text(audio_path: str) -> str:
+    """
+    Convert audio file to text using speech recognition.
+    
+    Args:
+        audio_path: Path to audio file (webm, wav, mp3, etc.)
+    
+    Returns:
+        Transcribed text (beautified)
+    """
+    if not HAS_SPEECH_RECOGNITION:
+        return "Speech recognition not available. Please install python-speech_recognition."
+    
+    try:
+        # Initialize recognizer
+        recognizer = sr.Recognizer()
+        
+        # Load audio file
+        with sr.AudioFile(audio_path) as source:
+            audio_data = recognizer.record(source)
+        
+        # Try to recognize speech using Google Speech Recognition API (free)
+        try:
+            text = recognizer.recognize_google(audio_data, language="en-US")
+        except sr.UnknownValueError:
+            # If Google fails, try with other language
+            try:
+                text = recognizer.recognize_google(audio_data, language="bn-BD")
+            except sr.UnknownValueError:
+                return "Could not understand the audio"
+        except sr.RequestError as e:
+            return f"Speech recognition service error: {str(e)}"
+        
+        # Beautify the transcribed text
+        lang = detect_language(text)
+        beautified = _beautify_text(text, lang)
+        
+        return beautified
+    
+    except Exception as e:
+        return f"Error converting audio: {str(e)}"

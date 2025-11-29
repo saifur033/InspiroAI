@@ -1619,6 +1619,85 @@ def generate_comments_api():
         return jsonify({"success": False, "error": "Comment generation failed"}), 500
 
 
+@app.route("/api/voice_caption", methods=["POST"])
+def voice_caption():
+    """
+    Convert voice recording to caption text.
+    
+    Features:
+    - Accepts audio blob from frontend
+    - Converts speech to text
+    - Auto-detects language (Bangla/English)
+    - Returns beautified transcript
+    
+    Request: FormData with 'audio' file
+    Response:
+    {
+        "success": true,
+        "text": "Transcribed text here",
+        "language": "en" or "bn"
+    }
+    """
+    try:
+        if 'audio' not in request.files:
+            print("[VOICE] ERROR: No audio file provided")
+            return jsonify({"success": False, "error": "Audio file required"}), 400
+        
+        audio_file = request.files['audio']
+        
+        if not audio_file or audio_file.filename == '':
+            print("[VOICE] ERROR: Empty audio file")
+            return jsonify({"success": False, "error": "Empty audio file"}), 400
+        
+        print(f"[VOICE] Processing audio: {audio_file.filename}")
+        
+        # Save temp file
+        temp_path = None
+        try:
+            from werkzeug.utils import secure_filename
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.webm') as tmp:
+                audio_file.save(tmp.name)
+                temp_path = tmp.name
+            
+            # Import voice_caption module
+            from src.voice_caption import convert_audio_to_text
+            
+            # Convert audio to text
+            transcript = convert_audio_to_text(temp_path)
+            
+            if not transcript or len(transcript.strip()) < 2:
+                print("[VOICE] ERROR: Could not transcribe audio")
+                return jsonify({"success": False, "error": "Could not transcribe audio"}), 400
+            
+            # Detect language
+            from src.utils import detect_language
+            language = detect_language(transcript)
+            
+            print(f"[VOICE] ✓ Transcribed: {transcript[:50]}... | Language: {language}")
+            logger.info(f"[OK] Voice to caption: {transcript[:30]}... | Language: {language}")
+            
+            return jsonify({
+                "success": True,
+                "text": transcript,
+                "language": language
+            })
+        
+        finally:
+            # Clean up temp file
+            if temp_path and os.path.exists(temp_path):
+                try:
+                    os.remove(temp_path)
+                except:
+                    pass
+    
+    except Exception as e:
+        print(f"[VOICE] EXCEPTION: {str(e)}")
+        logger.error(f"[ERROR] voice_caption: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": "Voice processing failed"}), 500
+
+
 # ---------------------------------------------------------
 # RUN SERVER
 # ---------------------------------------------------------
