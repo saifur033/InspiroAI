@@ -45,6 +45,7 @@ from src.comment_ai import generate_comments
 from src.image_caption_generator import generate_caption_for_image
 from src.comprehensive_analysis import comprehensive_caption_analysis, format_comprehensive_output
 from src.caption_analyzer import analyze_caption
+from src.master_caption_processor import process_master_caption, format_output_for_display
 try:
     import importlib
     _vc_mod = importlib.import_module("src.voice_caption")
@@ -1483,6 +1484,71 @@ def analyze_caption_lightweight():
         print(f"[ANALYZER] EXCEPTION: {str(e)}")
         logger.error(f"[ERROR] analyze_caption_lightweight: {str(e)}")
         return jsonify({"success": False, "error": "Analysis failed"}), 500
+
+
+@app.route("/api/process_caption_master", methods=["POST"])
+def process_caption_master():
+    """
+    Master Caption Processor - Complete human-quality analysis system.
+    
+    Features:
+    - Language auto-detection (Bangla ↔ English)
+    - Dynamic SEO scoring (0-100, caption-specific)
+    - Emotion detection (9 types with real word citations)
+    - Authenticity analysis (Real% vs AI-Like%)
+    - Caption optimization (2 versions: Professional + Social Friendly)
+    - Hashtag generation (12-20 context-aware)
+    - Reach & timing insights (dynamic, not fixed)
+    - Caption idea generation (optional)
+    
+    Request JSON:
+    {
+        "caption": "User's caption",
+        "generate_ideas": false,
+        "topic_for_ideas": "" (required if generate_ideas=true)
+    }
+    """
+    try:
+        data = request.get_json() or {}
+        caption = safe_string(data.get("caption", ""), 2000)
+        generate_ideas = data.get("generate_ideas", False)
+        topic_for_ideas = safe_string(data.get("topic_for_ideas", ""), 100)
+        
+        if not caption or len(caption) < 3:
+            print("[MASTER] ERROR: Caption too short")
+            return jsonify({"success": False, "error": "Caption required (min 3 chars)"}), 400
+        
+        if generate_ideas and not topic_for_ideas:
+            print("[MASTER] ERROR: Topic required for idea generation")
+            return jsonify({"success": False, "error": "Topic required for caption ideas generation"}), 400
+        
+        print(f"[MASTER] Processing caption: {caption[:40]}... | Generate ideas: {generate_ideas}")
+        
+        # Run master processor
+        result = process_master_caption(
+            caption=caption,
+            generate_ideas=generate_ideas,
+            topic_for_ideas=topic_for_ideas
+        )
+        
+        # Format output for display
+        formatted_output = format_output_for_display(result, result.get("language", "en"))
+        
+        print(f"[MASTER] ✓ Complete - Language: {result.get('language')}, SEO: {result.get('analysis', {}).get('seo_score')}, Emotion: {result.get('analysis', {}).get('emotion')}")
+        logger.info(f"[OK] Master caption processed: Language={result.get('language')}, SEO={result.get('analysis', {}).get('seo_score')}")
+        
+        return jsonify({
+            "success": True,
+            "data": result,
+            "formatted": formatted_output
+        })
+    
+    except Exception as e:
+        print(f"[MASTER] EXCEPTION: {str(e)}")
+        logger.error(f"[ERROR] process_caption_master: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": "Master processing failed"}), 500
 
 
 # ---------------------------------------------------------
