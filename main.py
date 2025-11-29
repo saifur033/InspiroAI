@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-InspiroAI Backend — v12.0 (Full Stable + Fallback + Scheduler Enabled)
+InspiroAI Backend — v12.1 (Best Time Analysis Added)
+35 API Endpoints + Best Posting Time Analysis
 Fully Synced With Updated Frontend (Free / Pro / Comment / Token / Admin)
 """
 
@@ -46,6 +47,12 @@ from src.image_caption_generator import generate_caption_for_image
 from src.comprehensive_analysis import comprehensive_caption_analysis, format_comprehensive_output
 from src.caption_analyzer import analyze_caption
 from src.master_caption_processor import process_master_caption, format_output_for_display
+from src.best_time_analyzer import (
+    analyze_best_posting_time,
+    get_all_days_analysis,
+    get_hourly_analysis,
+    get_weekly_posting_strategy
+)
 try:
     import importlib
     _vc_mod = importlib.import_module("src.voice_caption")
@@ -1696,6 +1703,142 @@ def voice_caption():
         import traceback
         traceback.print_exc()
         return jsonify({"success": False, "error": "Voice processing failed"}), 500
+
+
+# ============================================================================
+# 15. BEST TIME TO POST ANALYSIS ENDPOINTS
+# ============================================================================
+
+@app.get("/api/best_time")
+@validate_json_request
+def best_time_analysis():
+    """Get best posting time for specific day with detailed analytics"""
+    try:
+        day = safe_string(request.args.get("day", ""), 15).lower()
+        post_type = safe_string(request.args.get("type", "non-paid"), 15).lower()
+        content_type = safe_string(request.args.get("content", ""), 15).lower()
+        audience = safe_string(request.args.get("audience", ""), 20).lower()
+        
+        # Validate post type
+        if post_type not in ["paid", "non-paid"]:
+            post_type = "non-paid"
+        
+        # Validate content type
+        valid_content = ["video", "image", "carousel", "text", "link", "reel"]
+        if content_type and content_type not in valid_content:
+            content_type = None
+        
+        # Get analysis
+        result = analyze_best_posting_time(
+            day=day if day else None,
+            post_type=post_type,
+            content_type=content_type if content_type else None,
+            audience=audience if audience else None
+        )
+        
+        print(f"[BEST_TIME] Analysis for day={day}, type={post_type}, content={content_type}")
+        logger.info(f"[OK] Best time analysis: {day}, {post_type}")
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        })
+    except Exception as e:
+        print(f"[BEST_TIME] ERROR: {str(e)}")
+        logger.error(f"[ERROR] best_time: {str(e)}")
+        return jsonify({"success": False, "error": "Best time analysis failed"}), 500
+
+
+@app.get("/api/all_days_analysis")
+@validate_json_request
+def all_days_analysis():
+    """Compare posting performance across all days of the week"""
+    try:
+        post_type = safe_string(request.args.get("type", "non-paid"), 15).lower()
+        content_type = safe_string(request.args.get("content", ""), 15).lower()
+        
+        if post_type not in ["paid", "non-paid"]:
+            post_type = "non-paid"
+        
+        valid_content = ["video", "image", "carousel", "text", "link", "reel"]
+        if content_type and content_type not in valid_content:
+            content_type = None
+        
+        # Get all days comparison
+        results = get_all_days_analysis(
+            post_type=post_type,
+            content_type=content_type if content_type else None
+        )
+        
+        print(f"[ALL_DAYS] Comparison for type={post_type}, content={content_type}")
+        logger.info(f"[OK] All days analysis complete")
+        
+        return jsonify({
+            "success": True,
+            "data": results,
+            "post_type": post_type,
+            "content_type": content_type or "general"
+        })
+    except Exception as e:
+        print(f"[ALL_DAYS] ERROR: {str(e)}")
+        logger.error(f"[ERROR] all_days_analysis: {str(e)}")
+        return jsonify({"success": False, "error": "Days analysis failed"}), 500
+
+
+@app.get("/api/hourly_breakdown")
+@validate_json_request
+def hourly_breakdown():
+    """Get detailed hourly breakdown for specific day"""
+    try:
+        day = safe_string(request.args.get("day", "friday"), 15).lower()
+        
+        days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+        if day not in days:
+            day = "friday"
+        
+        # Get hourly breakdown
+        hourly_data = get_hourly_analysis(day)
+        
+        print(f"[HOURLY] Breakdown for {day}")
+        logger.info(f"[OK] Hourly breakdown: {day}")
+        
+        return jsonify({
+            "success": True,
+            "day": day.capitalize(),
+            "hourly_breakdown": hourly_data
+        })
+    except Exception as e:
+        print(f"[HOURLY] ERROR: {str(e)}")
+        logger.error(f"[ERROR] hourly_breakdown: {str(e)}")
+        return jsonify({"success": False, "error": "Hourly breakdown failed"}), 500
+
+
+@app.get("/api/weekly_strategy")
+@validate_json_request
+def weekly_strategy():
+    """Get recommended posting strategy for entire week"""
+    try:
+        goal = safe_string(request.args.get("goal", "balanced"), 20).lower()
+        
+        valid_goals = ["maximize_reach", "maximize_engagement", "balanced"]
+        if goal not in valid_goals:
+            goal = "balanced"
+        
+        # Get weekly strategy
+        strategy = get_weekly_posting_strategy(goal)
+        
+        print(f"[WEEKLY] Strategy for goal={goal}")
+        logger.info(f"[OK] Weekly strategy: {goal}")
+        
+        return jsonify({
+            "success": True,
+            "goal": goal,
+            "strategy": strategy
+        })
+    except Exception as e:
+        print(f"[WEEKLY] ERROR: {str(e)}")
+        logger.error(f"[ERROR] weekly_strategy: {str(e)}")
+        return jsonify({"success": False, "error": "Weekly strategy failed"}), 500
 
 
 # ---------------------------------------------------------

@@ -404,3 +404,49 @@ User Sees Result
 **Generated**: November 29, 2025  
 **InspiroAI Version**: 10.0  
 **Status**: Production Ready ✅
+
+---
+
+## 📥 Data Flow Overview
+
+```
+INPUT SOURCES
+  📝 Text / 🎤 Voice / 🖼️ Image / 📋 Template
+        ↓
+PROCESSING
+  /api/process_caption_master
+        ↓
+5-SECTION ANALYSIS
+  1️⃣ Analysis (SEO, Emotion, Authenticity)
+  2️⃣ Optimization (Professional, Social)
+  3️⃣ Hashtags (12-20 dynamic)
+  4️⃣ Insights (Timing, Engagement, Audience)
+  5️⃣ Ideas (Short, Emotional Captions)
+        ↓
+OUTPUT ACTIONS
+  📱 Share / ⏰ Schedule / 💬 Comments / 📋 Copy / 💾 Save
+```
+
+---
+
+# Tabs Overview
+
+## Tab 1: System Architecture
+  ├─ User Layer (5 pages)
+  ├─ Backend (31 routes)
+  ├─ AI Modules (17)
+  ├─ Database (5 tables)
+  └─ External Services
+
+## Tab 2: Data Flow
+  ├─ Input Sources
+  ├─ Processing Pipeline
+  ├─ 5-Section Analysis
+  └─ Output Actions
+
+## Tab 3: Component Interaction
+  ├─ Frontend
+  ├─ Backend
+  ├─ AI Modules
+  ├─ Database
+  └─ External APIs
