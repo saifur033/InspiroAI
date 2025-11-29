@@ -44,6 +44,7 @@ from src.hashtag_ranker import generate_hashtags
 from src.comment_ai import generate_comments
 from src.image_caption_generator import generate_caption_for_image
 from src.comprehensive_analysis import comprehensive_caption_analysis, format_comprehensive_output
+from src.caption_analyzer import analyze_caption
 try:
     import importlib
     _vc_mod = importlib.import_module("src.voice_caption")
@@ -1428,6 +1429,60 @@ def cache_info():
             "success": False,
             "error": str(e)
         }), 500
+
+
+# ====================================================================
+# LIGHTWEIGHT CAPTION ANALYZER (Render-Safe, Deterministic)
+# ====================================================================
+@app.post("/api/analyze_caption_lightweight")
+def analyze_caption_lightweight():
+    """
+    Lightweight, deterministic caption analysis & optimization.
+    
+    Features:
+    - Language auto-detect (Bangla/English)
+    - Deterministic SEO, Emotion, Authenticity, Hashtags
+    - Tone-guided optimization
+    - No randomness, Render-safe
+    """
+    try:
+        data = request.get_json() or {}
+        caption = safe_string(data.get("caption", ""), 2000)
+        action = safe_string(data.get("action", "analyze"), 20)  # analyze or optimize
+        tone = safe_string(data.get("tone", ""), 50)  # For optimization
+        
+        if not caption or len(caption) < 3:
+            print("[ANALYZER] ERROR: Caption too short")
+            return jsonify({"success": False, "error": "Caption required (min 3 chars)"}), 400
+        
+        # Validate action
+        if action not in ["analyze", "optimize"]:
+            print("[ANALYZER] ERROR: Invalid action")
+            return jsonify({"success": False, "error": "Action must be 'analyze' or 'optimize'"}), 400
+        
+        # Validate tone if optimizing
+        valid_tones = ["professional", "friendly", "emotional", "trendy", "funny", "supportive", "informative", "curious"]
+        if action == "optimize" and tone and tone not in valid_tones:
+            print(f"[ANALYZER] ERROR: Invalid tone '{tone}'")
+            return jsonify({"success": False, "error": f"Tone must be one of: {', '.join(valid_tones)}"}), 400
+        
+        print(f"[ANALYZER] Analyzing caption: {caption[:40]}... | Action: {action} | Tone: {tone or 'N/A'}")
+        
+        # Run analysis
+        result = analyze_caption(caption, action=action, tone=tone if action == "optimize" else None)
+        
+        print(f"[ANALYZER] ✓ Complete - SEO: {result.get('seo_score')}, Emotion: {result.get('emotion')}, Real%: {result.get('real_percent')}")
+        logger.info(f"[OK] Caption analyzed: SEO={result.get('seo_score')}, Emotion={result.get('emotion')}")
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        })
+    
+    except Exception as e:
+        print(f"[ANALYZER] EXCEPTION: {str(e)}")
+        logger.error(f"[ERROR] analyze_caption_lightweight: {str(e)}")
+        return jsonify({"success": False, "error": "Analysis failed"}), 500
 
 
 # ---------------------------------------------------------
