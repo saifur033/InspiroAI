@@ -1,0 +1,366 @@
+<mxfile host="app.diagrams.net" modified="2025-11-29T10:30:00.000Z" agent="5.0" etag="abc123" version="24.0.0" type="device">
+  <diagram id="InspiroAI-Architecture" name="InspiroAI System Architecture">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="InspiroAI - Complete System Architecture (v10.0)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=24;fontStyle=1;fontColor=#1a1a1a;" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="600" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ===== LAYER 1: USER LAYER ===== -->
+        <mxCell id="layer1-title" value="🎨 USER LAYER (Frontend)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#E8F4F8;fontSize=14;fontStyle=1;fontColor=#0066cc;" vertex="1" parent="1">
+          <mxGeometry x="100" y="100" width="1200" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Pro Dashboard -->
+        <mxCell id="pro-dash" value="Pro Dashboard&#xa;(pro_dashboard.html)&#xa;✓ Advanced Features" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B3E5FC;strokeColor=#0288D1;strokeWidth=2;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="150" y="150" width="150" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Free Dashboard -->
+        <mxCell id="free-dash" value="Free Dashboard&#xa;(free_dashboard.html)&#xa;✓ Basic Features" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B3E5FC;strokeColor=#0288D1;strokeWidth=2;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="400" y="150" width="150" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Comment Helper -->
+        <mxCell id="comment-hlp" value="Comment Helper&#xa;(comment_helper.html)&#xa;✓ AI Comments" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B3E5FC;strokeColor=#0288D1;strokeWidth=2;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="650" y="150" width="150" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Scheduler -->
+        <mxCell id="scheduler" value="Scheduler&#xa;(scheduler.html)&#xa;✓ Schedule Posts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B3E5FC;strokeColor=#0288D1;strokeWidth=2;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="900" y="150" width="150" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Token Dashboard -->
+        <mxCell id="token-dash" value="Token Dashboard&#xa;(token_dashboard.html)&#xa;✓ Settings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B3E5FC;strokeColor=#0288D1;strokeWidth=2;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="150" width="150" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow from UI to Backend -->
+        <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1a1a1a;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="pro-dash" target="backend-title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== LAYER 2: BACKEND LAYER ===== -->
+        <mxCell id="backend-title" value="🚀 BACKEND LAYER (Flask - 31 Routes)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#F0F4C3;fontSize=14;fontStyle=1;fontColor=#996600;" vertex="1" parent="1">
+          <mxGeometry x="100" y="300" width="1200" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Main.py Center -->
+        <mxCell id="main-py" value="main.py&#xa;Flask Server&#xa;127.0.0.1:5000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE082;strokeColor=#F57F17;strokeWidth=3;fontSize=12;align=center;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="360" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- API Routes Group 1 -->
+        <mxCell id="routes1" value="Page Routes (5)&#xa;/pro, /free, /comment-helper&#xa;/scheduler, /token-dashboard" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCC80;strokeColor=#E65100;strokeWidth=2;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="360" width="130" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- API Routes Group 2 -->
+        <mxCell id="routes2" value="Caption Routes (8)&#xa;/api/process&#xa;/api/voice&#xa;/api/generate_comments" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCC80;strokeColor=#E65100;strokeWidth=2;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="360" width="130" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Analysis Routes -->
+        <mxCell id="routes3" value="Analysis Routes (6)&#xa;/api/analyze&#xa;/api/emotion&#xa;/api/reach" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCC80;strokeColor=#E65100;strokeWidth=2;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="480" width="130" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Media Routes -->
+        <mxCell id="routes4" value="Media Routes (4)&#xa;/api/image_caption&#xa;/api/facebook_post" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCC80;strokeColor=#E65100;strokeWidth=2;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="480" width="130" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow to AI Modules -->
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1a1a1a;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="main-py" target="ai-title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== LAYER 3: AI MODULES ===== -->
+        <mxCell id="ai-title" value="🤖 AI MODULES LAYER (17 Core Modules)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#E1BEE7;fontSize=14;fontStyle=1;fontColor=#6A1B9A;" vertex="1" parent="1">
+          <mxGeometry x="100" y="640" width="1200" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Analysis Module -->
+        <mxCell id="ai-analysis" value="📊 Caption Analysis&#xa;• caption_analyzer.py&#xa;• master_caption_processor.py&#xa;• caption_generator.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CE93D8;strokeColor=#8E24AA;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="120" y="690" width="140" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Emotion Module -->
+        <mxCell id="ai-emotion" value="❤️ Emotion Detection&#xa;• emotion_model.py&#xa;• fake_real_model.py&#xa;• seo_score.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CE93D8;strokeColor=#8E24AA;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="310" y="690" width="140" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Content Module -->
+        <mxCell id="ai-content" value="📝 Content Intelligence&#xa;• hashtag_ranker.py&#xa;• comment_ai.py&#xa;• trend_scraper.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CE93D8;strokeColor=#8E24AA;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="690" width="140" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Media Module -->
+        <mxCell id="ai-media" value="🎬 Media Processing&#xa;• image_caption_generator.py&#xa;• voice_caption.py&#xa;• facebook_api.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CE93D8;strokeColor=#8E24AA;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="690" y="690" width="140" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Utility Module -->
+        <mxCell id="ai-utility" value="⚙️ Utilities &amp; DB&#xa;• db_manager.py&#xa;• utils.py&#xa;• templates.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CE93D8;strokeColor=#8E24AA;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="880" y="690" width="140" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow to Database -->
+        <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1a1a1a;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="ai-analysis" target="db-title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== LAYER 4: DATABASE ===== -->
+        <mxCell id="db-title" value="💾 DATABASE LAYER (SQLite v10.0)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#C8E6C9;fontSize=14;fontStyle=1;fontColor=#1B5E20;" vertex="1" parent="1">
+          <mxGeometry x="100" y="850" width="1200" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Captions Table -->
+        <mxCell id="db-captions" value="📄 captions&#xa;• id, text, seo_score&#xa;• emotion, language&#xa;• timestamp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#A5D6A7;strokeColor=#2E7D32;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="150" y="900" width="120" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Tokens Table -->
+        <mxCell id="db-tokens" value="🔑 tokens&#xa;• id, user_id&#xa;• platform_token&#xa;• page_id" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#A5D6A7;strokeColor=#2E7D32;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="350" y="900" width="120" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Scheduler Table -->
+        <mxCell id="db-scheduler" value="⏰ scheduler&#xa;• id, caption&#xa;• scheduled_time&#xa;• status" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#A5D6A7;strokeColor=#2E7D32;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="550" y="900" width="120" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Auto Share Table -->
+        <mxCell id="db-autoshare" value="🔄 auto_share_rules&#xa;• id, user_id&#xa;• metric, target&#xa;• active" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#A5D6A7;strokeColor=#2E7D32;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="750" y="900" width="120" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Trends Table -->
+        <mxCell id="db-trends" value="📈 trends&#xa;• id, keyword&#xa;• trend_score&#xa;• category" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#A5D6A7;strokeColor=#2E7D32;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="950" y="900" width="120" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow from Database to External Services -->
+        <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1a1a1a;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="db-captions" target="external-title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- Data Flow Diagram -->
+  <diagram id="InspiroAI-DataFlow" name="Data Flow Diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="flow-title" value="InspiroAI - Caption Processing Data Flow" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=22;fontStyle=1;fontColor=#1a1a1a;" vertex="1" parent="1">
+          <mxGeometry x="350" y="20" width="700" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- INPUT SOURCES -->
+        <mxCell id="input-title" value="INPUT SOURCES" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#E3F2FD;fontSize=12;fontStyle=1;fontColor=#1565C0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="100" width="1200" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Text Input -->
+        <mxCell id="input-text" value="📝 Text Input&#xa;Manual Caption" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#90CAF9;strokeColor=#1565C0;strokeWidth=2;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="150" y="145" width="100" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Voice Input -->
+        <mxCell id="input-voice" value="🎤 Voice Input&#xa;Google Speech API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#90CAF9;strokeColor=#1565C0;strokeWidth=2;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="400" y="145" width="100" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Image Input -->
+        <mxCell id="input-image" value="🖼️ Image Input&#xa;Vision Processing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#90CAF9;strokeColor=#1565C0;strokeWidth=2;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="650" y="145" width="100" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Template Input -->
+        <mxCell id="input-template" value="📋 Template&#xa;Pre-built Captions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#90CAF9;strokeColor=#1565C0;strokeWidth=2;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="900" y="145" width="100" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow to Processing -->
+        <mxCell id="arrow-processing" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FF6F00;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="input-text" target="process-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- PROCESSING -->
+        <mxCell id="process-box" value="🔄 MASTER PROCESSING&#xa;/api/process_caption_master" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#FF6F00;strokeWidth=3;fontSize=11;align=center;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="260" width="700" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ANALYSIS PIPELINE -->
+        <mxCell id="analysis-title" value="5-SECTION ANALYSIS PIPELINE" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#F3E5F5;fontSize=12;fontStyle=1;fontColor=#6A1B9A;" vertex="1" parent="1">
+          <mxGeometry x="100" y="360" width="1200" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Section 1: Analysis -->
+        <mxCell id="analysis-1" value="1️⃣ ANALYSIS&#xa;SEO Score (0-100)&#xa;Emotion (9 types)&#xa;Authenticity (%)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="405" width="110" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Section 2: Optimization -->
+        <mxCell id="analysis-2" value="2️⃣ OPTIMIZATION&#xa;Professional&#xa;Social Media&#xa;Friendly" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="280" y="405" width="110" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Section 3: Hashtags -->
+        <mxCell id="analysis-3" value="3️⃣ HASHTAGS&#xa;12-20 Dynamic&#xa;Context-aware&#xa;Trending" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="460" y="405" width="110" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Section 4: Insights -->
+        <mxCell id="analysis-4" value="4️⃣ INSIGHTS&#xa;Best Time&#xa;Engagement&#xa;Audience" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="640" y="405" width="110" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Section 5: Ideas -->
+        <mxCell id="analysis-5" value="5️⃣ IDEAS&#xa;Short Captions&#xa;Emotional&#xa;Alert Captions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="820" y="405" width="110" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- OUTPUT ACTIONS -->
+        <mxCell id="output-title" value="OUTPUT ACTIONS" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#E8F5E9;fontSize=12;fontStyle=1;fontColor=#1B5E20;" vertex="1" parent="1">
+          <mxGeometry x="100" y="550" width="1200" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Share to Facebook -->
+        <mxCell id="output-share" value="📱 Share to Facebook&#xa;/api/facebook_post&#xa;Direct Publishing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#1B5E20;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="595" width="110" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Schedule Post -->
+        <mxCell id="output-schedule" value="⏰ Schedule Post&#xa;/api/facebook_schedule&#xa;Queue to DB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#1B5E20;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="280" y="595" width="110" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Generate Comments -->
+        <mxCell id="output-comments" value="💬 Comments&#xa;/api/generate_comments&#xa;5 Categories" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#1B5E20;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="460" y="595" width="110" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Copy Caption -->
+        <mxCell id="output-copy" value="📋 Copy Caption&#xa;Clipboard&#xa;Ready to Paste" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#1B5E20;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="640" y="595" width="110" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Save Draft -->
+        <mxCell id="output-save" value="💾 Save Draft&#xa;Database&#xa;captions table" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#1B5E20;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="820" y="595" width="110" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- External Services -->
+        <mxCell id="external-title" value="🔌 EXTERNAL SERVICES" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#FCE4EC;fontSize=12;fontStyle=1;fontColor=#C2185B;" vertex="1" parent="1">
+          <mxGeometry x="100" y="730" width="1200" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Facebook API -->
+        <mxCell id="service-facebook" value="📘 Facebook API&#xa;Graph API v18.0&#xa;Posting &amp; Insights" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8BBD0;strokeColor=#C2185B;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="200" y="775" width="120" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Google Speech -->
+        <mxCell id="service-speech" value="🗣️ Google Speech&#xa;Speech Recognition&#xa;Audio to Text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8BBD0;strokeColor=#C2185B;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="775" width="120" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Vision API -->
+        <mxCell id="service-vision" value="👁️ Vision API&#xa;Image Processing&#xa;Object Detection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8BBD0;strokeColor=#C2185B;strokeWidth=2;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="800" y="775" width="120" height="80" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- Component Interaction Diagram -->
+  <diagram id="InspiroAI-Components" name="Component Interaction">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="comp-title" value="InspiroAI - Component Interaction Diagram" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=22;fontStyle=1;fontColor=#1a1a1a;" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Main Flask Server (Center) -->
+        <mxCell id="center-flask" value="Flask Server&#xa;main.py&#xa;31 Routes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFD54F;strokeColor=#F57F17;strokeWidth=3;fontSize=12;align=center;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="350" width="150" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Frontend -->
+        <mxCell id="comp-frontend" value="Frontend&#xa;(HTML/CSS/JS)&#xa;5 Pages" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B3E5FC;strokeColor=#0288D1;strokeWidth=2;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="350" width="120" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- AI Modules -->
+        <mxCell id="comp-ai" value="AI Modules&#xa;(17 Modules)&#xa;Analysis &amp;&#xa;Generation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CE93D8;strokeColor=#8E24AA;strokeWidth=2;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="350" width="120" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Database -->
+        <mxCell id="comp-db" value="Database&#xa;(SQLite)&#xa;5 Tables" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#A5D6A7;strokeColor=#2E7D32;strokeWidth=2;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="550" y="530" width="120" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- External Services -->
+        <mxCell id="comp-external" value="External&#xa;Services&#xa;(APIs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8BBD0;strokeColor=#C2185B;strokeWidth=2;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="550" y="170" width="120" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows -->
+        <!-- Frontend to Flask -->
+        <mxCell id="arrow-fe" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0288D1;strokeWidth=2;endArrow=classic;endFill=1;label=HTTP Request" edge="1" parent="1" source="comp-frontend" target="center-flask">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Flask to AI -->
+        <mxCell id="arrow-ai" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#8E24AA;strokeWidth=2;endArrow=classic;endFill=1;label=Process Data" edge="1" parent="1" source="center-flask" target="comp-ai">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Flask to DB -->
+        <mxCell id="arrow-db" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2E7D32;strokeWidth=2;endArrow=classic;endFill=1;label=Query/Update" edge="1" parent="1" source="center-flask" target="comp-db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Flask to External -->
+        <mxCell id="arrow-ext" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#C2185B;strokeWidth=2;endArrow=classic;endFill=1;label=API Call" edge="1" parent="1" source="center-flask" target="comp-external">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Response arrows (dashed) -->
+        <mxCell id="arrow-resp1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1a1a1a;strokeWidth=1;endArrow=classic;endFill=1;dashed=1;" edge="1" parent="1" source="comp-ai" target="center-flask">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arrow-resp2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1a1a1a;strokeWidth=1;endArrow=classic;endFill=1;dashed=1;" edge="1" parent="1" source="comp-db" target="center-flask">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arrow-resp3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1a1a1a;strokeWidth=1;endArrow=classic;endFill=1;dashed=1;" edge="1" parent="1" source="comp-external" target="center-flask">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arrow-resp4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor:#0288D1;strokeWidth=1;endArrow=classic;endFill=1;dashed=1;" edge="1" parent="1" source="center-flask" target="comp-frontend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
