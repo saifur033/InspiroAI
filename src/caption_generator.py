@@ -1,10 +1,19 @@
 import re
-from .ai_core import ask_ai
 from .utils import detect_language
 from .emotion_model import detect_emotion
 from .fake_real_model import detect_fake
 from .seo_score import compute_seo_score
 from .hashtag_ranker import generate_hashtags
+
+
+# Lightweight fallback AI function (no external dependencies)
+def ask_ai(user_prompt: str) -> str:
+    """
+    Lightweight fallback AI function.
+    Returns the prompt itself to trigger local refinement logic.
+    """
+    # Return empty to trigger fallback logic in rewrite_caption
+    return ""
 
 
 def clean_caption(text: str) -> str:

@@ -11,7 +11,41 @@ from pytrends.request import TrendReq
 import random
 import time
 import re
-from .trend_cache import load_cache, save_cache, get_cache_info
+import json
+import os
+
+# Lightweight cache functions (no external dependencies)
+_CACHE_FILE = "trends_cache.json"
+
+def load_cache():
+    """Load cached trends if available and fresh (< 24 hours)"""
+    try:
+        if os.path.exists(_CACHE_FILE):
+            with open(_CACHE_FILE, 'r') as f:
+                data = json.load(f)
+                cache_time = data.get('timestamp', 0)
+                if time.time() - cache_time < 86400:  # 24 hours
+                    return data.get('trends', None)
+    except:
+        pass
+    return None
+
+def save_cache(trends):
+    """Save trends to cache file"""
+    try:
+        with open(_CACHE_FILE, 'w') as f:
+            json.dump({'trends': trends, 'timestamp': time.time()}, f)
+    except:
+        pass
+
+def get_cache_info():
+    """Get cache info"""
+    try:
+        if os.path.exists(_CACHE_FILE):
+            return {'exists': True, 'size': os.path.getsize(_CACHE_FILE)}
+    except:
+        pass
+    return {'exists': False, 'size': 0}
 
 _last_topics = set()
 

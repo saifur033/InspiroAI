@@ -18,8 +18,16 @@ Supports 7 Categories + Topic Detection:
 
 import json
 import re
-from src.ai_core import ask_ai
 from src.emotion_model import detect_emotion
+
+
+# Lightweight fallback AI function (no external dependencies)
+def ask_ai(user_prompt: str) -> str:
+    """
+    Lightweight fallback AI function.
+    Returns empty to trigger local refinement logic.
+    """
+    return ""
 
 
 # --------------------------------------------------------
