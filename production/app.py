@@ -959,10 +959,36 @@ with tab3:
         )
     
     with col2:
-        schedule_time = st.time_input(
-            "Select Time",
-            value=datetime.now().time(),
-            key="schedule_time_input"
+        # Allow both picker and text input for time
+        time_input_method = st.radio(
+            "Time input",
+            ["Use Picker", "Type Manually"],
+            horizontal=True,
+            key="time_input_method",
+            label_visibility="collapsed"
+        )
+        
+        if time_input_method == "Use Picker":
+            schedule_time = st.time_input(
+                "Select Time",
+                value=datetime.now().time(),
+                key="schedule_time_input"
+            )
+        else:
+            # Manual time input
+            time_str = st.text_input(
+                "Enter time",
+                value="22:30",
+                placeholder="HH:MM (e.g., 14:30)",
+                key="schedule_time_text",
+                help="Type time in 24-hour format (HH:MM)"
+            )
+            try:
+                hour, minute = map(int, time_str.split(':'))
+                schedule_time = datetime.strptime(f"{hour:02d}:{minute:02d}", "%H:%M").time()
+            except:
+                st.warning("❌ Invalid time format. Use HH:MM (e.g., 14:30)")
+                schedule_time = datetime.now().time()
         )
     
     with col3:
