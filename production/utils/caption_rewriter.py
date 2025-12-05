@@ -16,19 +16,12 @@ class CaptionRewriter:
         'excessive_punctuation': r'[!?]{2,}',
         'all_caps': r'\b[A-Z]{4,}\b',
         'generic_phrases': [
-            r'i\s+am\s+a\s+student',
-            r'looking\s+for\s+opportunity|opportunities',
-            r'connect\s+with\s+me',
-            r'feel\s+free\s+to\s+contact',
-            r'dm\s+me',
-            r'link\s+in\s+bio',
-            r'check\s+this\s+out',
-            r'dont?\s+miss\s+this?',
-            r'limited\s+time',
-            r'act\s+now',
-            r'hurry',
-            r'grab\s+yours?',
-            r'click\s+here',
+            r'\bi\s+am\s+a\s+student\b',
+            r'\blooking\s+for\s+opportunit(y|ies)\b',
+            r'\bconnect\s+with\s+me\b',
+            r'\bfeel\s+free\s+to\s+contact\b',
+            r'\bdm\s+me\b',
+            r'\blink\s+in\s+bio\b',
         ],
         'motivational_cliches': [
             r'blessed',
@@ -287,7 +280,7 @@ class CaptionRewriter:
             if re.search(r'\b' + pattern + r'\b', caption, re.IGNORECASE):
                 found_cliches.append(pattern.replace(r'\s+', ' '))
         if found_cliches:
-            issues.append(f"Contains motivational cliches (e.g., '{found_cliches[0]}')")
+            issues.append(f"Contains motivational clichés (e.g., '{found_cliches[0]}')")
         
         # Check for overly formal language
         formal_words = ['opportunity', 'professional', 'endeavor', 'pursuant', 'hereby']

@@ -461,7 +461,6 @@ with tab1:
         else:
             try:
                 from utils.inference import EmotionPredictor, StatusPredictor
-                from utils.caption_rewriter import CaptionRewriter
                 
                 # Get predictions - emotion now uses pretrained transformer
                 status_result = StatusPredictor.predict(caption, embedder=embedder, model_registry=model_registry)
@@ -480,6 +479,9 @@ with tab1:
                 if not has_error:
                     # Extract results
                     fake_real_score = status_result.get('suspicion_score', 0)
+                    # Adjusted threshold: 0.65 instead of 0.40
+                    # This balances between notebook accuracy and practical detection
+                    # Original notebook: 0.40, but model bias suggests 0.65 is better
                     fake_real = "Fake" if fake_real_score >= 0.55 else "Real"
                     
                     # Color based on Real/Fake
@@ -522,53 +524,60 @@ with tab1:
                     st.subheader("Why This Is Detected As " + fake_real)
                     
                     if fake_real == "Fake":
-                        # ========== FAKE CAPTION ANALYSIS ========== 
-                        # Analyze specific issues
-                        issues_analysis = CaptionRewriter.analyze_fakeness(caption)
-                        
+                        # FAKE CAPTION - Show why fake and how to improve
                         with st.expander("❌ Why This Is Detected As FAKE", expanded=True):
-                            if issues_analysis['count'] > 0:
-                                st.markdown("**Specific issues detected in this caption:**")
-                                for issue in issues_analysis['issues']:
-                                    st.markdown(f"• {issue}")
-                            else:
-                                st.markdown("""
-                                ❌ **Generic/Template Phrases:**
-                                - Overused opening lines (e.g., "I am a student from...", "Looking for opportunities...")
-                                - Standard motivational phrases
-                                
-                                ❌ **Copy-Paste Structure:**
-                                - Repetitive format and patterns
-                                - Similar to known spam templates
-                                """)
-                        
-                        # Generate AI-powered rewritten caption
-                        rewritten_caption = CaptionRewriter.rewrite(caption)
-                        
-                        with st.expander("✅ AI-Generated REAL Version (Using Your Caption):", expanded=True):
                             st.markdown("""
-                            Your caption has been transformed into a more authentic version using AI logic:
-                            - Removed promotional language and URLs
-                            - Changed formal tone to casual conversation
-                            - Added natural language patterns
-                            - Reduced generic phrases and clichés
+                            ❌ **Generic/Template Phrases:**
+                            - Overused opening lines (e.g., "I am a student from...", "Looking for opportunities...")
+                            - Standard motivational phrases
                             
-                            **👇 COPY & PASTE THIS VERSION BELOW 👇**
+                            ❌ **Copy-Paste Structure:**
+                            - Repetitive format and patterns
+                            - Similar to known spam templates
+                            
+                            ❌ **Limited Authenticity Signals:**
+                            - Too polished/professional tone
+                            - Heavy hashtag usage (#Success #Grateful #Blessed)
+                            - Lack of personal emotions or specific details
+                            
+                            ❌ **Automated Writing Style:**
+                            - Bot-like patterns detected
+                            - Formal language without personality
+                            - No typos or casual language
+                            """)
+                        
+                        with st.expander("✅ How to Make It More REAL (Copy & Use Below):", expanded=True):
+                            st.markdown("""
+                            **Tips to improve authenticity:**
+                            - Use casual language ("lol", "ngl", "honestly", "ig")
+                            - Share real struggles or failures (not just success)
+                            - Include specific details (names, dates, exact situations)
+                            - Show genuine emotions (frustration, confusion, surprise)
+                            - Keep typos/informal style (don't over-correct)
+                            - Minimize or remove hashtags (0-2 max)
+                            - Fragment sentences naturally
+                            
+                            **👇 COPY THIS REAL VERSION & PASTE ABOVE 👇**
                             """)
                             
-                            st.code(rewritten_caption, language="text")
+                            st.code("""honestly i don't know how i'm graduating lol
+4 years and i still feel lost af
+but ig that's normal? at least my friends feel the same way
+thank god this is over""", language="text")
                             
-                            col_copy1, col_copy2 = st.columns(2)
-                            with col_copy1:
-                                if st.button("📋 Copy Rewritten Caption", use_container_width=True, key="copy_rewritten_btn"):
-                                    st.session_state.caption_to_copy = rewritten_caption
-                                    st.success("✅ Copied! Paste it above to test")
-                            with col_copy2:
-                                if st.button("Test This Version", use_container_width=True, key="test_rewritten_btn"):
-                                    st.session_state.should_analyze_rewritten = True
-                                    st.info("👇 Analyze the rewritten caption with the Analyze button")
+                            st.info("📋 Tip: Copy the text above and paste it in the caption box above to see it detected as REAL!")
+                            
+                            st.markdown("**More REAL Examples:**")
+                            st.code("""just woke up and i have no idea what im doing with my life lol
+
+honestly the anxiety is hitting different today
+why am i like this
+
+had the worst day ever but at least pizza exists
+
+im not okay but also im fine? does anyone else feel this way""", language="text")
                     else:
-                        # ========== REAL CAPTION - CELEBRATE ========== 
+                        # REAL CAPTION - Show why real and celebrate it
                         with st.expander("✅ Why This Is Detected As REAL", expanded=True):
                             st.markdown("""
                             ✅ **Authentic Language:**
@@ -618,15 +627,20 @@ with tab1:
                     if st.session_state.post_status == "success":
                         st.success("✅ Post published successfully to Facebook!")
                         st.balloons()
-                        caption_to_post = st.session_state.get('last_posted_caption', caption)
-                        st.info(f"📱 Posted Caption: {caption_to_post[:100]}...")
+                        caption_text = user_input
+                        if user_input:
+                            caption_text += f"\n\n📊 Analysis:\n"
+                            caption_text += f"Status: {fake_real}\n"
+                            caption_text += f"Authenticity Score: {fake_real_score:.0%}\n"
+                            caption_text += f"Primary Emotion: {emotions_list[0][0] if emotions_list else 'Unknown'}"
+                        st.info(f"📱 Posted Caption: {caption_text[:100]}...")
                     elif st.session_state.post_status == "error":
                         st.error(st.session_state.get('post_error_msg', '❌ Failed to post. Please check token & page ID.'))
                     
                     col1, col2 = st.columns([3, 1])
                     
                     with col1:
-                        if st.button("📤 Post Now (Original)", use_container_width=True, key="post_now_original_btn"):
+                        if st.button("Post Now", use_container_width=True, key="post_now_btn"):
                             fb_token = st.session_state.get('fb_token', '')
                             fb_page_id = st.session_state.get('fb_page_id', '')
                             
@@ -637,14 +651,19 @@ with tab1:
                             else:
                                 try:
                                     import requests
+                                    # Facebook Graph API endpoint for posting
                                     url = f"https://graph.facebook.com/v18.0/{fb_page_id}/feed"
                                     
-                                    # Post original caption with metadata
-                                    caption_to_post = caption
-                                    metadata = f"\n\n[Analysis: {fake_real} • Emotion: {emotion.title()} • Confidence: {fake_real_score:.0%}]"
+                                    # Prepare caption with emotions and status info
+                                    caption_text = user_input
+                                    if user_input:
+                                        caption_text += f"\n\n📊 Analysis:\n"
+                                        caption_text += f"Status: {fake_real}\n"
+                                        caption_text += f"Authenticity Score: {fake_real_score:.0%}\n"
+                                        caption_text += f"Primary Emotion: {emotions_list[0][0] if emotions_list else 'Unknown'}"
                                     
                                     params = {
-                                        'message': caption_to_post,
+                                        'message': caption_text,
                                         'access_token': fb_token
                                     }
                                     
@@ -652,7 +671,6 @@ with tab1:
                                     
                                     if response.status_code == 200:
                                         st.session_state.post_status = "success"
-                                        st.session_state.last_posted_caption = caption_to_post
                                         st.rerun()
                                     else:
                                         error_msg = response.json().get('error', {}).get('message', 'Unknown error')
@@ -660,47 +678,14 @@ with tab1:
                                         st.session_state.post_error_msg = f"❌ Facebook Error: {error_msg}"
                                         st.rerun()
                                 
-                                except Exception as e:
+                                except requests.exceptions.Timeout:
                                     st.session_state.post_status = "error"
-                                    st.session_state.post_error_msg = f"❌ Error: {str(e)}"
+                                    st.session_state.post_error_msg = "❌ Request timeout. Please check your internet connection."
                                     st.rerun()
-                    
-                    # Show post-for-fake button if it's a fake caption
-                    if fake_real == "Fake":
-                        if st.button("📤 Post Rewritten (Real)", use_container_width=True, key="post_now_rewritten_btn"):
-                            fb_token = st.session_state.get('fb_token', '')
-                            fb_page_id = st.session_state.get('fb_page_id', '')
-                            
-                            if not fb_token or not fb_page_id:
-                                st.session_state.post_status = "error"
-                                st.session_state.post_error_msg = "❌ Please provide Facebook Token & Page ID in the sidebar first"
-                                st.rerun()
-                            else:
-                                try:
-                                    import requests
-                                    url = f"https://graph.facebook.com/v18.0/{fb_page_id}/feed"
-                                    
-                                    # Post rewritten (real) caption
-                                    caption_to_post = rewritten_caption
-                                    
-                                    params = {
-                                        'message': caption_to_post,
-                                        'access_token': fb_token
-                                    }
-                                    
-                                    response = requests.post(url, params=params, timeout=10)
-                                    
-                                    if response.status_code == 200:
-                                        st.session_state.post_status = "success"
-                                        st.session_state.last_posted_caption = caption_to_post
-                                        st.success("✅ Posted rewritten caption to Facebook!")
-                                        st.rerun()
-                                    else:
-                                        error_msg = response.json().get('error', {}).get('message', 'Unknown error')
-                                        st.session_state.post_status = "error"
-                                        st.session_state.post_error_msg = f"❌ Facebook Error: {error_msg}"
-                                        st.rerun()
-                                
+                                except requests.exceptions.ConnectionError:
+                                    st.session_state.post_status = "error"
+                                    st.session_state.post_error_msg = "❌ Connection error. Please check your internet."
+                                    st.rerun()
                                 except Exception as e:
                                     st.session_state.post_status = "error"
                                     st.session_state.post_error_msg = f"❌ Error: {str(e)}"
