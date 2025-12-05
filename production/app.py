@@ -281,15 +281,26 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# Initialize session state for credentials
+if 'fb_token' not in st.session_state:
+    st.session_state.fb_token = ''
+if 'fb_page_id' not in st.session_state:
+    st.session_state.fb_page_id = ''
+
+# Token input - allow paste/copy
 fb_token = st.sidebar.text_input(
     "Facebook API Token",
-    type="password",
-    placeholder="Enter your token"
+    value=st.session_state.fb_token,
+    placeholder="Paste your token here (visible for copying)",
+    help="You can safely paste and copy your token here"
 )
 
+# Page ID input
 fb_page_id = st.sidebar.text_input(
     "Facebook Page ID",
-    placeholder="123456789"
+    value=st.session_state.fb_page_id,
+    placeholder="123456789",
+    help="Your Facebook page numeric ID"
 )
 
 st.sidebar.markdown("---")
@@ -297,15 +308,19 @@ st.sidebar.markdown("---")
 # Save & Clear buttons
 col1, col2 = st.sidebar.columns(2)
 with col1:
-    if st.button("Save", use_container_width=True):
+    if st.button("Save", use_container_width=True, key="fb_save_btn"):
         if fb_token and fb_page_id:
-            st.sidebar.success("Saved successfully!")
+            st.session_state.fb_token = fb_token
+            st.session_state.fb_page_id = fb_page_id
+            st.sidebar.success("✅ Credentials saved successfully!")
         else:
-            st.sidebar.warning("Please enter token & page ID")
+            st.sidebar.warning("⚠️ Please enter both token and page ID")
 
 with col2:
-    if st.button("Clear", use_container_width=True):
-        st.sidebar.info("Fields cleared")
+    if st.button("Clear", use_container_width=True, key="fb_clear_btn"):
+        st.session_state.fb_token = ''
+        st.session_state.fb_page_id = ''
+        st.sidebar.info("🔄 Fields cleared")
 
 # ============================================
 # PAGE TITLE
