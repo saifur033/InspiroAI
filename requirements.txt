@@ -12,3 +12,4 @@ requests>=2.31.0
 emoji>=2.0.0
 textstat>=0.7.0
 textblob>=0.17.0
+textblob>=0.17.0
