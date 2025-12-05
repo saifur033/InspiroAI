@@ -1,6 +1,6 @@
 """
-InspiroAI - Streamlit Cloud Entry Point
-This file runs the main application from production folder
+InspiroAI - Context-Aware Facebook Caption Optimization System
+Streamlit Cloud Entry Point
 """
 import sys
 import os
@@ -8,16 +8,17 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# Add production folder to path
+# Add production folder to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'production'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'production', 'utils'))
 
-# Set environment variables for models
+# Set environment variables
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
 try:
-    # Import and run the main app
-    from app import *
+    # Now import the main app
+    exec(open(os.path.join(os.path.dirname(__file__), 'production', 'app.py')).read())
 except Exception as e:
     import streamlit as st
     st.error(f"Error loading app: {str(e)}")
-    st.info("Please check the deployment logs for details.")
+    st.info("Check GitHub for latest version: https://github.com/saifur033/InspiroAI")
