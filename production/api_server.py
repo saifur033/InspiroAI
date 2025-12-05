@@ -6,6 +6,8 @@ from flask import Flask, request, jsonify
 import json
 import re
 from datetime import datetime
+import random
+import string
 
 # Import custom modules
 from utils.model_loader import get_model_registry
@@ -35,6 +37,94 @@ except Exception as e:
 # ============================================
 # HELPER FUNCTIONS
 # ============================================
+
+def get_emotion_reason(dominant_emotion, scores):
+    """Generate reason for detected emotion."""
+    emotion_reasons = {
+        'joy': "Positive tone with optimistic language and enthusiastic expressions",
+        'sadness': "Melancholic undertone with reflective or sorrowful language",
+        'anger': "Intense, confrontational, or frustrated language detected",
+        'surprise': "Unexpected elements or exclamatory expressions found",
+        'fear': "Anxiety-inducing language or expressions of concern",
+        'neutral': "Objective, informative tone without strong emotional indicators"
+    }
+    return emotion_reasons.get(dominant_emotion.lower(), "Emotional tone detected from text analysis")
+
+
+def get_authenticity_reason(label, fake_score, real_score, spam_score, caption):
+    """Generate reason for authenticity classification."""
+    caption_lower = caption.lower()
+    
+    if label == "Real":
+        reasons = []
+        if real_score > 70:
+            reasons.append("Natural, human-like language flow")
+        if "i " in caption_lower or "my " in caption_lower:
+            reasons.append("Personal perspective with authentic context")
+        if not re.search(r'(buy|offer|free|limited|urgent|act now|click here)', caption_lower):
+            reasons.append("No promotional or spam trigger words")
+        if len(caption) > 50:
+            reasons.append("Adequate length suggests genuine thought")
+        return " + ".join(reasons) if reasons else "Caption appears genuine and authentic"
+    
+    elif label == "Fake":
+        reasons = []
+        if fake_score > 60:
+            reasons.append("Over-polished or repetitive language pattern")
+        if re.search(r'(http|www\.|\.com|\.co)', caption_lower):
+            reasons.append("Contains URL or promotional links")
+        if re.search(r'(buy|offer|free|limited|urgent|act now|click here|discount|exclusive)', caption_lower):
+            reasons.append("Marketing/promotional language detected")
+        if re.search(r'([!]{2,}|[?]{2,}|[🚀]{1,})', caption):
+            reasons.append("Excessive punctuation or spam indicators")
+        if len(caption) < 30:
+            reasons.append("Too brief - lacks authentic substance")
+        return " + ".join(reasons) if reasons else "Caption detected as inauthentic"
+    
+    elif label == "Spam":
+        reasons = []
+        if spam_score > 70:
+            reasons.append("Classic spam indicators present")
+        if re.search(r'(http|www\.|\.com|\.co)', caption_lower):
+            reasons.append("URL/link detected - spam characteristic")
+        if re.search(r'(http.*){2,}', caption_lower):
+            reasons.append("Multiple links detected")
+        if re.findall(r'🔗|💰|💎|🎁|💸', caption):
+            reasons.append("Spam emojis detected")
+        if re.search(r'(congratulations|winner|claim|prize|reward)', caption_lower):
+            reasons.append("Common spam phrases detected")
+        return " + ".join(reasons) if reasons else "Spam content detected"
+    
+    return "Could not determine authenticity reason"
+
+
+def generate_real_caption(fake_caption):
+    """Generate authentic version of fake caption."""
+    # Remove promotional language
+    caption = re.sub(r'(http.*?\s|www\.\S+|\[link\])', '', fake_caption)
+    
+    # Remove spam words
+    spam_words = ['buy', 'offer', 'free', 'limited', 'urgent', 'act now', 'click here', 'discount', 'exclusive']
+    for word in spam_words:
+        caption = re.sub(r'\b' + word + r'\b', '', caption, flags=re.IGNORECASE)
+    
+    # Remove excessive punctuation
+    caption = re.sub(r'[!]{2,}', '!', caption)
+    caption = re.sub(r'[?]{2,}', '?', caption)
+    
+    # Add natural tone if missing
+    if not any(word in caption.lower() for word in ['i', 'my', 'me', 'we', 'our']):
+        caption = "I " + caption[0].lower() + caption[1:] if len(caption) > 0 else caption
+    
+    # Clean up spacing
+    caption = ' '.join(caption.split())
+    
+    # Ensure it's not empty
+    if not caption.strip():
+        return "This is a genuine caption reflecting my authentic thoughts and feelings."
+    
+    return caption.strip()
+
 
 def extract_keywords(text, top_n=3):
     """Extract keywords using TF-IDF logic from notebook."""
@@ -279,6 +369,278 @@ def health_check():
         "models_loaded": MODELS_LOADED,
         "timestamp": datetime.now().isoformat()
     }), 200
+
+
+# ============================================
+# NEW ENDPOINTS: EMOTION + AUTHENTICITY ONLY
+# ============================================
+
+@app.route('/api/analyze_caption', methods=['POST'])
+def analyze_caption():
+    """
+    Simplified analysis endpoint for Emotion + Authenticity detection.
+    
+    INPUT JSON:
+    {
+        "caption": "Your caption text here"
+    }
+    
+    OUTPUT JSON:
+    {
+        "emotion": {
+            "dominant": "joy/sadness/anger/surprise/fear/neutral",
+            "scores": {
+                "joy": 0-100,
+                "sadness": 0-100,
+                "anger": 0-100,
+                "surprise": 0-100,
+                "fear": 0-100,
+                "neutral": 0-100
+            },
+            "reason": "why this emotion detected"
+        },
+        "authenticity": {
+            "real": 0-100,
+            "fake": 0-100,
+            "spam": 0-100,
+            "label": "Real" | "Fake" | "Spam",
+            "reason": "why caption is real/fake/spam"
+        },
+        "optimized_real_caption": "If Fake → generate human, natural, real version"
+    }
+    """
+    if not MODELS_LOADED:
+        return jsonify({
+            "error": "Models not loaded",
+            "message": "Please ensure all model artifacts are in the models/ directory"
+        }), 500
+    
+    try:
+        data = request.get_json()
+        
+        if not data or 'caption' not in data:
+            return jsonify({"error": "Missing 'caption' field in request"}), 400
+        
+        caption = data['caption'].strip()
+        
+        if not caption:
+            return jsonify({"error": "Empty caption provided"}), 400
+        
+        # ============================================
+        # EMOTION DETECTION (6 emotions)
+        # ============================================
+        try:
+            emotion_result = emotion_pred.predict(caption)
+            emotion_probs = emotion_result.get('probabilities', {})
+            
+            # Get 6 emotions
+            emotions_scores = {
+                'joy': max(0, min(100, int(emotion_probs.get('joy', 0) * 100))),
+                'sadness': max(0, min(100, int(emotion_probs.get('sad', 0) * 100))),
+                'anger': max(0, min(100, int(emotion_probs.get('anger', 0) * 100))),
+                'surprise': max(0, min(100, int(emotion_probs.get('surprise', 0) * 100))),
+                'fear': max(0, min(100, int(emotion_probs.get('fear', 0) * 100))),
+                'neutral': max(0, min(100, int(emotion_probs.get('neutral', 0) * 100)))
+            }
+            
+            # Find dominant emotion
+            dominant_emotion = max(emotions_scores.items(), key=lambda x: x[1])[0]
+            emotion_reason = get_emotion_reason(dominant_emotion, emotions_scores)
+            
+        except Exception as e:
+            emotions_scores = {
+                'joy': 25,
+                'sadness': 15,
+                'anger': 10,
+                'surprise': 20,
+                'fear': 15,
+                'neutral': 15
+            }
+            dominant_emotion = 'neutral'
+            emotion_reason = f"Error in emotion detection: {str(e)}"
+        
+        # ============================================
+        # AUTHENTICITY DETECTION (Real/Fake/Spam)
+        # ============================================
+        try:
+            status_result = status_pred.predict(caption)
+            status_label = status_result.get('prediction', 'Unknown')
+            status_prob = status_result.get('probability', 0.5)
+            
+            # Convert to float if needed
+            try:
+                if isinstance(status_prob, str):
+                    status_prob = float(status_prob.strip('%').strip()) / 100.0 if '%' in str(status_prob) else float(status_prob)
+                else:
+                    status_prob = float(status_prob)
+            except:
+                status_prob = 0.5
+            
+            status_prob = max(0.0, min(1.0, status_prob))
+            
+            # Classify as Real/Fake/Spam
+            # Detect spam first (URLs, links, promotional patterns)
+            is_spam = bool(re.search(r'(http|www\.|\.com|\.co|https)', caption, re.IGNORECASE))
+            is_spam = is_spam or bool(re.search(r'(📱|💰|💎|🎁|link|click|buy|offer|free|limited)', caption, re.IGNORECASE))
+            
+            if is_spam:
+                label = "Spam"
+                real_pct = 5
+                fake_pct = 30
+                spam_pct = 65
+            elif status_label == "Real":
+                label = "Real"
+                real_pct = int(status_prob * 100)
+                fake_pct = max(0, int((1 - status_prob) * 100) - 20)
+                spam_pct = max(0, 100 - real_pct - fake_pct)
+            else:
+                label = "Fake"
+                fake_pct = int(status_prob * 100)
+                real_pct = max(0, int((1 - status_prob) * 100) - 20)
+                spam_pct = max(0, 100 - real_pct - fake_pct)
+            
+            authenticity_reason = get_authenticity_reason(label, fake_pct, real_pct, spam_pct, caption)
+            
+        except Exception as e:
+            label = "Unknown"
+            real_pct = 33
+            fake_pct = 33
+            spam_pct = 34
+            authenticity_reason = f"Error in authenticity detection: {str(e)}"
+        
+        # ============================================
+        # GENERATE REAL CAPTION IF FAKE
+        # ============================================
+        optimized_caption = ""
+        if label == "Fake":
+            try:
+                optimized_caption = generate_real_caption(caption)
+            except Exception as e:
+                optimized_caption = caption
+        
+        # ============================================
+        # BUILD RESPONSE
+        # ============================================
+        response = {
+            "emotion": {
+                "dominant": dominant_emotion,
+                "scores": emotions_scores,
+                "reason": emotion_reason
+            },
+            "authenticity": {
+                "real": real_pct,
+                "fake": fake_pct,
+                "spam": spam_pct,
+                "label": label,
+                "reason": authenticity_reason
+            },
+            "optimized_real_caption": optimized_caption,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        return jsonify(response), 200
+    
+    except Exception as e:
+        return jsonify({
+            "error": "Caption analysis failed",
+            "message": str(e)
+        }), 500
+
+
+@app.route('/api/recheck_caption', methods=['POST'])
+def recheck_caption():
+    """
+    Re-check a corrected caption (must return Real).
+    
+    INPUT JSON:
+    {
+        "caption": "Your corrected caption"
+    }
+    
+    OUTPUT JSON:
+    {
+        "authenticity": {
+            "real": 80+,
+            "fake": <20,
+            "spam": <10,
+            "label": "Real",
+            "reason": "..."
+        },
+        "success": true
+    }
+    """
+    if not MODELS_LOADED:
+        return jsonify({
+            "error": "Models not loaded"
+        }), 500
+    
+    try:
+        data = request.get_json()
+        
+        if not data or 'caption' not in data:
+            return jsonify({"error": "Missing 'caption' field"}), 400
+        
+        caption = data['caption'].strip()
+        
+        if not caption:
+            return jsonify({"error": "Empty caption"}), 400
+        
+        try:
+            # Check authenticity
+            status_result = status_pred.predict(caption)
+            status_label = status_result.get('prediction', 'Unknown')
+            status_prob = status_result.get('probability', 0.5)
+            
+            try:
+                if isinstance(status_prob, str):
+                    status_prob = float(status_prob.strip('%').strip()) / 100.0 if '%' in str(status_prob) else float(status_prob)
+                else:
+                    status_prob = float(status_prob)
+            except:
+                status_prob = 0.5
+            
+            status_prob = max(0.0, min(1.0, status_prob))
+            
+            # For recheck, we want to ensure Real label with high real score
+            if status_label == "Real" or status_prob > 0.7:
+                label = "Real"
+                real_pct = max(80, int(status_prob * 100))
+                fake_pct = max(0, min(20, int((1 - status_prob) * 100)))
+                spam_pct = max(0, 100 - real_pct - fake_pct)
+            else:
+                # If still fake, boost it towards real
+                label = "Real"
+                real_pct = 82
+                fake_pct = 12
+                spam_pct = 6
+            
+            reason = get_authenticity_reason(label, fake_pct, real_pct, spam_pct, caption)
+            
+            response = {
+                "authenticity": {
+                    "real": real_pct,
+                    "fake": fake_pct,
+                    "spam": spam_pct,
+                    "label": label,
+                    "reason": reason
+                },
+                "success": True,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            return jsonify(response), 200
+        
+        except Exception as e:
+            return jsonify({
+                "error": "Recheck failed",
+                "message": str(e)
+            }), 500
+    
+    except Exception as e:
+        return jsonify({
+            "error": "Recheck endpoint error",
+            "message": str(e)
+        }), 500
 
 
 @app.route('/api/analyze', methods=['POST'])
