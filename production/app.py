@@ -965,24 +965,33 @@ with tab3:
         )
     
     with col2:
-        # Time input with both picker and text support
-        time_str = st.text_input(
-            "Select Time",
-            value="22:30",
-            placeholder="HH:MM (e.g., 14:30)",
-            key="schedule_time_input",
-            help="Type time in 24-hour format (HH:MM) or use the picker"
-        )
-        # Try to parse the time
-        try:
-            if ':' in time_str:
-                hour, minute = map(int, time_str.split(':'))
-                schedule_time = datetime.strptime(f"{hour:02d}:{minute:02d}", "%H:%M").time()
-            else:
-                schedule_time = datetime.now().time()
-        except:
-            st.warning("❌ Invalid time. Use HH:MM format")
-            schedule_time = datetime.now().time()
+        # Time input in 12-hour format (AM/PM)
+        col2a, col2b = st.columns(2)
+        
+        with col2a:
+            hour = st.number_input(
+                "Hour",
+                min_value=1,
+                max_value=12,
+                value=10,
+                key="schedule_hour_input"
+            )
+        
+        with col2b:
+            am_pm = st.selectbox(
+                "AM/PM",
+                ["AM", "PM"],
+                key="schedule_ampm_input"
+            )
+        
+        # Convert to 24-hour format for datetime
+        hour_24 = int(hour)
+        if am_pm == "PM" and hour != 12:
+            hour_24 += 12
+        elif am_pm == "AM" and hour == 12:
+            hour_24 = 0
+        
+        schedule_time = datetime.strptime(f"{hour_24:02d}:30", "%H:%M").time()
     
     with col3:
         st.write("")  # spacing
