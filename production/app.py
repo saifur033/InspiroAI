@@ -604,13 +604,69 @@ im not okay but also im fine? does anyone else feel this way""", language="text"
                     
                     st.markdown("---")
                     
-                    if st.button("Post Now", use_container_width=True):
-                        fb_token = st.session_state.get('fb_token', '')
-                        fb_page_id = st.session_state.get('fb_page_id', '')
-                        if fb_token and fb_page_id:
-                            st.success("Posted successfully!")
-                        else:
-                            st.error("Please provide Facebook token & Page ID")
+                    # Initialize post status in session state
+                    if 'post_status' not in st.session_state:
+                        st.session_state.post_status = None
+                    
+                    col1, col2 = st.columns([3, 1])
+                    
+                    with col1:
+                        if st.button("Post Now", use_container_width=True, key="post_now_btn"):
+                            fb_token = st.session_state.get('fb_token', '')
+                            fb_page_id = st.session_state.get('fb_page_id', '')
+                            
+                            if not fb_token or not fb_page_id:
+                                st.session_state.post_status = "error"
+                                st.error("❌ Please provide Facebook Token & Page ID in the sidebar first")
+                            else:
+                                try:
+                                    import requests
+                                    # Facebook Graph API endpoint for posting
+                                    url = f"https://graph.facebook.com/v18.0/{fb_page_id}/feed"
+                                    
+                                    # Prepare caption with emotions and status info
+                                    caption_text = user_input
+                                    if user_input:
+                                        caption_text += f"\n\n📊 Analysis:\n"
+                                        caption_text += f"Status: {fake_real}\n"
+                                        caption_text += f"Authenticity Score: {fake_real_score:.0%}\n"
+                                        caption_text += f"Primary Emotion: {emotions_list[0][0] if emotions_list else 'Unknown'}"
+                                    
+                                    params = {
+                                        'message': caption_text,
+                                        'access_token': fb_token
+                                    }
+                                    
+                                    response = requests.post(url, params=params, timeout=10)
+                                    
+                                    if response.status_code == 200:
+                                        st.session_state.post_status = "success"
+                                        st.success("✅ Post published successfully to Facebook!")
+                                        st.balloons()
+                                        # Show post details
+                                        st.info(f"📱 Posted Caption: {caption_text[:100]}...")
+                                    else:
+                                        error_msg = response.json().get('error', {}).get('message', 'Unknown error')
+                                        st.session_state.post_status = "error"
+                                        st.error(f"❌ Failed to post: {error_msg}")
+                                
+                                except requests.exceptions.Timeout:
+                                    st.session_state.post_status = "error"
+                                    st.error("❌ Request timeout. Please check your internet connection.")
+                                except requests.exceptions.ConnectionError:
+                                    st.session_state.post_status = "error"
+                                    st.error("❌ Connection error. Please check your internet.")
+                                except Exception as e:
+                                    st.session_state.post_status = "error"
+                                    st.error(f"❌ Error: {str(e)}")
+                    
+                    with col2:
+                        st.write("")  # spacing
+                        st.write("")  # spacing
+                        if st.session_state.post_status == "success":
+                            st.success("✓")
+                        elif st.session_state.post_status == "error":
+                            st.error("✗")
             
             except Exception as e:
                 st.error(f"Analysis error: {str(e)}")
