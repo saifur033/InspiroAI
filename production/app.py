@@ -986,8 +986,22 @@ with tab4:
                     
                     if fb_token and fb_page_id:
                         if st.button("Share to Facebook", use_container_width=True, key="share_optimized"):
-                            st.success("Caption shared to Facebook!")
-                            st.info(f"Posted: {optimized[:100]}...")
+                            try:
+                                import requests
+                                # Facebook Graph API endpoint
+                                url = f"https://graph.facebook.com/v18.0/{fb_page_id}/feed"
+                                params = {
+                                    'message': optimized,
+                                    'access_token': fb_token
+                                }
+                                response = requests.post(url, params=params)
+                                if response.status_code == 200:
+                                    st.success("✅ Caption shared to Facebook successfully!")
+                                    st.info(f"Posted: {optimized[:100]}...")
+                                else:
+                                    st.error(f"Error: {response.json().get('error', {}).get('message', 'Unknown error')}")
+                            except Exception as e:
+                                st.error(f"Sharing error: {str(e)}")
                     else:
                         st.button("Share to Facebook", use_container_width=True, disabled=True, key="share_optimized_disabled")
                         st.warning("Please provide Facebook Token & Page ID in sidebar to share")
