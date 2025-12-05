@@ -509,7 +509,8 @@ with tab1:
                     st.subheader("Why This Is Detected As " + fake_real)
                     
                     if fake_real == "Fake":
-                        with st.expander("📌 Reasons for FAKE detection (Score ≥ 40%)", expanded=True):
+                        # FAKE CAPTION - Show why fake and how to improve
+                        with st.expander("❌ Why This Is Detected As FAKE", expanded=True):
                             st.markdown("""
                             ❌ **Generic/Template Phrases:**
                             - Overused opening lines (e.g., "I am a student from...", "Looking for opportunities...")
@@ -530,9 +531,9 @@ with tab1:
                             - No typos or casual language
                             """)
                         
-                        with st.expander("✅ How to Make It More REAL:", expanded=False):
+                        with st.expander("✅ How to Make It More REAL (Copy & Use Below):", expanded=True):
                             st.markdown("""
-                            **To improve authenticity:**
+                            **Tips to improve authenticity:**
                             - Use casual language ("lol", "ngl", "honestly", "ig")
                             - Share real struggles or failures (not just success)
                             - Include specific details (names, dates, exact situations)
@@ -541,24 +542,32 @@ with tab1:
                             - Minimize or remove hashtags (0-2 max)
                             - Fragment sentences naturally
                             
-                            **Example REAL version:**
-                            ```
-                            honestly i don't know how i'm graduating lol
-                            4 years and i still feel lost af
-                            but ig that's normal? at least my friends feel the same way
-                            thank god this is over
-                            ```
+                            **👇 COPY THIS REAL VERSION & PASTE ABOVE 👇**
                             """)
+                            
+                            st.code("""honestly i don't know how i'm graduating lol
+4 years and i still feel lost af
+but ig that's normal? at least my friends feel the same way
+thank god this is over""", language="text")
+                            
+                            st.info("📋 Tip: Copy the text above and paste it in the caption box above to see it detected as REAL!")
+                            
+                            st.markdown("**More REAL Examples:**")
+                            st.code("""just woke up and i have no idea what im doing with my life lol
+
+honestly the anxiety is hitting different today
+why am i like this
+
+had the worst day ever but at least pizza exists
+
+im not okay but also im fine? does anyone else feel this way""", language="text")
                     else:
-                        with st.expander("✅ Reasons for REAL detection (Score < 50%)", expanded=True):
+                        # REAL CAPTION - Show why real and celebrate it
+                        with st.expander("✅ Why This Is Detected As REAL", expanded=True):
                             st.markdown("""
                             ✅ **Authentic Language:**
-                            - Natural, conversational tone
+                            - Natural, conversational tone ✨
                             - Personal voice and perspective
-                            
-                            ✅ **Specific Details:**
-                            - Unique situations or experiences
-                            - Named references or specific events
                             
                             ✅ **Genuine Expression:**
                             - Real emotions visible
@@ -569,22 +578,15 @@ with tab1:
                             - Natural sentence fragmentation
                             - Minimal or contextual hashtags
                             
-                            **Examples of REAL Posts:**
-                            ```
-                            just woke up and i have no idea what im doing with my life lol
-                            
-                            honestly the anxiety is hitting different today
-                            why am i like this
-                            
-                            had the worst day ever but at least pizza exists
-                            
-                            im not okay but also im fine? does anyone else feel this way
-                            ```
+                            ✅ **Specific Details:**
+                            - Unique situations or experiences
+                            - Personal touches that make it authentic
                             """)
-                    
-                    # Emotion distribution
+                        
+                        st.success("🎉 This caption looks authentic and genuine! Keep this style!")
                     
                     # Show all 6 emotion types supported
+                    st.markdown("---")
                     st.info("Emotions detected: **anger, fear, joy, neutral, sadness, surprise**")
                     
                     emotion_col1, emotion_col2 = st.columns(2)
