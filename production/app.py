@@ -315,14 +315,14 @@ st.sidebar.markdown("---")
 # Save & Clear buttons
 col1, col2 = st.sidebar.columns(2)
 with col1:
-    if st.button("✅ Save", use_container_width=True, key="fb_save_btn"):
+    if st.button("Save", use_container_width=True, key="fb_save_btn"):
         if fb_token and fb_page_id:
             st.sidebar.success("✅ Credentials saved successfully!")
         else:
             st.sidebar.warning("⚠️ Please enter both token and page ID")
 
 with col2:
-    if st.button("🔄 Clear", use_container_width=True, key="fb_clear_btn"):
+    if st.button("Clear", use_container_width=True, key="fb_clear_btn"):
         st.session_state.fb_token = ''
         st.session_state.fb_page_id = ''
         st.sidebar.success("✅ Credentials cleared!")
@@ -469,7 +469,7 @@ with tab1:
         with col_btn2:
             clear_btn = st.button("Clear", use_container_width=True, key="clear_btn_tab1")
         with col_btn3:
-            post_now_btn_temp = st.button("📤 Share", use_container_width=True, key="post_now_btn_temp")
+            post_now_btn_temp = st.button("Share", use_container_width=True, key="post_now_btn_temp")
     
     # Handle Share button
     if post_now_btn_temp:
@@ -966,7 +966,7 @@ with tab3:
     
     with col2:
         # Time input in 12-hour format (AM/PM)
-        col2a, col2b = st.columns(2)
+        col2a, col2b, col2c = st.columns(3)
         
         with col2a:
             hour = st.number_input(
@@ -978,6 +978,16 @@ with tab3:
             )
         
         with col2b:
+            minute = st.number_input(
+                "Minute",
+                min_value=0,
+                max_value=59,
+                value=30,
+                step=5,
+                key="schedule_minute_input"
+            )
+        
+        with col2c:
             am_pm = st.selectbox(
                 "AM/PM",
                 ["AM", "PM"],
@@ -991,12 +1001,12 @@ with tab3:
         elif am_pm == "AM" and hour == 12:
             hour_24 = 0
         
-        schedule_time = datetime.strptime(f"{hour_24:02d}:30", "%H:%M").time()
+        schedule_time = datetime.strptime(f"{hour_24:02d}:{int(minute):02d}", "%H:%M").time()
     
     with col3:
         st.write("")  # spacing
         st.write("")  # spacing
-        schedule_btn = st.button("📅 Schedule", use_container_width=True, key="schedule_btn")
+        schedule_btn = st.button("Schedule", use_container_width=True, key="schedule_btn")
     
     # Handle Schedule button
     if schedule_btn:
