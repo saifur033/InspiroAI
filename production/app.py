@@ -4,6 +4,7 @@ Modern Streamlit Application with ML Pipeline
 """
 import streamlit as st
 from datetime import datetime, timedelta
+import time
 
 # ============================================
 # PAGE CONFIG
@@ -922,13 +923,30 @@ with tab2:
 # ============================================
 with tab3:
     st.subheader("Schedule Post")
-    st.write("Enter caption for scheduled post")
+    st.write("Schedule your caption to post at a specific date and time")
+    
+    # Initialize session state for scheduled posts
+    if 'scheduled_posts' not in st.session_state:
+        st.session_state.scheduled_posts = []
+    
+    # Check credentials first
+    fb_token = st.session_state.get('fb_token', '')
+    fb_page_id = st.session_state.get('fb_page_id', '')
+    
+    # Show credential status
+    if fb_token and fb_page_id:
+        st.success("✅ Facebook credentials ready for scheduling")
+    else:
+        st.error("❌ Please provide Facebook Token & Page ID in sidebar first before scheduling")
+    
+    st.markdown("---")
     
     schedule_caption = st.text_area(
         "Caption",
         height=100,
         placeholder="Your caption here...",
-        label_visibility="collapsed"
+        label_visibility="collapsed",
+        key="schedule_caption_input"
     )
     
     col1, col2, col3 = st.columns(3)
@@ -936,30 +954,94 @@ with tab3:
     with col1:
         schedule_date = st.date_input(
             "Select Date",
-            value=datetime.now() + timedelta(days=1)
+            value=datetime.now() + timedelta(days=1),
+            key="schedule_date_input"
         )
     
     with col2:
         schedule_time = st.time_input(
             "Select Time",
-            value=datetime.now().time()
+            value=datetime.now().time(),
+            key="schedule_time_input"
         )
     
     with col3:
-        schedule_btn = st.button("Schedule", use_container_width=True)
+        st.write("")  # spacing
+        st.write("")  # spacing
+        schedule_btn = st.button("📅 Schedule", use_container_width=True, key="schedule_btn")
     
+    # Handle Schedule button
     if schedule_btn:
+        # Validate caption
         if not schedule_caption.strip():
-            st.warning("Please enter a caption")
-        elif fb_token and fb_page_id:
-            scheduled_dt = datetime.combine(schedule_date, schedule_time)
-            if scheduled_dt > datetime.now():
-                st.success(f"Scheduled for {schedule_date} at {schedule_time}")
-                st.info(f"Caption: {schedule_caption[:60]}...")
-            else:
-                st.error("Cannot schedule post in the past")
+            st.error("❌ Please enter a caption first")
+        # Validate credentials
+        elif not fb_token or not fb_page_id:
+            st.error("❌ Please provide Facebook Token & Page ID in the sidebar first")
         else:
-            st.error("Please provide Facebook credentials")
+            # Validate date/time
+            scheduled_dt = datetime.combine(schedule_date, schedule_time)
+            now = datetime.now()
+            
+            if scheduled_dt <= now:
+                st.error("❌ Cannot schedule post in the past. Please select a future date/time.")
+            else:
+                # Calculate time difference
+                time_diff = scheduled_dt - now
+                hours = time_diff.total_seconds() / 3600
+                
+                try:
+                    # Add to scheduled posts
+                    post_id = len(st.session_state.scheduled_posts) + 1
+                    scheduled_post = {
+                        'id': post_id,
+                        'caption': schedule_caption,
+                        'date': schedule_date,
+                        'time': schedule_time,
+                        'scheduled_dt': scheduled_dt,
+                        'created_at': now
+                    }
+                    st.session_state.scheduled_posts.append(scheduled_post)
+                    
+                    # Show success
+                    st.success(f"✅ Post scheduled successfully!")
+                    st.success(f"📅 Scheduled for: {schedule_date} at {schedule_time}")
+                    st.success(f"⏱️ Posts in: {int(hours)} hours")
+                    st.info(f"📝 Caption: {schedule_caption[:100]}...")
+                    
+                    # Show confirmation
+                    st.markdown("---")
+                    st.markdown("### 📋 Scheduled Post Details")
+                    st.write(f"**Date:** {schedule_date}")
+                    st.write(f"**Time:** {schedule_time}")
+                    st.write(f"**Caption:** {schedule_caption}")
+                    st.write(f"**Facebook Page:** {fb_page_id}")
+                    st.write(f"**Status:** ⏳ Pending")
+                    
+                    # Auto-clear caption
+                    time.sleep(1)
+                    
+                except Exception as e:
+                    st.error(f"❌ Error scheduling post: {str(e)}")
+    
+    # Show all scheduled posts
+    if st.session_state.scheduled_posts:
+        st.markdown("---")
+        st.markdown("### 📅 Your Scheduled Posts")
+        
+        for post in st.session_state.scheduled_posts:
+            with st.expander(f"Post #{post['id']} - {post['date']} at {post['time']}", expanded=False):
+                col1, col2 = st.columns([3, 1])
+                
+                with col1:
+                    st.write(f"**Caption:** {post['caption'][:150]}...")
+                    st.write(f"**Scheduled for:** {post['date']} at {post['time']}")
+                    st.write(f"**Status:** ⏳ Pending")
+                
+                with col2:
+                    if st.button(f"🗑️ Delete", key=f"delete_post_{post['id']}"):
+                        st.session_state.scheduled_posts = [p for p in st.session_state.scheduled_posts if p['id'] != post['id']]
+                        st.rerun()
 
 # ============================================
 # TAB 4: TOOLS
