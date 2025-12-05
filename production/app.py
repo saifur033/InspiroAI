@@ -640,7 +640,9 @@ im not okay but also im fine? does anyone else feel this way""", language="text"
                     col1, col2 = st.columns([3, 1])
                     
                     with col1:
-                        if st.button("Post Now", use_container_width=True, key="post_now_btn"):
+                        if st.button("📤 Post Now", use_container_width=True, key="post_now_btn"):
+                            from utils.facebook_posting import FacebookPoster
+                            
                             fb_token = st.session_state.get('fb_token', '')
                             fb_page_id = st.session_state.get('fb_page_id', '')
                             
@@ -649,55 +651,38 @@ im not okay but also im fine? does anyone else feel this way""", language="text"
                                 st.session_state.post_error_msg = "❌ Please provide Facebook Token & Page ID in the sidebar first"
                                 st.rerun()
                             else:
-                                try:
-                                    import requests
-                                    # Facebook Graph API endpoint for posting
-                                    url = f"https://graph.facebook.com/v18.0/{fb_page_id}/feed"
-                                    
-                                    # Prepare caption with emotions and status info
-                                    caption_text = user_input
-                                    if user_input:
-                                        caption_text += f"\n\n📊 Analysis:\n"
-                                        caption_text += f"Status: {fake_real}\n"
-                                        caption_text += f"Authenticity Score: {fake_real_score:.0%}\n"
-                                        caption_text += f"Primary Emotion: {emotions_list[0][0] if emotions_list else 'Unknown'}"
-                                    
-                                    params = {
-                                        'message': caption_text,
-                                        'access_token': fb_token
-                                    }
-                                    
-                                    response = requests.post(url, params=params, timeout=10)
-                                    
-                                    if response.status_code == 200:
-                                        st.session_state.post_status = "success"
-                                        st.rerun()
-                                    else:
-                                        error_msg = response.json().get('error', {}).get('message', 'Unknown error')
-                                        st.session_state.post_status = "error"
-                                        st.session_state.post_error_msg = f"❌ Facebook Error: {error_msg}"
-                                        st.rerun()
+                                # Use the improved FacebookPoster class
+                                poster = FacebookPoster(page_token=fb_token, page_id=fb_page_id)
                                 
-                                except requests.exceptions.Timeout:
+                                # Prepare caption with emotions and status info
+                                caption_text = user_input
+                                if user_input:
+                                    caption_text += f"\n\n📊 Analysis:\n"
+                                    caption_text += f"Status: {fake_real}\n"
+                                    caption_text += f"Authenticity Score: {fake_real_score:.0%}\n"
+                                    caption_text += f"Primary Emotion: {emotions_list[0][0] if emotions_list else 'Unknown'}"
+                                
+                                # Publish the post
+                                success, result = poster.publish_post(message=caption_text)
+                                
+                                if success:
+                                    st.session_state.post_status = "success"
+                                    st.session_state.post_id = result.get('post_id', 'unknown')
+                                    st.session_state.post_url = result.get('url', '')
+                                else:
                                     st.session_state.post_status = "error"
-                                    st.session_state.post_error_msg = "❌ Request timeout. Please check your internet connection."
-                                    st.rerun()
-                                except requests.exceptions.ConnectionError:
-                                    st.session_state.post_status = "error"
-                                    st.session_state.post_error_msg = "❌ Connection error. Please check your internet."
-                                    st.rerun()
-                                except Exception as e:
-                                    st.session_state.post_status = "error"
-                                    st.session_state.post_error_msg = f"❌ Error: {str(e)}"
-                                    st.rerun()
+                                    st.session_state.post_error_msg = result.get('error', '❌ Unknown error')
+                                    st.session_state.post_error_details = result.get('details', '')
+                                
+                                st.rerun()
                     
                     with col2:
                         st.write("")  # spacing
                         st.write("")  # spacing
                         if st.session_state.post_status == "success":
-                            st.success("✓")
+                            st.success("✓ Posted!")
                         elif st.session_state.post_status == "error":
-                            st.error("✗")
+                            st.error("✗ Failed")
             
             except Exception as e:
                 st.error(f"Analysis error: {str(e)}")
