@@ -482,22 +482,8 @@ with tab1:
                     
                     poster = FacebookPoster(page_token=fb_token, page_id=fb_page_id)
                     
-                    # Get values from session state (set during Analyze)
-                    emotions_list = st.session_state.get('emotions_list', [])
-                    fake_real = st.session_state.get('fake_real', 'Unknown')
-                    fake_real_score = st.session_state.get('fake_real_score', 0)
-                    
-                    # Prepare caption with emotions and status info
-                    caption_text = caption
-                    if emotions_list or fake_real != 'Unknown':
-                        caption_text += f"\n\n📊 Analysis:\n"
-                        caption_text += f"Status: {fake_real}\n"
-                        caption_text += f"Authenticity Score: {fake_real_score:.0%}\n"
-                        if emotions_list:
-                            caption_text += f"Primary Emotion: {emotions_list[0][0]}"
-                    
-                    # Publish the post to Facebook
-                    success, result = poster.publish_post(message=caption_text)
+                    # Publish only the caption (no analysis data)
+                    success, result = poster.publish_post(message=caption)
                     
                     # Add small delay to ensure Facebook processes it
                     time.sleep(1)
