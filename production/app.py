@@ -398,25 +398,29 @@ with tab1:
     st.subheader("Status Analyzer")
     st.write("Enter your status/caption here...")
     
-    # Add info box explaining how Fake/Real is determined
-    st.info("""
-    **How Authenticity is Determined:**
-    - **Real**: Score < 65% = Genuine, authentic post (adjusted threshold for better detection)
-    - **Fake**: Score ≥ 65% = Suspicious, template-like, or spam-like content
-    
-    **Threshold Adjustment:**
-    - Original notebook threshold: 0.40 (strict, flagged many authentic posts as fake)
-    - Updated threshold: 0.65 (balanced, considers model bias)
-    - Reason: Model trained on Facebook data with inherent bias toward formal posts
-    
-    **What the model detects as "Fake":**
-    - Generic/template phrases (e.g., "I am a student from...")
-    - Repetitive patterns and copy-paste structure
-    - Limited engagement signals
-    - Automated or bot-like writing style
-    
-    **Note:** This model is trained on Facebook data, so professional/LinkedIn-style posts may be flagged as Fake.
-    """)
+    # Authenticity explanation in collapsible expander
+    with st.expander("🔍 How Authenticity is Determined (Click to expand)"):
+        st.markdown("""
+### **Real Caption**
+- Score < 65% → Authentic, natural writing
+- Includes personal tone, unique wording
+
+### **Fake Caption**
+- Score ≥ 65% → Template-like, repetitive, or spam-pattern content  
+- Overuse of generic phrases or engagement-bait
+
+### **Why threshold updated to 0.65**
+- Original model threshold was 0.40 (too strict)
+- Adjusted to 0.65 for balanced performance on Facebook-style writing
+
+### **Model detects Fake when caption contains:**
+- Template or repetitive structure ("I am a student from…")
+- Copy-paste patterns
+- Low-engagement linguistic signals
+- Bot-like or overly formal writing
+
+⚠️ **Note:** LinkedIn-style highly formal captions may be mistakenly flagged as fake.
+        """)
     
     # Add example captions section
     with st.expander("View Example: Fake vs Real Captions"):
