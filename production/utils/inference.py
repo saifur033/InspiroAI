@@ -148,12 +148,12 @@ class StatusPredictor:
             z_score = (rf_prob - 0.46) / 0.008
             calibrated_score = 1.0 / (1.0 + np.exp(-z_score))
             
-            label = "Fake/Spam" if calibrated_score >= 0.50 else "Real"
+            label = "Fake/Spam" if calibrated_score >= 0.55 else "Real"
             
             return {
                 "status": label,
                 "suspicion_score": float(calibrated_score),
-                "threshold": 0.50,
+                "threshold": 0.55,
                 "confidence": abs(float(calibrated_score) - 0.5) * 2,
             }
         except Exception as e:

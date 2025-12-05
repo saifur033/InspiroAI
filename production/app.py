@@ -467,7 +467,7 @@ with tab1:
                     # Adjusted threshold: 0.65 instead of 0.40
                     # This balances between notebook accuracy and practical detection
                     # Original notebook: 0.40, but model bias suggests 0.65 is better
-                    fake_real = "Fake" if fake_real_score >= 0.50 else "Real"
+                    fake_real = "Fake" if fake_real_score >= 0.55 else "Real"
                     
                     # Color based on Real/Fake
                     if fake_real == "Fake":
@@ -550,7 +550,7 @@ with tab1:
                             ```
                             """)
                     else:
-                        with st.expander("✅ Reasons for REAL detection (Score < 40%)", expanded=True):
+                        with st.expander("✅ Reasons for REAL detection (Score < 50%)", expanded=True):
                             st.markdown("""
                             ✅ **Authentic Language:**
                             - Natural, conversational tone
@@ -564,10 +564,22 @@ with tab1:
                             - Real emotions visible
                             - Honest struggles or vulnerabilities
                             
-                            ✅ **Unpolitished Style:**
+                            ✅ **Unpolished Style:**
                             - Casual language with typos
                             - Natural sentence fragmentation
                             - Minimal or contextual hashtags
+                            
+                            **Examples of REAL Posts:**
+                            ```
+                            just woke up and i have no idea what im doing with my life lol
+                            
+                            honestly the anxiety is hitting different today
+                            why am i like this
+                            
+                            had the worst day ever but at least pizza exists
+                            
+                            im not okay but also im fine? does anyone else feel this way
+                            ```
                             """)
                     
                     # Emotion distribution
