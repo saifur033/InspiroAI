@@ -611,6 +611,11 @@ im not okay but also im fine? does anyone else feel this way""", language="text"
                     emotion_col1, emotion_col2 = st.columns(2)
                     emotions_list = list(emotion_probs.items())
                     
+                    # Store in session state for Post Now button
+                    st.session_state.emotions_list = emotions_list
+                    st.session_state.fake_real = fake_real
+                    st.session_state.fake_real_score = fake_real_score
+                    
                     for i, (emotion_label, prob) in enumerate(emotions_list):
                         if i < len(emotions_list) // 2:
                             with emotion_col1:
@@ -658,9 +663,14 @@ im not okay but also im fine? does anyone else feel this way""", language="text"
                                 # Use the improved FacebookPoster class
                                 poster = FacebookPoster(page_token=fb_token, page_id=fb_page_id)
                                 
+                                # Get values from session state (set during Analyze)
+                                emotions_list = st.session_state.get('emotions_list', [])
+                                fake_real = st.session_state.get('fake_real', 'Unknown')
+                                fake_real_score = st.session_state.get('fake_real_score', 0)
+                                
                                 # Prepare caption with emotions and status info
-                                caption_text = user_input
-                                if user_input:
+                                caption_text = caption
+                                if caption:
                                     caption_text += f"\n\n📊 Analysis:\n"
                                     caption_text += f"Status: {fake_real}\n"
                                     caption_text += f"Authenticity Score: {fake_real_score:.0%}\n"
