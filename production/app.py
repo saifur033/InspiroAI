@@ -623,6 +623,20 @@ im not okay but also im fine? does anyone else feel this way""", language="text"
                     if 'post_status' not in st.session_state:
                         st.session_state.post_status = None
                     
+                    # Show status message if exists
+                    if st.session_state.post_status == "success":
+                        st.success("✅ Post published successfully to Facebook!")
+                        st.balloons()
+                        caption_text = user_input
+                        if user_input:
+                            caption_text += f"\n\n📊 Analysis:\n"
+                            caption_text += f"Status: {fake_real}\n"
+                            caption_text += f"Authenticity Score: {fake_real_score:.0%}\n"
+                            caption_text += f"Primary Emotion: {emotions_list[0][0] if emotions_list else 'Unknown'}"
+                        st.info(f"📱 Posted Caption: {caption_text[:100]}...")
+                    elif st.session_state.post_status == "error":
+                        st.error(st.session_state.get('post_error_msg', '❌ Failed to post. Please check token & page ID.'))
+                    
                     col1, col2 = st.columns([3, 1])
                     
                     with col1:
@@ -632,7 +646,8 @@ im not okay but also im fine? does anyone else feel this way""", language="text"
                             
                             if not fb_token or not fb_page_id:
                                 st.session_state.post_status = "error"
-                                st.error("❌ Please provide Facebook Token & Page ID in the sidebar first")
+                                st.session_state.post_error_msg = "❌ Please provide Facebook Token & Page ID in the sidebar first"
+                                st.rerun()
                             else:
                                 try:
                                     import requests
@@ -656,24 +671,25 @@ im not okay but also im fine? does anyone else feel this way""", language="text"
                                     
                                     if response.status_code == 200:
                                         st.session_state.post_status = "success"
-                                        st.success("✅ Post published successfully to Facebook!")
-                                        st.balloons()
-                                        # Show post details
-                                        st.info(f"📱 Posted Caption: {caption_text[:100]}...")
+                                        st.rerun()
                                     else:
                                         error_msg = response.json().get('error', {}).get('message', 'Unknown error')
                                         st.session_state.post_status = "error"
-                                        st.error(f"❌ Failed to post: {error_msg}")
+                                        st.session_state.post_error_msg = f"❌ Facebook Error: {error_msg}"
+                                        st.rerun()
                                 
                                 except requests.exceptions.Timeout:
                                     st.session_state.post_status = "error"
-                                    st.error("❌ Request timeout. Please check your internet connection.")
+                                    st.session_state.post_error_msg = "❌ Request timeout. Please check your internet connection."
+                                    st.rerun()
                                 except requests.exceptions.ConnectionError:
                                     st.session_state.post_status = "error"
-                                    st.error("❌ Connection error. Please check your internet.")
+                                    st.session_state.post_error_msg = "❌ Connection error. Please check your internet."
+                                    st.rerun()
                                 except Exception as e:
                                     st.session_state.post_status = "error"
-                                    st.error(f"❌ Error: {str(e)}")
+                                    st.session_state.post_error_msg = f"❌ Error: {str(e)}"
+                                    st.rerun()
                     
                     with col2:
                         st.write("")  # spacing
