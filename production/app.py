@@ -291,37 +291,43 @@ if 'fb_page_id' not in st.session_state:
 # Token input - allow paste/copy
 fb_token = st.sidebar.text_input(
     "Facebook API Token",
-    value=st.session_state.fb_token,
+    value=st.session_state.get('fb_token', ''),
     placeholder="Paste your token here (visible for copying)",
-    help="You can safely paste and copy your token here"
+    help="You can safely paste and copy your token here",
+    key="fb_token_input"
 )
+# Update session state as user types
+st.session_state.fb_token = fb_token
 
 # Page ID input
 fb_page_id = st.sidebar.text_input(
     "Facebook Page ID",
-    value=st.session_state.fb_page_id,
+    value=st.session_state.get('fb_page_id', ''),
     placeholder="123456789",
-    help="Your Facebook page numeric ID"
+    help="Your Facebook page numeric ID",
+    key="fb_page_id_input"
 )
+# Update session state as user types
+st.session_state.fb_page_id = fb_page_id
 
 st.sidebar.markdown("---")
 
 # Save & Clear buttons
 col1, col2 = st.sidebar.columns(2)
 with col1:
-    if st.button("Save", use_container_width=True, key="fb_save_btn"):
+    if st.button("✅ Save", use_container_width=True, key="fb_save_btn"):
         if fb_token and fb_page_id:
-            st.session_state.fb_token = fb_token
-            st.session_state.fb_page_id = fb_page_id
             st.sidebar.success("✅ Credentials saved successfully!")
         else:
             st.sidebar.warning("⚠️ Please enter both token and page ID")
 
 with col2:
-    if st.button("Clear", use_container_width=True, key="fb_clear_btn"):
+    if st.button("🔄 Clear", use_container_width=True, key="fb_clear_btn"):
         st.session_state.fb_token = ''
         st.session_state.fb_page_id = ''
-        st.sidebar.info("🔄 Fields cleared")
+        st.sidebar.success("✅ Credentials cleared!")
+        time.sleep(0.5)
+        st.rerun()
 
 # ============================================
 # PAGE TITLE
