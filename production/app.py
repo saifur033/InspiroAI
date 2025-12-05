@@ -467,7 +467,7 @@ with tab1:
                     # Adjusted threshold: 0.65 instead of 0.40
                     # This balances between notebook accuracy and practical detection
                     # Original notebook: 0.40, but model bias suggests 0.65 is better
-                    fake_real = "Fake" if fake_real_score >= 0.65 else "Real"
+                    fake_real = "Fake" if fake_real_score >= 0.50 else "Real"
                     
                     # Color based on Real/Fake
                     if fake_real == "Fake":

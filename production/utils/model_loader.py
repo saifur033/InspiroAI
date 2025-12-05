@@ -22,7 +22,7 @@ class ModelRegistry:
         self.status_xgb = None
         self.status_rf = None
         self.status_lgb = None
-        self.status_threshold = 0.40
+        self.status_threshold = 0.50
         
         # Feature metadata
         self.reach_meta = {}
@@ -87,7 +87,7 @@ class ModelRegistry:
             # Load metadata
             with open(os.path.join(self.models_dir, "status_meta.json"), "r") as f:
                 meta = json.load(f)
-                self.status_threshold = meta.get("best_threshold", 0.40)
+                self.status_threshold = meta.get("best_threshold", 0.50)
             
             # Load style features
             self.status_style_features = joblib.load(

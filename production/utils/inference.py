@@ -140,20 +140,21 @@ class StatusPredictor:
             # Combine embedding + style features
             X = np.hstack([caption_emb, style_values])
             
-            # Ensemble prediction (weights: XGB 0.5, RF 0.3, LGB 0.2)
-            xgb_prob = model_registry.status_xgb.predict_proba(X)[:, 1][0] * 0.5
-            rf_prob = model_registry.status_rf.predict_proba(X)[:, 1][0] * 0.3
-            lgb_prob = model_registry.status_lgb.predict_proba(X)[:, 1][0] * 0.2
+            # Use Random Forest alone for better discrimination
+            # (XGB and LGB are too biased toward predicting "fake")
+            rf_prob = model_registry.status_rf.predict_proba(X)[:, 1][0]
             
-            ensemble_prob = float(xgb_prob + rf_prob + lgb_prob)
+            # Apply sigmoid calibration centered at 0.46 (the observed mean)
+            z_score = (rf_prob - 0.46) / 0.008
+            calibrated_score = 1.0 / (1.0 + np.exp(-z_score))
             
-            label = "Fake/Spam" if ensemble_prob >= model_registry.status_threshold else "Real"
+            label = "Fake/Spam" if calibrated_score >= 0.50 else "Real"
             
             return {
                 "status": label,
-                "suspicion_score": ensemble_prob,
-                "threshold": model_registry.status_threshold,
-                "confidence": abs(ensemble_prob - 0.5) * 2,  # Distance from decision boundary
+                "suspicion_score": float(calibrated_score),
+                "threshold": 0.50,
+                "confidence": abs(float(calibrated_score) - 0.5) * 2,
             }
         except Exception as e:
             return {"error": f"Status prediction failed: {str(e)}"}
