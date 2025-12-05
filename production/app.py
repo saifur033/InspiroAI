@@ -87,7 +87,7 @@ st.markdown("""
     
     /* Button styling - Enhanced */
     .stButton {
-        width: 100%;
+        width: 100% !important;
     }
     
     .stButton > button {
@@ -99,12 +99,14 @@ st.markdown("""
         font-weight: 700 !important;
         transition: all 0.3s ease !important;
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2) !important;
-        text-transform: uppercase !important;
-        font-size: 0.9rem !important;
+        font-size: 0.95rem !important;
         letter-spacing: 0.5px !important;
         min-height: 44px !important;
         width: 100% !important;
         display: block !important;
+        box-sizing: border-box !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
     }
     
     .stButton > button:hover {
