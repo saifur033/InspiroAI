@@ -423,7 +423,15 @@ with tab1:
         )
     
     with col2:
-        analyze_btn = st.button("Analyze", use_container_width=True, key="analyze_btn_tab1")
+        col_btn1, col_btn2 = st.columns(2)
+        with col_btn1:
+            analyze_btn = st.button("Analyze", use_container_width=True, key="analyze_btn_tab1")
+        with col_btn2:
+            clear_btn = st.button("Clear", use_container_width=True, key="clear_btn_tab1")
+    
+    if clear_btn:
+        caption = ""
+        st.rerun()
     
     if analyze_btn:
         if not caption.strip():
@@ -490,9 +498,73 @@ with tab1:
                         </div>
                         """, unsafe_allow_html=True)
                     
-                    # Emotion distribution
+                    # Show WHY it's Fake/Real
                     st.markdown("---")
-                    st.subheader("Emotion Distribution Analysis")
+                    st.subheader("Why This Is Detected As " + fake_real)
+                    
+                    if fake_real == "Fake":
+                        with st.expander("📌 Reasons for FAKE detection (Score ≥ 40%)", expanded=True):
+                            st.markdown("""
+                            ❌ **Generic/Template Phrases:**
+                            - Overused opening lines (e.g., "I am a student from...", "Looking for opportunities...")
+                            - Standard motivational phrases
+                            
+                            ❌ **Copy-Paste Structure:**
+                            - Repetitive format and patterns
+                            - Similar to known spam templates
+                            
+                            ❌ **Limited Authenticity Signals:**
+                            - Too polished/professional tone
+                            - Heavy hashtag usage (#Success #Grateful #Blessed)
+                            - Lack of personal emotions or specific details
+                            
+                            ❌ **Automated Writing Style:**
+                            - Bot-like patterns detected
+                            - Formal language without personality
+                            - No typos or casual language
+                            """)
+                        
+                        with st.expander("✅ How to Make It More REAL:", expanded=False):
+                            st.markdown("""
+                            **To improve authenticity:**
+                            - Use casual language ("lol", "ngl", "honestly", "ig")
+                            - Share real struggles or failures (not just success)
+                            - Include specific details (names, dates, exact situations)
+                            - Show genuine emotions (frustration, confusion, surprise)
+                            - Keep typos/informal style (don't over-correct)
+                            - Minimize or remove hashtags (0-2 max)
+                            - Fragment sentences naturally
+                            
+                            **Example REAL version:**
+                            ```
+                            honestly i don't know how i'm graduating lol
+                            4 years and i still feel lost af
+                            but ig that's normal? at least my friends feel the same way
+                            thank god this is over
+                            ```
+                            """)
+                    else:
+                        with st.expander("✅ Reasons for REAL detection (Score < 40%)", expanded=True):
+                            st.markdown("""
+                            ✅ **Authentic Language:**
+                            - Natural, conversational tone
+                            - Personal voice and perspective
+                            
+                            ✅ **Specific Details:**
+                            - Unique situations or experiences
+                            - Named references or specific events
+                            
+                            ✅ **Genuine Expression:**
+                            - Real emotions visible
+                            - Honest struggles or vulnerabilities
+                            
+                            ✅ **Unpolitished Style:**
+                            - Casual language with typos
+                            - Natural sentence fragmentation
+                            - Minimal or contextual hashtags
+                            """)
+                    
+                    # Emotion distribution
                     
                     # Show all 6 emotion types supported
                     st.info("Emotions detected: **anger, fear, joy, neutral, sadness, surprise**")
