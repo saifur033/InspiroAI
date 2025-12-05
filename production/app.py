@@ -386,8 +386,13 @@ with tab1:
     # Add info box explaining how Fake/Real is determined
     st.info("""
     **How Authenticity is Determined:**
-    - **Real**: Score < 40% = Genuine, authentic post (not spam)
-    - **Fake**: Score ≥ 40% = Suspicious, template-like, or spam-like content
+    - **Real**: Score < 65% = Genuine, authentic post (adjusted threshold for better detection)
+    - **Fake**: Score ≥ 65% = Suspicious, template-like, or spam-like content
+    
+    **Threshold Adjustment:**
+    - Original notebook threshold: 0.40 (strict, flagged many authentic posts as fake)
+    - Updated threshold: 0.65 (balanced, considers model bias)
+    - Reason: Model trained on Facebook data with inherent bias toward formal posts
     
     **What the model detects as "Fake":**
     - Generic/template phrases (e.g., "I am a student from...")
@@ -459,9 +464,10 @@ with tab1:
                 if not has_error:
                     # Extract results
                     fake_real_score = status_result.get('suspicion_score', 0)
-                    # Use original notebook threshold (0.40)
-                    # Model trained on Facebook data shows bias - most posts score 0.72+
-                    fake_real = "Fake" if fake_real_score >= 0.40 else "Real"
+                    # Adjusted threshold: 0.65 instead of 0.40
+                    # This balances between notebook accuracy and practical detection
+                    # Original notebook: 0.40, but model bias suggests 0.65 is better
+                    fake_real = "Fake" if fake_real_score >= 0.65 else "Real"
                     
                     # Color based on Real/Fake
                     if fake_real == "Fake":
