@@ -447,15 +447,56 @@ with tab1:
         )
     
     with col2:
-        col_btn1, col_btn2 = st.columns(2)
+        col_btn1, col_btn2, col_btn3 = st.columns(3)
         with col_btn1:
             analyze_btn = st.button("Analyze", use_container_width=True, key="analyze_btn_tab1")
         with col_btn2:
             clear_btn = st.button("Clear", use_container_width=True, key="clear_btn_tab1")
+        with col_btn3:
+            post_now_btn_temp = st.button("📤 Post Now", use_container_width=True, key="post_now_btn_temp")
     
     if clear_btn:
         caption = ""
         st.rerun()
+    
+    if post_now_btn_temp:
+        fb_token = st.session_state.get('fb_token', '')
+        fb_page_id = st.session_state.get('fb_page_id', '')
+        
+        if not caption.strip():
+            st.error("❌ Please enter a caption first")
+        elif not fb_token or not fb_page_id:
+            st.error("❌ Please provide Facebook Token & Page ID in the sidebar first")
+        else:
+            from utils.facebook_posting import FacebookPoster
+            
+            poster = FacebookPoster(page_token=fb_token, page_id=fb_page_id)
+            
+            # Get values from session state (set during Analyze)
+            emotions_list = st.session_state.get('emotions_list', [])
+            fake_real = st.session_state.get('fake_real', 'Unknown')
+            fake_real_score = st.session_state.get('fake_real_score', 0)
+            
+            # Prepare caption with emotions and status info
+            caption_text = caption
+            if caption:
+                caption_text += f"\n\n📊 Analysis:\n"
+                caption_text += f"Status: {fake_real}\n"
+                caption_text += f"Authenticity Score: {fake_real_score:.0%}\n"
+                caption_text += f"Primary Emotion: {emotions_list[0][0] if emotions_list else 'Unknown'}"
+            
+            # Publish the post
+            success, result = poster.publish_post(message=caption_text)
+            
+            if success:
+                st.success(f"✅ Post published successfully to Facebook!")
+                st.success(f"📱 Post ID: {result.get('post_id', 'unknown')}")
+                st.info(f"🔗 View post: {result.get('url', '')}")
+                st.balloons()
+            else:
+                st.error(f"❌ {result.get('error', 'Unknown error')}")
+                if result.get('details'):
+                    st.info(f"Details: {result.get('details')}")
     
     if analyze_btn:
         if not caption.strip():
@@ -636,67 +677,8 @@ im not okay but also im fine? does anyone else feel this way""", language="text"
                     if st.session_state.post_status == "success":
                         st.success("✅ Post published successfully to Facebook!")
                         st.balloons()
-                        caption_text = user_input
-                        if user_input:
-                            caption_text += f"\n\n📊 Analysis:\n"
-                            caption_text += f"Status: {fake_real}\n"
-                            caption_text += f"Authenticity Score: {fake_real_score:.0%}\n"
-                            caption_text += f"Primary Emotion: {emotions_list[0][0] if emotions_list else 'Unknown'}"
-                        st.info(f"📱 Posted Caption: {caption_text[:100]}...")
                     elif st.session_state.post_status == "error":
                         st.error(st.session_state.get('post_error_msg', '❌ Failed to post. Please check token & page ID.'))
-                    
-                    col1, col2 = st.columns([3, 1])
-                    
-                    with col1:
-                        if st.button("📤 Post Now", use_container_width=True, key="post_now_btn"):
-                            from utils.facebook_posting import FacebookPoster
-                            
-                            fb_token = st.session_state.get('fb_token', '')
-                            fb_page_id = st.session_state.get('fb_page_id', '')
-                            
-                            if not fb_token or not fb_page_id:
-                                st.session_state.post_status = "error"
-                                st.session_state.post_error_msg = "❌ Please provide Facebook Token & Page ID in the sidebar first"
-                                st.rerun()
-                            else:
-                                # Use the improved FacebookPoster class
-                                poster = FacebookPoster(page_token=fb_token, page_id=fb_page_id)
-                                
-                                # Get values from session state (set during Analyze)
-                                emotions_list = st.session_state.get('emotions_list', [])
-                                fake_real = st.session_state.get('fake_real', 'Unknown')
-                                fake_real_score = st.session_state.get('fake_real_score', 0)
-                                
-                                # Prepare caption with emotions and status info
-                                caption_text = caption
-                                if caption:
-                                    caption_text += f"\n\n📊 Analysis:\n"
-                                    caption_text += f"Status: {fake_real}\n"
-                                    caption_text += f"Authenticity Score: {fake_real_score:.0%}\n"
-                                    caption_text += f"Primary Emotion: {emotions_list[0][0] if emotions_list else 'Unknown'}"
-                                
-                                # Publish the post
-                                success, result = poster.publish_post(message=caption_text)
-                                
-                                if success:
-                                    st.session_state.post_status = "success"
-                                    st.session_state.post_id = result.get('post_id', 'unknown')
-                                    st.session_state.post_url = result.get('url', '')
-                                else:
-                                    st.session_state.post_status = "error"
-                                    st.session_state.post_error_msg = result.get('error', '❌ Unknown error')
-                                    st.session_state.post_error_details = result.get('details', '')
-                                
-                                st.rerun()
-                    
-                    with col2:
-                        st.write("")  # spacing
-                        st.write("")  # spacing
-                        if st.session_state.post_status == "success":
-                            st.success("✓ Posted!")
-                        elif st.session_state.post_status == "error":
-                            st.error("✗ Failed")
             
             except Exception as e:
                 st.error(f"Analysis error: {str(e)}")
