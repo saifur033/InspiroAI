@@ -1,0 +1,1 @@
+{"embedder": "all-MiniLM-L6-v2", "cat_cols": ["category", "language"], "num_cols": ["char_count", "word_count", "avg_word_len", "emoji_count", "has_hashtag", "fk_grade", "hour", "dow", "is_weekend", "hour_sin", "hour_cos", "dow_sin", "dow_cos"]}
