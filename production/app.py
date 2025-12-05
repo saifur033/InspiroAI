@@ -453,7 +453,7 @@ with tab1:
         with col_btn2:
             clear_btn = st.button("Clear", use_container_width=True, key="clear_btn_tab1")
         with col_btn3:
-            post_now_btn_temp = st.button("📤 Post Now", use_container_width=True, key="post_now_btn_temp")
+            post_now_btn_temp = st.button("📤 Share", use_container_width=True, key="post_now_btn_temp")
     
     if clear_btn:
         caption = ""
