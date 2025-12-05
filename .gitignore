@@ -1,0 +1,88 @@
+# Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Streamlit
+.streamlit/
+*.streamlit.app
+.streamlit_state/
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb_checkpoints
+
+# Models & Data (if too large)
+# Uncomment if models exceed 500MB
+# production/models/*.h5
+# production/models/*.pkl
+# production/models/*/
+
+# Local environment variables
+.env
+.env.local
+secrets.toml
+.streamlit/secrets.toml
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+
+# CatBoost
+catboost_info/
+
+# Specific to this project
+production/catboost_info/
+.streamlit/config.toml
+
+# Keep these important files
+!production/models/
+!production/app.py
+!production/utils/
+!requirements.txt
+!streamlit_app.py
