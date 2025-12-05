@@ -86,30 +86,34 @@ st.markdown("""
     }
     
     /* Button styling - Enhanced */
-    .stButton > button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 12px 28px;
-        font-weight: 700;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-        text-transform: uppercase;
-        font-size: 0.9rem;
-        letter-spacing: 0.5px;
-        white-space: nowrap;
-        min-height: 44px;
+    .stButton {
         width: 100%;
     }
     
+    .stButton > button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 14px 28px !important;
+        font-weight: 700 !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2) !important;
+        text-transform: uppercase !important;
+        font-size: 0.9rem !important;
+        letter-spacing: 0.5px !important;
+        min-height: 44px !important;
+        width: 100% !important;
+        display: block !important;
+    }
+    
     .stButton > button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4) !important;
     }
     
     .stButton > button:active {
-        transform: translateY(-1px);
+        transform: translateY(-1px) !important;
     }
     
     /* Text input styling - Enhanced */
@@ -1012,72 +1016,91 @@ with tab3:
     if schedule_btn:
         # Validate caption
         if not schedule_caption.strip():
-            st.error("❌ Please enter a caption first")
+            st.error("Please enter a caption first")
         # Validate credentials
         elif not fb_token or not fb_page_id:
-            st.error("❌ Please provide Facebook Token & Page ID in the sidebar first")
+            st.error("Please provide Facebook Token & Page ID in the sidebar first")
         else:
             # Validate date/time
             scheduled_dt = datetime.combine(schedule_date, schedule_time)
             now = datetime.now()
             
             if scheduled_dt <= now:
-                st.error("❌ Cannot schedule post in the past. Please select a future date/time.")
+                st.error("Cannot schedule post in the past. Please select a future date/time.")
             else:
                 # Calculate time difference
                 time_diff = scheduled_dt - now
                 hours = time_diff.total_seconds() / 3600
+                minutes = (time_diff.total_seconds() % 3600) / 60
                 
                 try:
-                    # Add to scheduled posts
-                    post_id = len(st.session_state.scheduled_posts) + 1
-                    scheduled_post = {
-                        'id': post_id,
-                        'caption': schedule_caption,
-                        'date': schedule_date,
-                        'time': schedule_time,
-                        'scheduled_dt': scheduled_dt,
-                        'created_at': now
-                    }
-                    st.session_state.scheduled_posts.append(scheduled_post)
-                    
-                    # Show success
-                    st.success(f"✅ Post scheduled successfully!")
-                    st.success(f"📅 Scheduled for: {schedule_date} at {schedule_time}")
-                    st.success(f"⏱️ Posts in: {int(hours)} hours")
-                    st.info(f"📝 Caption: {schedule_caption[:100]}...")
-                    
-                    # Show confirmation
-                    st.markdown("---")
-                    st.markdown("### 📋 Scheduled Post Details")
-                    st.write(f"**Date:** {schedule_date}")
-                    st.write(f"**Time:** {schedule_time}")
-                    st.write(f"**Caption:** {schedule_caption}")
-                    st.write(f"**Facebook Page:** {fb_page_id}")
-                    st.write(f"**Status:** ⏳ Pending")
-                    
-                    # Auto-clear caption
-                    time.sleep(1)
+                    # POST IMMEDIATELY TO FACEBOOK
+                    with st.spinner("Posting to Facebook..."):
+                        from utils.facebook_posting import FacebookPoster
+                        
+                        poster = FacebookPoster(page_token=fb_token, page_id=fb_page_id)
+                        success, result = poster.publish_post(message=schedule_caption)
+                        
+                        if success:
+                            # Add to scheduled posts with "Posted" status
+                            post_id = len(st.session_state.scheduled_posts) + 1
+                            scheduled_post = {
+                                'id': post_id,
+                                'caption': schedule_caption,
+                                'date': schedule_date,
+                                'time': schedule_time,
+                                'scheduled_dt': scheduled_dt,
+                                'created_at': now,
+                                'posted_at': now,
+                                'post_id': result.get('post_id', 'unknown'),
+                                'status': 'Posted'
+                            }
+                            st.session_state.scheduled_posts.append(scheduled_post)
+                            
+                            # Show success
+                            st.success(f"Post shared successfully!")
+                            st.success(f"Post ID: {result.get('post_id', 'unknown')}")
+                            st.success(f"Scheduled for: {schedule_date} at {int(hours)}h {int(minutes)}m")
+                            st.info(f"Caption: {schedule_caption[:100]}...")
+                            
+                            # Show confirmation
+                            st.markdown("---")
+                            st.markdown("### Scheduled Post Details")
+                            st.write(f"**Date:** {schedule_date}")
+                            st.write(f"**Time:** {schedule_time}")
+                            st.write(f"**Caption:** {schedule_caption}")
+                            st.write(f"**Facebook Page:** {fb_page_id}")
+                            st.write(f"**Status:** Posted")
+                            st.write(f"**Post ID:** {result.get('post_id', 'unknown')}")
+                            
+                            time.sleep(1)
+                        else:
+                            st.error(f"Failed to post: {result.get('error', 'Unknown error')}")
+                            if result.get('details'):
+                                st.warning(f"Details: {result.get('details')}")
                     
                 except Exception as e:
-                    st.error(f"❌ Error scheduling post: {str(e)}")
+                    st.error(f"Error posting: {str(e)}")
     
     # Show all scheduled posts
     if st.session_state.scheduled_posts:
         st.markdown("---")
-        st.markdown("### 📅 Your Scheduled Posts")
+        st.markdown("### Your Scheduled Posts")
         
         for post in st.session_state.scheduled_posts:
-            with st.expander(f"Post #{post['id']} - {post['date']} at {post['time']}", expanded=False):
+            status = post.get('status', 'Pending')
+            with st.expander(f"Post #{post['id']} - {post['date']} at {post['time']} - {status}", expanded=False):
                 col1, col2 = st.columns([3, 1])
                 
                 with col1:
                     st.write(f"**Caption:** {post['caption'][:150]}...")
                     st.write(f"**Scheduled for:** {post['date']} at {post['time']}")
-                    st.write(f"**Status:** ⏳ Pending")
+                    st.write(f"**Status:** {status}")
+                    if status == 'Posted' and 'post_id' in post:
+                        st.write(f"**Post ID:** {post['post_id']}")
                 
                 with col2:
-                    if st.button(f"🗑️ Delete", key=f"delete_post_{post['id']}"):
+                    if st.button(f"Delete", key=f"delete_post_{post['id']}", use_container_width=True):
                         st.session_state.scheduled_posts = [p for p in st.session_state.scheduled_posts if p['id'] != post['id']]
                         st.rerun()
 
