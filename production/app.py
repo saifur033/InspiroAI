@@ -1112,7 +1112,7 @@ with tab3:
         st.markdown("### Your Scheduled Posts")
         
         for post in st.session_state.scheduled_posts:
-            status = post.get('status', 'Pending')
+            status = post.get('status', 'Scheduled')
             with st.expander(f"Post #{post['id']} - {post['date']} at {post['time']} - {status}", expanded=False):
                 col1, col2 = st.columns([3, 1])
                 
