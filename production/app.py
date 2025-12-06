@@ -85,9 +85,10 @@ st.markdown("""
         transform: translateY(-2px);
     }
     
-    /* Button styling - Enhanced */
+    /* Button styling - Enhanced & Responsive */
     .stButton {
         width: 100% !important;
+        min-width: 0 !important;
     }
     
     .stButton > button {
@@ -95,27 +96,49 @@ st.markdown("""
         color: white !important;
         border: none !important;
         border-radius: 10px !important;
-        padding: 14px 28px !important;
-        font-weight: 700 !important;
+        padding: 12px 16px !important;
+        font-weight: 600 !important;
         transition: all 0.3s ease !important;
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2) !important;
-        font-size: 0.95rem !important;
-        letter-spacing: 0.5px !important;
-        min-height: 44px !important;
+        font-size: 0.85rem !important;
+        line-height: 1.3 !important;
+        letter-spacing: 0.2px !important;
+        min-height: 40px !important;
+        height: auto !important;
         width: 100% !important;
-        display: block !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         box-sizing: border-box !important;
-        overflow: visible !important;
-        text-overflow: clip !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
     }
     
     .stButton > button:hover {
-        transform: translateY(-3px) !important;
+        transform: translateY(-2px) !important;
         box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4) !important;
     }
     
     .stButton > button:active {
-        transform: translateY(-1px) !important;
+        transform: translateY(0px) !important;
+    }
+    
+    /* Mobile responsive buttons */
+    @media (max-width: 768px) {
+        .stButton > button {
+            font-size: 0.85rem !important;
+            padding: 10px 16px !important;
+            min-height: 40px !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .stButton > button {
+            font-size: 0.8rem !important;
+            padding: 10px 14px !important;
+            min-height: 38px !important;
+        }
     }
     
     /* Text input styling - Enhanced */
@@ -469,13 +492,11 @@ with tab1:
         st.session_state.tab1_caption = caption
     
     with col2:
-        col_btn1, col_btn2, col_btn3 = st.columns(3)
-        with col_btn1:
-            analyze_btn = st.button("Analyze", use_container_width=True, key="analyze_btn_tab1")
-        with col_btn2:
-            clear_btn = st.button("Clear", use_container_width=True, key="clear_btn_tab1")
-        with col_btn3:
-            post_now_btn_temp = st.button("Share", use_container_width=True, key="post_now_btn_temp")
+        st.write("")  # Spacer
+        st.write("")  # Spacer
+        analyze_btn = st.button("Analyze", use_container_width=True, key="analyze_btn_tab1")
+        clear_btn = st.button("Clear", use_container_width=True, key="clear_btn_tab1")
+        post_now_btn_temp = st.button("Share", use_container_width=True, key="post_now_btn_temp")
     
     # Handle Share button
     if post_now_btn_temp:
