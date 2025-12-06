@@ -488,8 +488,9 @@ with tab1:
             label_visibility="collapsed",
             key="tab1_caption_input"
         )
-        # Save to session state whenever it changes
-        st.session_state.tab1_caption = caption
+    
+    # Always sync caption from text_area to session state
+    st.session_state.tab1_caption = caption
     
     with col2:
         st.write("")  # Spacer
