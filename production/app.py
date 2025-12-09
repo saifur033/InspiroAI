@@ -63,6 +63,8 @@ try:
         
         # Refresh UI immediately if any post was updated
         if posted_any:
+            from utils.post_storage import PostStorage
+            PostStorage.save_posts(st.session_state.scheduled_posts)
             st.rerun()
 except:
     pass
@@ -959,9 +961,10 @@ with tab3:
     st.subheader("Schedule Post")
     st.write("Schedule your caption to post at a specific date and time")
     
-    # Initialize session state for scheduled posts
+    # Initialize session state for scheduled posts (load from persistent storage)
     if 'scheduled_posts' not in st.session_state:
-        st.session_state.scheduled_posts = []
+        from utils.post_storage import PostStorage
+        st.session_state.scheduled_posts = PostStorage.load_posts()
     
     # Check credentials first
     fb_token = st.session_state.get('fb_token', '')
@@ -1061,8 +1064,8 @@ with tab3:
                 scheduled_post = {
                     'id': post_id,
                     'caption': schedule_caption,
-                    'date': schedule_date,
-                    'time': schedule_time,
+                    'date': str(schedule_date),
+                    'time': str(schedule_time),
                     'scheduled_dt': scheduled_dt,
                     'created_at': now,
                     'posted_at': None,
@@ -1070,6 +1073,10 @@ with tab3:
                     'status': 'Pending'  # Will be posted when time arrives
                 }
                 st.session_state.scheduled_posts.append(scheduled_post)
+                
+                # Save to persistent storage
+                from utils.post_storage import PostStorage
+                PostStorage.save_posts(st.session_state.scheduled_posts)
                 
                 # Show confirmation that post is scheduled
                 st.success(f"✅ Post scheduled successfully!")
@@ -1131,7 +1138,9 @@ with tab3:
                 
                 with col2:
                     if st.button(f"Delete", key=f"delete_post_{post['id']}", use_container_width=True):
+                        from utils.post_storage import PostStorage
                         st.session_state.scheduled_posts = [p for p in st.session_state.scheduled_posts if p['id'] != post['id']]
+                        PostStorage.save_posts(st.session_state.scheduled_posts)
                         st.rerun()
 
 
