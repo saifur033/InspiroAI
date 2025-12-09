@@ -25,40 +25,49 @@ if 'check_interval' not in st.session_state:
 
 st.session_state.check_interval += 1
 
-# Check pending posts FIRST, before rendering anything
-if st.session_state.check_interval % 2 == 0:  # Check every 2 renders
-    try:
-        pending_posts = [p for p in st.session_state.get('scheduled_posts', []) if p.get('status') == 'Pending']
+# Check pending posts FIRST, before rendering anything (ON EVERY RENDER)
+try:
+    pending_posts = [p for p in st.session_state.get('scheduled_posts', []) if p.get('status') == 'Pending']
+    
+    if pending_posts:
+        from datetime import datetime
+        now = datetime.now()
+        posted_any = False
         
-        if pending_posts:
-            from datetime import datetime
-            now = datetime.now()
-            
-            for post in pending_posts:
-                scheduled_dt = post.get('scheduled_dt')
-                if scheduled_dt and scheduled_dt <= now:
-                    # Time to post!
-                    try:
-                        from utils.facebook_posting import FacebookPoster
-                        fb_token = st.session_state.get('fb_token', '')
-                        fb_page_id = st.session_state.get('fb_page_id', '')
+        for post in pending_posts:
+            scheduled_dt = post.get('scheduled_dt')
+            if scheduled_dt and scheduled_dt <= now:
+                # Time to post!
+                try:
+                    from utils.facebook_posting import FacebookPoster
+                    fb_token = st.session_state.get('fb_token', '')
+                    fb_page_id = st.session_state.get('fb_page_id', '')
+                    
+                    if fb_token and fb_page_id:
+                        poster = FacebookPoster(page_token=fb_token, page_id=fb_page_id)
+                        success, result = poster.publish_post(message=post['caption'])
                         
-                        if fb_token and fb_page_id:
-                            poster = FacebookPoster(page_token=fb_token, page_id=fb_page_id)
-                            success, result = poster.publish_post(message=post['caption'])
-                            
-                            if success:
-                                post['status'] = 'Posted'
-                                post['posted_at'] = now
-                                post['post_id'] = result.get('post_id', 'unknown')
-                                st.rerun()  # Refresh to show Posted status
-                    except Exception as e:
-                        post['status'] = 'Failed'
-                        post['error'] = str(e)
-    except:
-        pass
+                        if success:
+                            post['status'] = 'Posted'
+                            post['posted_at'] = now
+                            post['post_id'] = result.get('post_id', 'unknown')
+                            posted_any = True
+                        else:
+                            post['status'] = 'Failed'
+                            post['error'] = result.get('error', 'Unknown error')
+                            posted_any = True
+                except Exception as e:
+                    post['status'] = 'Failed'
+                    post['error'] = str(e)
+                    posted_any = True
+        
+        # Refresh UI immediately if any post was updated
+        if posted_any:
+            st.rerun()
+except:
+    pass
 
-# Auto-rerun every 5 seconds if there are pending posts
+# Auto-rerun every 1 second if there are pending posts
 try:
     pending_posts = [p for p in st.session_state.get('scheduled_posts', []) if p.get('status') == 'Pending']
     if pending_posts:
