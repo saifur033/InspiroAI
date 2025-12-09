@@ -19,25 +19,51 @@ st.set_page_config(
 # ============================================
 # AUTO-REFRESH FOR SCHEDULED POSTS
 # ============================================
-# Check if there are pending posts and auto-refresh every 5 seconds
-if 'last_check' not in st.session_state:
-    st.session_state.last_check = datetime.now()
+# Check if there are pending posts and auto-refresh
+if 'check_interval' not in st.session_state:
+    st.session_state.check_interval = 0
+
+st.session_state.check_interval += 1
+
+# Check pending posts FIRST, before rendering anything
+if st.session_state.check_interval % 2 == 0:  # Check every 2 renders
+    try:
+        pending_posts = [p for p in st.session_state.get('scheduled_posts', []) if p.get('status') == 'Pending']
+        
+        if pending_posts:
+            from datetime import datetime
+            now = datetime.now()
+            
+            for post in pending_posts:
+                scheduled_dt = post.get('scheduled_dt')
+                if scheduled_dt and scheduled_dt <= now:
+                    # Time to post!
+                    try:
+                        from utils.facebook_posting import FacebookPoster
+                        fb_token = st.session_state.get('fb_token', '')
+                        fb_page_id = st.session_state.get('fb_page_id', '')
+                        
+                        if fb_token and fb_page_id:
+                            poster = FacebookPoster(page_token=fb_token, page_id=fb_page_id)
+                            success, result = poster.publish_post(message=post['caption'])
+                            
+                            if success:
+                                post['status'] = 'Posted'
+                                post['posted_at'] = now
+                                post['post_id'] = result.get('post_id', 'unknown')
+                                st.rerun()  # Refresh to show Posted status
+                    except Exception as e:
+                        post['status'] = 'Failed'
+                        post['error'] = str(e)
+    except:
+        pass
 
 # Auto-rerun every 5 seconds if there are pending posts
 try:
     pending_posts = [p for p in st.session_state.get('scheduled_posts', []) if p.get('status') == 'Pending']
     if pending_posts:
-        # Force rerun every 5 seconds
-        import threading
-        def auto_rerun():
-            time.sleep(5)
-            st.rerun()
-        
-        # Only start one rerun thread
-        if not hasattr(st.session_state, 'rerun_thread_started'):
-            st.session_state.rerun_thread_started = True
-            thread = threading.Thread(target=auto_rerun, daemon=True)
-            thread.start()
+        time.sleep(1)
+        st.rerun()
 except:
     pass
 
@@ -1070,30 +1096,8 @@ with tab3:
         st.markdown("---")
         st.markdown("### Your Scheduled Posts")
         
-        # Check and post any that are due
+        # Import for displaying posts
         from utils.scheduler import ScheduledPostManager
-        now = datetime.now()
-        
-        for post in st.session_state.scheduled_posts:
-            if post['status'] == 'Pending':
-                scheduled_dt = post['scheduled_dt']
-                
-                # Check if it's time to post
-                if scheduled_dt <= now:
-                    # Time to post!
-                    try:
-                        from utils.facebook_posting import FacebookPoster
-                        poster = FacebookPoster(page_token=fb_token, page_id=fb_page_id)
-                        success, result = poster.publish_post(message=post['caption'])
-                        
-                        if success:
-                            post['status'] = 'Posted'
-                            post['posted_at'] = now
-                            post['post_id'] = result.get('post_id', 'unknown')
-                            st.success(f"✅ Post #{post['id']} automatically posted to Facebook!")
-                    except Exception as e:
-                        post['status'] = 'Failed'
-                        post['error'] = str(e)
         
         # Display all scheduled posts
         for post in st.session_state.scheduled_posts:
