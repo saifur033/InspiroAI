@@ -859,15 +859,6 @@ with tab2:
                                 </div>
                                 """, unsafe_allow_html=True)
                             
-                            with col2:
-                                st.markdown(f"""
-                                <div class="result-box">
-                                    <p style="color: #667eea; margin: 0 0 8px 0; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.5px;">📊 ML ANALYSIS</p>
-                                    <h3 style="margin: 0 0 8px 0; color: #667eea;">Content Score</h3>
-                                    <p style="font-size: 1rem; color: #764ba2; margin: 0;">Caption length: {len(caption)} chars</p>
-                                </div>
-                                """, unsafe_allow_html=True)
-                            
                             # Show top 3 best hours with details
                             st.markdown("---")
                             st.subheader("🏆 Top 3 Best Posting Times")
