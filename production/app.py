@@ -910,19 +910,6 @@ with tab2:
                                 </div>
                                 """, unsafe_allow_html=True)
                             
-                            # Show top 3 best hours with details
-                            st.markdown("---")
-                            st.subheader("🏆 Top 3 Best Posting Times")
-                            
-                            cols = st.columns(3)
-                            for idx, (hour_str, prob, hour_int) in enumerate(top_3):
-                                with cols[idx]:
-                                    st.metric(
-                                        f"#{idx+1}: {hour_str}",
-                                        f"{prob:.1%}",
-                                        delta=f"Reach Probability"
-                                    )
-                            
                             # Estimated reach calculation (scaled from probability)
                             estimated_reach = int(best_prob * 1000)  # Scale probability to estimated impressions
                             
