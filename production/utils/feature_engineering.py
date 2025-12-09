@@ -158,3 +158,99 @@ def generate_temporal_features(hour):
         "is_weekend": 0,
     }
     return features
+
+
+def predict_reach_for_hours(caption, day_name, embedder, model_registry):
+    """
+    Predict reach for each hour of a given day using ML model
+    
+    Args:
+        caption: Post caption text
+        day_name: Day name (Monday, Tuesday, etc.)
+        embedder: Sentence transformer for embeddings
+        model_registry: Model registry with reach predictor
+    
+    Returns:
+        List of tuples: (hour_str, reach_probability, hour_int)
+    """
+    from datetime import datetime
+    from scipy import sparse
+    import numpy as np
+    
+    # Map day name to integer (Monday=0, ..., Sunday=6)
+    day_map = {
+        "Monday": 0, "Tuesday": 1, "Wednesday": 2, "Thursday": 3,
+        "Friday": 4, "Saturday": 5, "Sunday": 6
+    }
+    day_int = day_map.get(day_name, 2)
+    
+    # Pre-compute day-level features (same for all hours)
+    day_sin = np.sin(2 * np.pi * day_int / 7)
+    day_cos = np.cos(2 * np.pi * day_int / 7)
+    is_weekend = 1 if day_int in [5, 6] else 0
+    
+    # Get caption embedding (single embedding reused for all hours)
+    caption_emb = embedder.encode([caption], convert_to_numpy=True)
+    caption_emb_sparse = sparse.csr_matrix(caption_emb)
+    
+    # Column names for numeric features
+    num_cols = model_registry.reach_meta.get("num_cols", [
+        "char_count", "word_count", "avg_word_len", "emoji_count",
+        "has_hashtag", "fk_grade", "hour", "dow", "is_weekend",
+        "hour_sin", "hour_cos", "dow_sin", "dow_cos"
+    ])
+    
+    results = []
+    
+    # Predict for each hour (0-23)
+    for hour in range(24):
+        # Hour-specific trigonometric encoding
+        hour_sin = np.sin(2 * np.pi * hour / 24)
+        hour_cos = np.cos(2 * np.pi * hour / 24)
+        
+        # Engineer base features for reach
+        reach_features = engineer_reach_features(caption, timestamp=datetime.now(), category="", language="")
+        
+        # Override with specific hour and day
+        reach_features["hour"] = hour
+        reach_features["dow"] = day_int
+        reach_features["is_weekend"] = is_weekend
+        reach_features["hour_sin"] = hour_sin
+        reach_features["hour_cos"] = hour_cos
+        reach_features["dow_sin"] = day_sin
+        reach_features["dow_cos"] = day_cos
+        
+        # Build numeric feature vector
+        num_values = np.array([[reach_features.get(col, 0) for col in num_cols]])
+        num_scaled = model_registry.reach_scaler.transform(num_values)
+        num_sparse = sparse.csr_matrix(num_scaled)
+        
+        # Empty categorical features
+        cat_sparse = sparse.csr_matrix((1, 0))
+        
+        # Combine embeddings + categories + numeric features
+        X = sparse.hstack([caption_emb_sparse, cat_sparse, num_sparse], format="csr")
+        
+        # Get probability prediction
+        try:
+            if hasattr(model_registry.reach_model, "predict_proba"):
+                prob = float(model_registry.reach_model.predict_proba(X)[:, 1][0])
+            else:
+                prob = float(model_registry.reach_model.predict(X)[0])
+        except Exception:
+            prob = 0.0
+        
+        # Convert hour to 12-hour format for display
+        if hour == 0:
+            hour_str = "12:00 AM"
+        elif hour < 12:
+            hour_str = f"{hour}:00 AM"
+        elif hour == 12:
+            hour_str = "12:00 PM"
+        else:
+            hour_str = f"{hour-12}:00 PM"
+        
+        results.append((hour_str, prob, hour))
+    
+    return results
+

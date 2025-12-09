@@ -407,8 +407,6 @@ st.markdown("""
 # ============================================
 # INITIALIZE SESSION STATE
 # ============================================
-if 'active_tab' not in st.session_state:
-    st.session_state.active_tab = 0  # Default to Status Analyzer
 if 'target_reach' not in st.session_state:
     st.session_state.target_reach = 500  # Default target reach
 if 'auto_share_caption' not in st.session_state:
@@ -430,7 +428,14 @@ tab1, tab2, tab3, tab4 = st.tabs([
 # TAB 1: STATUS ANALYZER
 # ============================================
 with tab1:
-    st.session_state.active_tab = 0  # Mark as active
+    # Initialize session state for analysis results
+    if 'fake_real' not in st.session_state:
+        st.session_state.fake_real = None
+    if 'fake_real_score' not in st.session_state:
+        st.session_state.fake_real_score = 0
+    if 'emotions_list' not in st.session_state:
+        st.session_state.emotions_list = []
+    
     st.subheader("Status Analyzer")
     st.write("Enter your status/caption here...")
     
@@ -489,15 +494,23 @@ with tab1:
             key="tab1_caption_input"
         )
     
-    # Always sync caption from text_area to session state
-    st.session_state.tab1_caption = caption
-    
     with col2:
         st.write("")  # Spacer
         st.write("")  # Spacer
         analyze_btn = st.button("Analyze", use_container_width=True, key="analyze_btn_tab1")
         clear_btn = st.button("Clear", use_container_width=True, key="clear_btn_tab1")
         post_now_btn_temp = st.button("Share", use_container_width=True, key="post_now_btn_temp")
+    
+    # Handle Clear button BEFORE syncing caption
+    if clear_btn:
+        st.session_state.tab1_caption = ""
+        st.session_state.emotions_list = []
+        st.session_state.fake_real = None
+        st.session_state.fake_real_score = 0
+        st.rerun()
+    
+    # Always sync caption from text_area to session state (after clear button check)
+    st.session_state.tab1_caption = caption
     
     # Handle Share button
     if post_now_btn_temp:
@@ -532,7 +545,7 @@ with tab1:
                         # Clear caption after successful post
                         st.session_state.tab1_caption = ""
                         st.session_state.emotions_list = []
-                        st.session_state.fake_real = "Unknown"
+                        st.session_state.fake_real = None
                         st.session_state.fake_real_score = 0
                         time.sleep(2)
                         st.rerun()
@@ -545,15 +558,12 @@ with tab1:
                 except Exception as e:
                     st.error(f"❌ Error posting to Facebook: {str(e)}")
     
-    # Handle Clear button
-    if clear_btn:
-        st.session_state.tab1_caption = ""
-        st.session_state.emotions_list = []
-        st.session_state.fake_real = "Unknown"
-        st.session_state.fake_real_score = 0
-        st.rerun()
-    
     if analyze_btn:
+        # Clear previous results first
+        st.session_state.fake_real = None
+        st.session_state.fake_real_score = 0
+        st.session_state.emotions_list = []
+        
         if not caption.strip():
             st.warning("Please enter a caption first")
         elif not models_loaded:
@@ -593,6 +603,11 @@ with tab1:
                     emotion = emotion_result.get('emotion', 'Unknown')
                     emotion_probs = emotion_result.get('all_emotions', {emotion: 1.0})
                     
+                    # Save results to session state for persistence
+                    st.session_state.fake_real = fake_real
+                    st.session_state.fake_real_score = fake_real_score
+                    st.session_state.emotions_list = [emotion]  # List for future expansion
+                    
                     # Display metrics - ONLY Authenticity and Emotion
                     col1, col2 = st.columns(2)
                     
@@ -618,87 +633,6 @@ with tab1:
                             <h2 style="margin: 12px 0 0 0; font-size: 2.2em; font-weight: 800;">{emotion.title()}</h2>
                         </div>
                         """, unsafe_allow_html=True)
-                    
-                    # Show WHY it's Fake/Real
-                    st.markdown("---")
-                    st.subheader("Why This Is Detected As " + fake_real)
-                    
-                    if fake_real == "Fake":
-                        # FAKE CAPTION - Show why fake and how to improve
-                        with st.expander("❌ Why This Is Detected As FAKE", expanded=True):
-                            st.markdown("""
-                            ❌ **Generic/Template Phrases:**
-                            - Overused opening lines (e.g., "I am a student from...", "Looking for opportunities...")
-                            - Standard motivational phrases
-                            
-                            ❌ **Copy-Paste Structure:**
-                            - Repetitive format and patterns
-                            - Similar to known spam templates
-                            
-                            ❌ **Limited Authenticity Signals:**
-                            - Too polished/professional tone
-                            - Heavy hashtag usage (#Success #Grateful #Blessed)
-                            - Lack of personal emotions or specific details
-                            
-                            ❌ **Automated Writing Style:**
-                            - Bot-like patterns detected
-                            - Formal language without personality
-                            - No typos or casual language
-                            """)
-                        
-                        with st.expander("✅ How to Make It More REAL (Copy & Use Below):", expanded=True):
-                            st.markdown("""
-                            **Tips to improve authenticity:**
-                            - Use casual language ("lol", "ngl", "honestly", "ig")
-                            - Share real struggles or failures (not just success)
-                            - Include specific details (names, dates, exact situations)
-                            - Show genuine emotions (frustration, confusion, surprise)
-                            - Keep typos/informal style (don't over-correct)
-                            - Minimize or remove hashtags (0-2 max)
-                            - Fragment sentences naturally
-                            
-                            **👇 COPY THIS REAL VERSION & PASTE ABOVE 👇**
-                            """)
-                            
-                            st.code("""honestly i don't know how i'm graduating lol
-4 years and i still feel lost af
-but ig that's normal? at least my friends feel the same way
-thank god this is over""", language="text")
-                            
-                            st.info("📋 Tip: Copy the text above and paste it in the caption box above to see it detected as REAL!")
-                            
-                            st.markdown("**More REAL Examples:**")
-                            st.code("""just woke up and i have no idea what im doing with my life lol
-
-honestly the anxiety is hitting different today
-why am i like this
-
-had the worst day ever but at least pizza exists
-
-im not okay but also im fine? does anyone else feel this way""", language="text")
-                    else:
-                        # REAL CAPTION - Show why real and celebrate it
-                        with st.expander("✅ Why This Is Detected As REAL", expanded=True):
-                            st.markdown("""
-                            ✅ **Authentic Language:**
-                            - Natural, conversational tone ✨
-                            - Personal voice and perspective
-                            
-                            ✅ **Genuine Expression:**
-                            - Real emotions visible
-                            - Honest struggles or vulnerabilities
-                            
-                            ✅ **Unpolished Style:**
-                            - Casual language with typos
-                            - Natural sentence fragmentation
-                            - Minimal or contextual hashtags
-                            
-                            ✅ **Specific Details:**
-                            - Unique situations or experiences
-                            - Personal touches that make it authentic
-                            """)
-                        
-                        st.success("🎉 This caption looks authentic and genuine! Keep this style!")
                     
                     # Show all 6 emotion types supported
                     st.markdown("---")
@@ -742,215 +676,244 @@ im not okay but also im fine? does anyone else feel this way""", language="text"
 # TAB 2: POST REACH OPTIMIZER WITH AUTO-SHARE
 # ============================================
 with tab2:
-    st.session_state.active_tab = 1  # Mark as active
     st.subheader("Post Reach Optimizer")
     st.write("Select the best day and type of post to maximize reach")
     
-    # Caption input section - ALWAYS VISIBLE
-    st.markdown("---")
-    st.subheader("Caption for Auto-Share")
+    # Check authentication - must have Facebook Token & Page ID
+    fb_token = st.session_state.get('fb_token', '')
+    fb_page_id = st.session_state.get('fb_page_id', '')
     
-    caption_col, button_col = st.columns([4, 1])
-    
-    with caption_col:
-        caption_input = st.text_area(
-            "Enter caption to post",
-            value=st.session_state.auto_share_caption,
-            height=100,
-            placeholder="Write your Facebook caption here...",
-            key="caption_input_tab2",
-            label_visibility="collapsed"
-        )
-    
-    with button_col:
-        st.write("")  # spacing
-        st.write("")  # spacing
-        if st.button("Set Caption", use_container_width=True, key="set_caption_btn"):
-            st.session_state.auto_share_caption = caption_input
-            st.success("✓ Caption saved")
-    
-    if st.session_state.auto_share_caption:
-        st.info(f"📝 **Current Caption:** {st.session_state.auto_share_caption[:100]}...")
+    if not fb_token or not fb_page_id:
+        st.error("❌ Please provide Facebook Token & Page ID in the sidebar first before using Reach Prediction")
+        st.info("📍 Go to **Sidebar** → Enter your **Facebook Token** & **Page ID** → Click **Save**")
     else:
-        st.warning("⚠️ Please enter a caption first")
-    
-    # Auto-share target reach section
-    st.markdown("---")
-    st.subheader("Auto-Share Settings")
-    
-    # Allow user to input custom target reach with Save/Clear buttons
-    col1, col2, col3, col4 = st.columns([2, 0.8, 0.6, 0.6], gap="small")
-    
-    with col1:
-        target_reach_input = st.text_input(
-            "Target Reach for Auto-Share",
-            value=str(st.session_state.target_reach),
-            placeholder="Enter target reach (e.g., 500, 1000, 5000)",
-            help="Post will auto-share when predicted reach reaches this value or more",
-            key="target_reach_input"
-        )
-    
-    with col2:
-        if st.button("Save", use_container_width=True, key="save_target"):
-            try:
-                new_target = int(target_reach_input)
-                if new_target < 100:
-                    st.warning("⚠️ Minimum target reach is 100")
-                    st.session_state.target_reach = 100
-                else:
-                    st.session_state.target_reach = new_target
-                    st.success(f"✓ Target set to {new_target}")
-            except ValueError:
-                st.error("❌ Enter valid number")
-    
-    with col3:
-        if st.button("Clear", use_container_width=True, key="clear_target"):
-            st.session_state.target_reach = 500
-            st.info("🔄 Reset to default (500)")
-    
-    with col4:
-        st.metric("Target", f"{st.session_state.target_reach}")
-    
-    st.info(f"📌 **Auto-share will activate when predicted reach reaches {st.session_state.target_reach} or more**")
-    
-    st.markdown("---")
-    
-    # Create glass box container
-    with st.container():
-        st.markdown("""
-        <style>
-        .glass-input {
-            background: rgba(102, 126, 234, 0.08) !important;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(102, 126, 234, 0.2) !important;
-            border-radius: 12px;
-            padding: 20px;
-        }
-        .stSelectbox > div > div > select {
-            height: 40px !important;
-            padding: 8px !important;
-        }
-        .stButton > button {
-            height: 40px !important;
-            padding: 10px 20px !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+        # Only show content if credentials are provided
+        # Caption input section - ALWAYS VISIBLE
+        st.markdown("---")
+        st.subheader("Caption for Auto-Share")
         
-        col1, col2, col3 = st.columns([1.2, 1.2, 1.5], gap="small")
+        caption_col, button_col = st.columns([4, 1])
+        
+        with caption_col:
+            caption_input = st.text_area(
+                "Enter caption to post",
+                value=st.session_state.auto_share_caption,
+                height=100,
+                placeholder="Write your Facebook caption here...",
+                key="caption_input_tab2",
+                label_visibility="collapsed"
+            )
+        
+        with button_col:
+            st.write("")  # spacing
+            st.write("")  # spacing
+            if st.button("Set Caption", use_container_width=True, key="set_caption_btn"):
+                st.session_state.auto_share_caption = caption_input
+                st.success("✓ Caption saved")
+        
+        if st.session_state.auto_share_caption:
+            st.info(f"📝 **Current Caption:** {st.session_state.auto_share_caption[:100]}...")
+        else:
+            st.warning("⚠️ Please enter a caption first")
+        
+        # Auto-share target reach section
+        st.markdown("---")
+        st.subheader("Auto-Share Settings")
+        
+        # Allow user to input custom target reach with Save/Clear buttons
+        col1, col2, col3, col4 = st.columns([2, 0.8, 0.6, 0.6], gap="small")
         
         with col1:
-            day = st.selectbox(
-                "Day",
-                ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-                key="day_select",
-                label_visibility="collapsed"
+            target_reach_input = st.text_input(
+                "Target Reach for Auto-Share",
+                value=str(st.session_state.target_reach),
+                placeholder="Enter target reach (e.g., 500, 1000, 5000)",
+                help="Post will auto-share when predicted reach reaches this value or more",
+                key="target_reach_input"
             )
         
         with col2:
-            paid_option = st.selectbox(
-                "Type",
-                ["Paid", "Non-Paid"],
-                key="ad_type_select",
-                label_visibility="collapsed"
-            )
+            if st.button("Save", use_container_width=True, key="save_target"):
+                try:
+                    new_target = int(target_reach_input)
+                    if new_target < 100:
+                        st.warning("⚠️ Minimum target reach is 100")
+                        st.session_state.target_reach = 100
+                    else:
+                        st.session_state.target_reach = new_target
+                        st.success(f"✓ Target set to {new_target}")
+                except ValueError:
+                    st.error("❌ Enter valid number")
         
         with col3:
-            suggest_btn = st.button("Suggest Best Time", use_container_width=True, key="suggest_btn")
-    
-    if suggest_btn:
-        # Data-driven best times from research (not random)
-        # Source: Facebook engagement studies
-        best_times = {
-            'Monday': {'Paid': ('9:00 AM', '11:00 AM', 42), 'Non-Paid': ('10:00 AM', '12:00 PM', 18)},
-            'Tuesday': {'Paid': ('10:00 AM', '2:00 PM', 48), 'Non-Paid': ('2:00 PM', '4:00 PM', 22)},
-            'Wednesday': {'Paid': ('8:00 PM', '10:00 PM', 45), 'Non-Paid': ('9:00 PM', '11:00 PM', 20)},
-            'Thursday': {'Paid': ('6:30 PM', '8:30 PM', 50), 'Non-Paid': ('7:00 PM', '9:00 PM', 24)},
-            'Friday': {'Paid': ('5:00 PM', '7:00 PM', 52), 'Non-Paid': ('6:00 PM', '8:00 PM', 26)},
-            'Saturday': {'Paid': ('12:00 PM', '2:00 PM', 38), 'Non-Paid': ('1:00 PM', '3:00 PM', 16)},
-            'Sunday': {'Paid': ('7:00 PM', '9:00 PM', 40), 'Non-Paid': ('8:00 PM', '10:00 PM', 18)}
-        }
+            if st.button("Clear", use_container_width=True, key="clear_target"):
+                st.session_state.target_reach = 500
+                st.info("🔄 Reset to default (500)")
         
-        day_data = best_times[day][paid_option]
-        best_time = day_data[0]
-        end_time = day_data[1]
-        reach_increase = day_data[2]
+        with col4:
+            st.metric("Target", f"{st.session_state.target_reach}")
         
-        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-        current_idx = days.index(day)
-        next_day = days[(current_idx + 1) % 7]
-        next_day_data = best_times[next_day][paid_option]
-        next_time = next_day_data[0]
+        st.info(f"📌 **Auto-share will activate when predicted reach reaches {st.session_state.target_reach} or more**")
         
         st.markdown("---")
         
-        # Glass box results - Enhanced
-        st.markdown("""
-        <style>
-        .result-box {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 2px solid rgba(102, 126, 234, 0.3);
-            border-radius: 14px;
-            padding: 24px;
-            margin: 15px 0;
-            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
-            transition: all 0.3s ease;
-        }
-        .result-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
-            border-color: rgba(102, 126, 234, 0.5);
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown(f"""
-            <div class="result-box">
-                <p style="color: #667eea; margin: 0 0 8px 0; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.5px;">🎯 BEST TIME ON {day.upper()}</p>
-                <h2 style="margin: 0 0 12px 0; color: #667eea;">{best_time} - {end_time}</h2>
-                <p style="font-size: 1.15em; color: #764ba2; font-weight: 700; margin: 0;">📈 +{reach_increase}% Reach</p>
-            </div>
+        # Create glass box container
+        with st.container():
+            st.markdown("""
+            <style>
+            .glass-input {
+                background: rgba(102, 126, 234, 0.08) !important;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(102, 126, 234, 0.2) !important;
+                border-radius: 12px;
+                padding: 20px;
+            }
+            .stSelectbox > div > div > select {
+                height: 40px !important;
+                padding: 8px !important;
+            }
+            .stButton > button {
+                height: 40px !important;
+                padding: 10px 20px !important;
+            }
+            </style>
             """, unsafe_allow_html=True)
-        
-        with col2:
-            st.markdown(f"""
-            <div class="result-box">
-                <p style="color: #667eea; margin: 0 0 8px 0; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.5px;">📅 NEXT BEST TIME</p>
-                <h2 style="margin: 0 0 12px 0; color: #667eea;">{next_day}</h2>
-                <p style="font-size: 1.15em; color: #764ba2; font-weight: 700; margin: 0;">⏰ {next_time}</p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        # Check if reach exceeds target and auto-share
-        predicted_reach = reach_increase * 10  # Simple estimation
-        st.markdown("---")
-        st.subheader("Predicted Reach")
-        st.metric("Estimated Reach", f"{predicted_reach} impressions")
-        
-        if predicted_reach >= st.session_state.target_reach:
-            st.success(f"✅ **Auto-Share Activated!** Predicted reach ({predicted_reach}) >= Target ({st.session_state.target_reach})")
-            st.info("📤 Post will be automatically shared to Facebook at the optimal time!")
             
-            if st.session_state.auto_share_caption:
-                if st.button("Auto Reach Share", use_container_width=True, key="confirm_auto_share"):
-                    st.session_state.auto_share_active = True
-                    fb_token = st.session_state.get('fb_token', '')
-                    fb_page_id = st.session_state.get('fb_page_id', '')
-                    if fb_token and fb_page_id:
-                        st.success("✅ Auto-share activated! Your caption will be posted when target reach is met.")
-                        st.info(f"📝 Caption: {st.session_state.auto_share_caption[:80]}...")
-                    else:
-                        st.error("❌ Please provide Facebook token & Page ID in sidebar")
+            col1, col2, col3 = st.columns([1.2, 1.2, 1.5], gap="small")
+            
+            with col1:
+                day = st.selectbox(
+                    "Day",
+                    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+                    key="day_select",
+                    label_visibility="collapsed"
+                )
+            
+            with col2:
+                paid_option = st.selectbox(
+                    "Type",
+                    ["Paid", "Non-Paid"],
+                    key="ad_type_select",
+                    label_visibility="collapsed"
+                )
+            
+            with col3:
+                suggest_btn = st.button("Suggest Best Time", use_container_width=True, key="suggest_btn")
+        
+        if suggest_btn:
+            # ML-based reach prediction for each hour
+            if not caption:
+                st.error("❌ Please enter a caption to analyze")
             else:
-                st.error("❌ Please enter and save a caption first (see Caption section above)")
-        else:
-            st.warning(f"⚠️ **Reach not met.** Current: {predicted_reach} < Target: {st.session_state.target_reach}")
-            st.info("Try different day/type combinations to increase reach")
+                st.markdown("---")
+                
+                # Use ML to predict reach for each hour of selected day
+                from utils.feature_engineering import predict_reach_for_hours
+                
+                with st.spinner("🔮 Analyzing best posting times using ML models..."):
+                    try:
+                        hourly_predictions = predict_reach_for_hours(caption, day, embedder, model_registry)
+                        
+                        # Sort by reach probability (descending)
+                        hourly_predictions_sorted = sorted(hourly_predictions, key=lambda x: x[1], reverse=True)
+                        
+                        # Get top 3 best hours
+                        top_3 = hourly_predictions_sorted[:3]
+                        
+                        if not top_3:
+                            st.error("❌ Could not predict reach for any hours")
+                        else:
+                            # Display best time prominently
+                            best_hour, best_prob, best_hour_int = top_3[0]
+                            
+                            # Glass box results
+                            st.markdown("""
+                            <style>
+                            .result-box {
+                                background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+                                backdrop-filter: blur(10px);
+                                -webkit-backdrop-filter: blur(10px);
+                                border: 2px solid rgba(102, 126, 234, 0.3);
+                                border-radius: 14px;
+                                padding: 24px;
+                                margin: 15px 0;
+                                box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
+                                transition: all 0.3s ease;
+                            }
+                            .result-box:hover {
+                                transform: translateY(-2px);
+                                box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+                                border-color: rgba(102, 126, 234, 0.5);
+                            }
+                            </style>
+                            """, unsafe_allow_html=True)
+                            
+                            # ML-predicted best time
+                            col1, col2 = st.columns(2)
+                            
+                            with col1:
+                                st.markdown(f"""
+                                <div class="result-box">
+                                    <p style="color: #667eea; margin: 0 0 8px 0; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.5px;">🎯 BEST TIME ON {day.upper()}</p>
+                                    <h2 style="margin: 0 0 12px 0; color: #667eea;">{best_hour}</h2>
+                                    <p style="font-size: 1.15em; color: #764ba2; font-weight: 700; margin: 0;">📈 Reach Score: {best_prob:.1%}</p>
+                                </div>
+                                """, unsafe_allow_html=True)
+                            
+                            with col2:
+                                st.markdown(f"""
+                                <div class="result-box">
+                                    <p style="color: #667eea; margin: 0 0 8px 0; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.5px;">📊 ML ANALYSIS</p>
+                                    <h3 style="margin: 0 0 8px 0; color: #667eea;">Content Score</h3>
+                                    <p style="font-size: 1rem; color: #764ba2; margin: 0;">Caption length: {len(caption)} chars</p>
+                                </div>
+                                """, unsafe_allow_html=True)
+                            
+                            # Show top 3 best hours with details
+                            st.markdown("---")
+                            st.subheader("🏆 Top 3 Best Posting Times")
+                            
+                            cols = st.columns(3)
+                            for idx, (hour_str, prob, hour_int) in enumerate(top_3):
+                                with cols[idx]:
+                                    st.metric(
+                                        f"#{idx+1}: {hour_str}",
+                                        f"{prob:.1%}",
+                                        delta=f"Reach Probability"
+                                    )
+                            
+                            # Estimated reach calculation (scaled from probability)
+                            estimated_reach = int(best_prob * 1000)  # Scale probability to estimated impressions
+                            
+                            st.markdown("---")
+                            st.subheader("📊 Predicted Reach")
+                            st.metric("Estimated Reach (Best Hour)", f"~{estimated_reach} impressions")
+                            
+                            # Auto-share logic
+                            if estimated_reach >= st.session_state.target_reach:
+                                st.success(f"✅ **Auto-Share Ready!** Predicted reach (~{estimated_reach}) >= Target ({st.session_state.target_reach})")
+                                st.info("📤 Post is eligible for automatic sharing based on target reach!")
+                                
+                                if st.session_state.auto_share_caption:
+                                    if st.button("Auto Reach Share", use_container_width=True, key="confirm_auto_share"):
+                                        st.session_state.auto_share_active = True
+                                        fb_token = st.session_state.get('fb_token', '')
+                                        fb_page_id = st.session_state.get('fb_page_id', '')
+                                        if fb_token and fb_page_id:
+                                            st.success("✅ Auto-share activated! Your caption will be posted when target reach is met.")
+                                            st.info(f"📝 Caption: {st.session_state.auto_share_caption[:80]}...")
+                                        else:
+                                            st.error("❌ Please provide Facebook token & Page ID in sidebar")
+                                else:
+                                    st.error("❌ Please enter and save a caption first (see Caption section above)")
+                            else:
+                                st.warning(f"⚠️ **Reach not met.** Predicted: ~{estimated_reach} < Target: {st.session_state.target_reach}")
+                                st.info("💡 Try different day/type combinations or improve your caption to increase reach")
+                    
+                    except Exception as e:
+                        st.error(f"❌ Reach prediction error: {str(e)}")
+                        st.info("Please ensure all models are loaded correctly")
+
 
 # ============================================
 # TAB 3: SCHEDULE POST
@@ -1052,81 +1015,110 @@ with tab3:
             if scheduled_dt <= now:
                 st.error("Cannot schedule post in the past. Please select a future date/time.")
             else:
-                # Calculate time difference
+                # Create scheduled post entry WITHOUT posting immediately
+                post_id = len(st.session_state.scheduled_posts) + 1
                 time_diff = scheduled_dt - now
                 hours = time_diff.total_seconds() / 3600
                 minutes = (time_diff.total_seconds() % 3600) / 60
                 
-                try:
-                    # POST IMMEDIATELY TO FACEBOOK
-                    with st.spinner("Posting to Facebook..."):
-                        from utils.facebook_posting import FacebookPoster
-                        
-                        poster = FacebookPoster(page_token=fb_token, page_id=fb_page_id)
-                        success, result = poster.publish_post(message=schedule_caption)
-                        
-                        if success:
-                            # Add to scheduled posts with "Posted" status
-                            post_id = len(st.session_state.scheduled_posts) + 1
-                            scheduled_post = {
-                                'id': post_id,
-                                'caption': schedule_caption,
-                                'date': schedule_date,
-                                'time': schedule_time,
-                                'scheduled_dt': scheduled_dt,
-                                'created_at': now,
-                                'posted_at': now,
-                                'post_id': result.get('post_id', 'unknown'),
-                                'status': 'Posted'
-                            }
-                            st.session_state.scheduled_posts.append(scheduled_post)
-                            
-                            # Show success
-                            st.success(f"Post shared successfully!")
-                            st.success(f"Post ID: {result.get('post_id', 'unknown')}")
-                            st.success(f"Scheduled for: {schedule_date} at {int(hours)}h {int(minutes)}m")
-                            st.info(f"Caption: {schedule_caption[:100]}...")
-                            
-                            # Show confirmation
-                            st.markdown("---")
-                            st.markdown("### Scheduled Post Details")
-                            st.write(f"**Date:** {schedule_date}")
-                            st.write(f"**Time:** {schedule_time}")
-                            st.write(f"**Caption:** {schedule_caption}")
-                            st.write(f"**Facebook Page:** {fb_page_id}")
-                            st.write(f"**Status:** Posted")
-                            st.write(f"**Post ID:** {result.get('post_id', 'unknown')}")
-                            
-                            time.sleep(1)
-                        else:
-                            st.error(f"Failed to post: {result.get('error', 'Unknown error')}")
-                            if result.get('details'):
-                                st.warning(f"Details: {result.get('details')}")
-                    
-                except Exception as e:
-                    st.error(f"Error posting: {str(e)}")
+                scheduled_post = {
+                    'id': post_id,
+                    'caption': schedule_caption,
+                    'date': schedule_date,
+                    'time': schedule_time,
+                    'scheduled_dt': scheduled_dt,
+                    'created_at': now,
+                    'posted_at': None,
+                    'post_id': None,
+                    'status': 'Pending'  # Will be posted when time arrives
+                }
+                st.session_state.scheduled_posts.append(scheduled_post)
+                
+                # Show confirmation that post is scheduled
+                st.success(f"✅ Post scheduled successfully!")
+                st.info(f"📅 Scheduled for: {schedule_date} at {schedule_time}")
+                st.info(f"⏱️ Time remaining: {int(hours)}h {int(minutes)}m")
+                st.info(f"📝 Caption: {schedule_caption[:80]}...")
+                
+                # Show confirmation details
+                st.markdown("---")
+                st.markdown("### Scheduled Post Details")
+                st.write(f"**Status:** Pending - Will post automatically at scheduled time")
+                st.write(f"**Date:** {schedule_date}")
+                st.write(f"**Time:** {schedule_time}")
+                st.write(f"**Caption:** {schedule_caption}")
+                st.write(f"**Facebook Page:** {fb_page_id}")
+
     
-    # Show all scheduled posts
+    # Show all scheduled posts and check if any need to be posted
     if st.session_state.scheduled_posts:
         st.markdown("---")
         st.markdown("### Your Scheduled Posts")
         
+        # Check and post any that are due
+        from utils.scheduler import ScheduledPostManager
+        now = datetime.now()
+        
         for post in st.session_state.scheduled_posts:
-            status = post.get('status', 'Scheduled')
-            with st.expander(f"Post #{post['id']} - {post['date']} at {post['time']} - {status}", expanded=False):
+            if post['status'] == 'Pending':
+                scheduled_dt = post['scheduled_dt']
+                
+                # Check if it's time to post
+                if scheduled_dt <= now:
+                    # Time to post!
+                    try:
+                        from utils.facebook_posting import FacebookPoster
+                        poster = FacebookPoster(page_token=fb_token, page_id=fb_page_id)
+                        success, result = poster.publish_post(message=post['caption'])
+                        
+                        if success:
+                            post['status'] = 'Posted'
+                            post['posted_at'] = now
+                            post['post_id'] = result.get('post_id', 'unknown')
+                            st.success(f"✅ Post #{post['id']} automatically posted to Facebook!")
+                    except Exception as e:
+                        post['status'] = 'Failed'
+                        post['error'] = str(e)
+        
+        # Display all scheduled posts
+        for post in st.session_state.scheduled_posts:
+            status = post.get('status', 'Pending')
+            countdown = ScheduledPostManager.get_countdown(post['scheduled_dt'])
+            countdown_str = ScheduledPostManager.format_countdown(countdown)
+            
+            # Color coding for status
+            if status == 'Pending':
+                status_color = "🟡"
+                status_text = f"Pending - {countdown_str}"
+            elif status == 'Posted':
+                status_color = "🟢"
+                status_text = "Posted ✅"
+            else:
+                status_color = "🔴"
+                status_text = "Failed ❌"
+            
+            with st.expander(f"{status_color} Post #{post['id']} - {post['date']} at {post['time']} - {status_text}", expanded=False):
                 col1, col2 = st.columns([3, 1])
                 
                 with col1:
                     st.write(f"**Caption:** {post['caption'][:150]}...")
                     st.write(f"**Scheduled for:** {post['date']} at {post['time']}")
+                    
+                    if status == 'Pending':
+                        st.info(f"⏱️ Time remaining: {countdown_str}")
+                    
                     st.write(f"**Status:** {status}")
-                    if status == 'Posted' and 'post_id' in post:
+                    if status == 'Posted' and post.get('post_id'):
                         st.write(f"**Post ID:** {post['post_id']}")
+                        st.write(f"**Posted at:** {post.get('posted_at', 'N/A')}")
+                    elif status == 'Failed':
+                        st.error(f"**Error:** {post.get('error', 'Unknown error')}")
                 
                 with col2:
                     if st.button(f"Delete", key=f"delete_post_{post['id']}", use_container_width=True):
                         st.session_state.scheduled_posts = [p for p in st.session_state.scheduled_posts if p['id'] != post['id']]
                         st.rerun()
+
 
 # ============================================
 # TAB 4: TOOLS
