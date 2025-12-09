@@ -17,6 +17,31 @@ st.set_page_config(
 )
 
 # ============================================
+# AUTO-REFRESH FOR SCHEDULED POSTS
+# ============================================
+# Check if there are pending posts and auto-refresh every 5 seconds
+if 'last_check' not in st.session_state:
+    st.session_state.last_check = datetime.now()
+
+# Auto-rerun every 5 seconds if there are pending posts
+try:
+    pending_posts = [p for p in st.session_state.get('scheduled_posts', []) if p.get('status') == 'Pending']
+    if pending_posts:
+        # Force rerun every 5 seconds
+        import threading
+        def auto_rerun():
+            time.sleep(5)
+            st.rerun()
+        
+        # Only start one rerun thread
+        if not hasattr(st.session_state, 'rerun_thread_started'):
+            st.session_state.rerun_thread_started = True
+            thread = threading.Thread(target=auto_rerun, daemon=True)
+            thread.start()
+except:
+    pass
+
+# ============================================
 # CUSTOM STYLING
 # ============================================
 st.markdown("""
