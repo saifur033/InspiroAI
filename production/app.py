@@ -364,6 +364,14 @@ def load_models():
 model_registry, embedder, models_loaded = load_models()
 
 # ============================================
+# INITIALIZE PERSISTENT STORAGE
+# ============================================
+# Load scheduled posts from persistent storage at app startup (BEFORE anything else)
+if 'scheduled_posts' not in st.session_state:
+    from utils.post_storage import PostStorage
+    st.session_state.scheduled_posts = PostStorage.load_posts()
+
+# ============================================
 # SIDEBAR - AUTHENTICATION
 # ============================================
 st.sidebar.markdown("""
@@ -960,11 +968,6 @@ with tab2:
 with tab3:
     st.subheader("Schedule Post")
     st.write("Schedule your caption to post at a specific date and time")
-    
-    # Initialize session state for scheduled posts (load from persistent storage)
-    if 'scheduled_posts' not in st.session_state:
-        from utils.post_storage import PostStorage
-        st.session_state.scheduled_posts = PostStorage.load_posts()
     
     # Check credentials first
     fb_token = st.session_state.get('fb_token', '')
