@@ -16,7 +16,7 @@ class PostStorage:
     @staticmethod
     def get_storage_path():
         """Get the path to the storage file"""
-        return os.path.join(os.path.dirname(__file__), "..", STORAGE_FILE)
+        return os.path.join(os.path.dirname(__file__), "..", "scheduled_posts.json")
     
     @staticmethod
     def load_posts():
