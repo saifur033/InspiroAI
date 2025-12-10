@@ -422,14 +422,11 @@ with col1:
 
 with col2:
     if st.button("Clear", use_container_width=True, key="fb_clear_btn"):
-        # Clear from session state
+        # Clear from session state only
         st.session_state.fb_token = ''
         st.session_state.fb_page_id = ''
-        # Clear input widget values
-        st.session_state.fb_token_input = ''
-        st.session_state.fb_page_id_input = ''
         st.sidebar.success("✅ Credentials cleared!")
-        time.sleep(0.5)
+        time.sleep(0.3)
         st.rerun()
 
 # ============================================
