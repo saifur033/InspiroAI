@@ -354,11 +354,23 @@ def load_models():
         from utils.model_loader import get_model_registry
         from sentence_transformers import SentenceTransformer
         
+        print("🔄 Loading models...")
         registry = get_model_registry()
+        print(f"✓ Model registry loaded - status_rf: {registry.status_rf is not None}")
+        
+        print("🔄 Loading embedder...")
         embedder = SentenceTransformer('all-MiniLM-L6-v2')
+        print(f"✓ Embedder loaded: {embedder is not None}")
+        
+        if registry.status_rf is None:
+            print("❌ Status RF model not loaded!")
+            return None, None, False
+            
         return registry, embedder, True
     except Exception as e:
-        st.error(f"Error loading models: {str(e)}")
+        print(f"❌ Error loading models: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return None, None, False
 
 model_registry, embedder, models_loaded = load_models()

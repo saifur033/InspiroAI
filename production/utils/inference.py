@@ -123,8 +123,12 @@ class StatusPredictor:
         """
         Predict if status is fake/spam or real
         """
-        if model_registry is None or embedder is None or model_registry.status_xgb is None:
-            return {"error": "Status model or embedder not loaded"}
+        if model_registry is None:
+            return {"error": "Model registry not loaded"}
+        if embedder is None:
+            return {"error": "Embedder not loaded"}
+        if model_registry.status_rf is None:
+            return {"error": "Status RF model not loaded"}
         
         try:
             # Get text embedding
