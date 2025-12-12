@@ -215,8 +215,7 @@ InspiroAI/
 ---
 
 ### 🔒 Credit & Usage Policy
-…
-…
+
 **Lead Developer & Core Implementer:** Saifur Rahman  
 **Team Members:** Mumtahina, Arpita, Ishrmat  
 **Supervisor:** Dr. Anisur Rahman
