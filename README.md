@@ -81,7 +81,7 @@
 
 | Task                | Model                                       | Performance     |
 | ------------------- | ------------------------------------------- | --------------- |
-| Fake/Real Detection | Random Forest                               | ~85% accuracy   |
+| Fake/Real Detection | Random Forest                               | 85% accuracy   |
 | Emotion Detection   | DistilRoBERTa (zero-shot + TF-IDF pipeline) | 85–90%          |
 | Reach Prediction    | SVM + XGB + RF Ensemble                     | R²: 0.65–0.75   |
 | Embeddings          | all-MiniLM-L6-v2                            | 384-dim vectors |
