@@ -46,7 +46,7 @@
 * Fake/Real classification
 * Six-emotion detection: **Anger, Fear, Joy, Neutral, Sadness, Surprise**
 * Confidence scores
-* AI-based suggestions for improving fake captions
+
 
 ##  2. Post Reach Optimizer
 
@@ -54,7 +54,7 @@
 * Ensemble ML scoring for expected reach
 * “Target reach auto-posting” if score meets threshold
 
-## 🔹 3. Schedule Post
+##  3. Schedule Post
 
 * Schedule caption posting to Facebook
 * Auto-publishing via Graph API
