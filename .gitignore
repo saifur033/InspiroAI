@@ -80,8 +80,7 @@ catboost_info/
 production/catboost_info/
 .streamlit/config.toml
 
-# Documentation Files (Keep repo clean)
-README.md
+# Documentation Files (Only keep README and QUICK_REFERENCE)
 LOCALHOST_TESTING.md
 DEPLOYMENT_GUIDE.md
 PROJECT_STATUS.md
@@ -89,14 +88,15 @@ SETUP_BENGALI.md
 START_APP_GUIDE.md
 FINAL_STATUS_BENGALI.md
 FINAL_SUMMARY.txt
-QUICK_REFERENCE.md
 SYSTEM_VALIDATION_COMPLETE.md
 
-# Launcher Scripts (Keep repo clean)
+# Launcher Scripts
 run_app.bat
 run_app.ps1
 
-# Keep these important files
+# Keep essential files
+!README.md
+!QUICK_REFERENCE.md
 !production/models/
 !production/app.py
 !production/utils/
