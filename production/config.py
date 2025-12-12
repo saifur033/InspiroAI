@@ -218,11 +218,17 @@ def load_config():
     """Load configuration from environment or defaults"""
     import os
     
+    debug_env = os.getenv("DEBUG")
+    if debug_env is None:
+        debug = DEBUG
+    else:
+        debug = str(debug_env).lower() in ("1", "true", "yes", "on")
+    
     config = {
         "facebook_token": os.getenv("FACEBOOK_TOKEN", FACEBOOK_ACCESS_TOKEN),
         "facebook_page_id": os.getenv("FACEBOOK_PAGE_ID", FACEBOOK_PAGE_ID),
         "models_dir": os.getenv("MODELS_DIR", MODELS_DIR),
-        "debug": os.getenv("DEBUG", DEBUG).lower() == "true",
+        "debug": debug,
         "embedder_device": os.getenv("EMBEDDER_DEVICE", EMBEDDER_DEVICE),
     }
     return config

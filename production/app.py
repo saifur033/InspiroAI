@@ -3,6 +3,15 @@
 InspiroAI - AI-Based Caption Optimization & Facebook Auto-Posting System
 ================================================================================
 
+AUTHOR: Saifur Rahman (Lead Developer)
+LICENSE: All rights reserved. Unauthorized redistribution or claiming ownership 
+         is strictly prohibited.
+         
+This software is proprietary and confidential.
+For inquiries about licensing or usage, contact: saifur033@gmail.com
+
+================================================================================
+
 DEVELOPED BY: Saifur Rahman (Lead Developer)
 PROJECT: East West University Capstone Project
 SUPERVISOR: Dr. Anisur Rahman

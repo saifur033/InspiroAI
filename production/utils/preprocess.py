@@ -23,7 +23,24 @@ def get_sentiment(text):
     """
     try:
         blob = TextBlob(str(text))
-        polarity = blob.sentiment.polarity
+        sentiment = blob.sentiment
+        # sentiment may be a namedtuple with .polarity or a tuple/list; handle both safely
+        polarity = None
+        try:
+            polarity = sentiment.polarity  # type: ignore[attr-defined]
+        except Exception:
+            # Try attribute access fallback
+            polarity = getattr(sentiment, "polarity", None)
+            if polarity is None:
+                # If sentiment is a sequence (tuple/list), grab first element
+                if isinstance(sentiment, (list, tuple)):
+                    polarity = sentiment[0]
+                else:
+                    # Avoid attempting to iterate unknown non-sequence objects (e.g., cached_property)
+                    # Default to neutral polarity when we cannot extract a numeric polarity
+                    polarity = 0.0
+        if polarity is None:
+            polarity = 0.0
         if polarity > 0.1:
             return 1  # positive
         elif polarity < -0.1:
