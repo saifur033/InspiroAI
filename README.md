@@ -34,8 +34,8 @@
 
 **This project was developed as an academic Capstone under East West University.**
 
-**Team:** Saifur Rahman, Mumtahina, Arpita, Ishrmat
-**Supervisor:** Dr. Anisur Rahman
+**Team:** Saifur Rahman, Mumtahina Akter, Arpita Saha , Ishmat Zaman 
+**Supervisor:** Dr. Anisur Rahman, Associate Professor, Department of CSE, East West University
 
 ---
 
