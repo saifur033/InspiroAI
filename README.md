@@ -1,5 +1,4 @@
-#  InspiroAI – AI-Based Caption Optimization & Facebook Auto-Posting System
-
+#  InspiroAI – Context-Aware Facebbok Caption Optimization System
 <p align="center">
   <img src="https://img.shields.io/badge/Project-InspiroAI-blue?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Status-Production%20Ready-brightgreen?style=for-the-badge" />
