@@ -1,7 +1,4 @@
-<p align="center">
-  <h1 align="center">🔥 InspiroAI – AI-Based Caption Optimization & Facebook Auto-Posting System</h1>
-  <h3 align="center">Machine Learning • Streamlit • Facebook Graph API</h3>
-</p>
+#  InspiroAI – AI-Based Caption Optimization & Facebook Auto-Posting System
 
 <p align="center">
   <img src="https://img.shields.io/badge/Project-InspiroAI-blue?style=for-the-badge" />
@@ -26,122 +23,143 @@
 
 ---
 
-# 📌 Overview  
+# 📌 Overview
 
-**InspiroAI** is a production-ready system designed for content creators and social media managers. It provides:  
-- Fake/Real caption detection  
-- Emotion analysis  
-- Reach prediction and optimal posting time  
-- Automatic scheduled posting to Facebook  
+**InspiroAI** is an intelligent ML-powered system built to help content creators and social media managers evaluate and optimize Facebook captions. The system provides:
 
-**Capstone Project – East West University (CSE)**  
-**Supervisor:** Dr. Anisur Rahman  
-**Team:** Saifur Rahman, Mumtahina, Arpita, Ishrmat  
+* Fake/Real caption detection
+* Emotion detection across six categories
+* ML-powered reach prediction and optimal posting times
+* Automated scheduling and Facebook posting
 
----
+**This project was developed as an academic Capstone under East West University.**
 
-# ✨ Features  
-
-## 🔹 Tab 1: Status Analyzer  
-- Fake/Real detection  
-- Emotion classification (Anger, Fear, Joy, Neutral, Sadness, Surprise)  
-- Confidence scores  
-- Improvement suggestions for fake captions  
-
-## 🔹 Tab 2: Post Reach Optimizer  
-- Predicts optimal posting times  
-- ML-based reach scoring  
-- Day-specific recommendations  
-- Target reach auto-posting  
-
-## 🔹 Tab 3: Schedule Post  
-- Schedule future posts  
-- Countdown timer  
-- Persistent storage (JSON)  
-- Auto-posting via Facebook API  
+**Team:** Saifur Rahman, Mumtahina, Arpita, Ishrmat
+**Supervisor:** Dr. Anisur Rahman
 
 ---
 
-# 🔧 Technical Stack  
+# ✨ Features
 
-| Component | Technology |
-|-----------|------------|
-| Frontend | Streamlit 1.52.1 |
-| Backend | Python 3.13 |
-| ML | Scikit-learn, XGBoost, LightGBM |
-| Embeddings | Sentence-Transformers (all-MiniLM-L6-v2) |
-| API | Facebook Graph API v18.0 |
-| Storage | JSON |
-| Version Control | Git |
+##  1. Status Analyzer
 
----
+* Fake/Real classification
+* Six-emotion detection: **Anger, Fear, Joy, Neutral, Sadness, Surprise**
+* Confidence scores
+* AI-based suggestions for improving fake captions
 
-# 🤖 Machine Learning Models  
+##  2. Post Reach Optimizer
 
-| Task | Model | Performance |
-|------|--------|-------------|
-| Fake/Real Detection | Random Forest | ~85% accuracy |
-| Emotion Detection | DistilRoBERTa | Pretrained |
-| Reach Prediction | Ensemble (SVM + XGB + RF) | R²: 0.65–0.75 |
-| Embeddings | all-MiniLM-L6-v2 | 384-dim vector |
+* Predicts the best posting hour for a selected day
+* Ensemble ML scoring for expected reach
+* “Target reach auto-posting” if score meets threshold
 
-### Feature Engineering  
-- Text features: character/word count, avg word length, emoji count, hashtags, readability  
-- Time features: sin/cos hour encoding, weekday encoding, weekend flag  
+## 🔹 3. Schedule Post
+
+* Schedule caption posting to Facebook
+* Auto-publishing via Graph API
+* Local persistent JSON storage
+* Live countdown timer
 
 ---
 
-# 📦 Installation  
+# 🔧 Technical Stack
 
-### 1. Clone Repository  
+| Component   | Technology                               |
+| ----------- | ---------------------------------------- |
+| Frontend    | Streamlit 1.52.1                         |
+| Backend     | Python 3.13                              |
+| ML Models   | Scikit-learn, XGBoost, LightGBM          |
+| Embeddings  | Sentence-Transformers (all-MiniLM-L6-v2) |
+| API         | Facebook Graph API v18.0                 |
+| Storage     | JSON                                     |
+| Environment | Git, Virtualenv                          |
+
+---
+
+# 🤖 Machine Learning Models
+
+| Task                | Model                                       | Performance     |
+| ------------------- | ------------------------------------------- | --------------- |
+| Fake/Real Detection | Random Forest                               | ~85% accuracy   |
+| Emotion Detection   | DistilRoBERTa (zero-shot + TF-IDF pipeline) | 85–90%          |
+| Reach Prediction    | SVM + XGB + RF Ensemble                     | R²: 0.65–0.75   |
+| Embeddings          | all-MiniLM-L6-v2                            | 384-dim vectors |
+
+### Feature Engineering Includes
+
+* Text features: length, punctuation, emoji count, sentiment, hashtags
+* Temporal features: posting hour/day (sin/cos encoding)
+* Engagement features: likes, comments, shares
+
+---
+
+# 📦 Installation
+
+### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/saifur033/InspiroAI.git
 cd InspiroAI
+```
 
-2. Install Dependencies
+### 2. Install Dependencies
+
+```bash
 pip install -r requirements.txt
-3. Configure Facebook API
+```
 
-Create an app → generate:
+### 3. Configure Facebook API
 
-Page Access Token
+Get from Meta Developer:
 
-Facebook Page ID
+* Page Access Token
+* Page ID
 
-4. Run Application
+Enter these inside the app sidebar.
+
+### 4. Run the Application
+
+```bash
 cd production
 streamlit run app.py
-App URL: http://localhost:8501
-📖 Usage Guide
-✔ Status Analyzer
+```
 
-Enter caption → Analyze →  View Emotion and Fake or Real 
+App runs at:
+`http://localhost:8501`
 
-✔ Post Reach Optimizer
+---
 
-Caption → Select day → Suggest Best Time
+# 📖 Usage Guide
 
-✔ Schedule Post
+### ✔ Status Analyzer
 
-Caption → Date + Time → Schedule → Auto-post
+Type caption → Press Analyze → View:
 
-📁 Project Structure
+* Emotion breakdown
+* Fake/Real classification
+* AI recommendations
+
+### ✔ Post Reach Optimizer
+
+Caption → Select Day → Suggest Best Time → View reach score
+
+### ✔ Schedule Post
+
+Caption → Select date/time → Schedule → Auto-posts at target time
+
+---
+
+# 📁 Project Structure
+
+```
 InspiroAI/
 ├── production/
 │   ├── app.py
+│   ├── models/
+│   ├── utils/
 │   ├── config.py
 │   ├── requirements.txt
-│   ├── models/
-│   │   ├── status_rf.joblib
-│   │   ├── status_xgb.joblib
-│   │   ├── reach_voting.joblib
-│   │   └── ...
-│   └── utils/
-│       ├── inference.py
-│       ├── feature_engineering.py
-│       ├── facebook_posting.py
-│       ├── post_storage.py
-│       └── ...
 │
 ├── Notebook/
 │   ├── EMOTION_DETECTION_cap_C.ipynb
@@ -149,75 +167,81 @@ InspiroAI/
 │   └── status_final_cap_C.ipynb
 │
 ├── README.md
-└── requirements.txt
+└── .gitignore
+```
 
-📊 Performance Metrics
-| Metric              | Value        |
-| ------------------- | ------------ |
-| Fake/Real Detection | ~85%         |
-| Emotion Detection   | 85–90%       |
-| Reach Prediction R² | 0.65–0.75    |
-| Model Load Time     | 5–10 seconds |
-| Prediction Time     | <100 ms      |
+---
 
-🔒 Security
+# 📊 Performance Metrics
 
-No cloud storage — local-only
+| Metric              | Value         |
+| ------------------- | ------------- |
+| Fake/Real Detection | ~85%          |
+| Emotion Detection   | 85–90%        |
+| Reach Prediction    | R²: 0.65–0.75 |
+| Model Load Time     | 5–10 sec      |
+| Response Time       | <100 ms       |
 
-No caption logging
+---
 
-Credentials temporary and session-based
+# 🔒 Security
 
-HTTPS-secured API communication
+* No cloud storage
+* Data not logged externally
+* Credentials are temporary
+* Facebook API uses HTTPS
 
-🚧 Limitations
+---
 
-English-only captions
+# 🚧 Known Limitations
 
-Reach prediction varies per Facebook page
+* English-only caption support
+* Reach prediction varies by page
+* No image/video ML analysis
+* Manual model retraining needed
 
-No image/video analysis
+---
 
-Manual retraining required
+# 🚀 Future Enhancements
 
-🚀 Future Enhancements
+* [ ] Multi-language support (Bangla, Hindi, etc.)
+* [ ] Image/video understanding
+* [ ] Personalized models per user
+* [ ] Advanced analytics dashboard
+* [ ] A/B caption testing
+* [ ] Cloud deployment
+* [ ] PostgreSQL database integration
 
-Multi-language support
+---
 
-Image/video ML analysis
+# 👥 Team
 
-User-personalized models
+* **Saifur Rahman** 
+* **Mumtahina** 
+* **Arpita** 
+* **Ishrmat** 
 
-Analytics dashboard
+**Supervisor:** Dr. Anisur Rahman
+**Institution:** East West University
 
-A/B testing
+---
 
-Cloud deployment
+# 📬 Contact
 
-Database integration
+* Email: **[saifur033@gmail.com](mailto:saifur033@gmail.com)**
+* Issues: GitHub Issue Tracker
 
-👥 Team
+---
 
-Saifur Rahman 
-Mumtahina 
-Arpita
-Ishrmat
+# 🙏 Acknowledgments
 
-Supervisor: Dr. Anisur Rahman
-Institution: East West University
-📬 Contact
+* Facebook Graph API
+* HuggingFace Transformers
+* Streamlit Community
+* Open-source ML community
 
-Email: saifur033@gmail.com
+---
 
-GitHub Issues: Submit bugs & suggestions
-🙏 Acknowledgments
+<p align="center"><b>Made with passion to improve social media content ✨</b></p>
 
-Facebook Graph API
 
-HuggingFace Transformers
-
-Streamlit Community
-
-Open-source ML ecosystem
-
-<p align="center"><b>Made  to improve social media content</b></p>
