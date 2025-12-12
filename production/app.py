@@ -348,6 +348,8 @@ st.markdown("""
 # ============================================
 # LOAD MODELS
 # ============================================
+# MODEL LOADING WITH ERROR HANDLING
+# ============================================
 @st.cache_resource
 def load_models():
     try:
@@ -374,6 +376,20 @@ def load_models():
         return None, None, False
 
 model_registry, embedder, models_loaded = load_models()
+
+# Show error if models failed to load
+if not models_loaded:
+    st.error("""
+    ❌ **Models failed to load!** 
+    
+    This might be due to:
+    1. Missing model files in `/production/models/`
+    2. Network timeout downloading embedder (try refreshing)
+    3. Insufficient memory on server
+    
+    Check the terminal logs for detailed error messages.
+    """)
+    st.stop()
 
 # ============================================
 # INITIALIZE PERSISTENT STORAGE
