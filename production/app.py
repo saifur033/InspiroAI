@@ -1,6 +1,18 @@
 """
-InspiroAI - Context-Aware Facebook Caption Optimization System
-Modern Streamlit Application with ML Pipeline
+================================================================================
+InspiroAI - AI-Based Caption Optimization & Facebook Auto-Posting System
+================================================================================
+
+DEVELOPED BY: Saifur Rahman (Lead Developer)
+PROJECT: East West University Capstone Project
+SUPERVISOR: Dr. Anisur Rahman
+
+COPYRIGHT NOTICE:
+This software is the intellectual property of the development team.
+Unauthorized redistribution, copying, or claiming ownership is strictly prohibited.
+All rights reserved.
+
+================================================================================
 """
 import streamlit as st
 from datetime import datetime, timedelta
