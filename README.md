@@ -242,6 +242,6 @@ InspiroAI/
 
 ---
 
-<p align="center"><b>Made with passion to improve social media content ✨</b></p>
+<p align="center"><b>Made with passion to improve social media content </b></p>
 
 
